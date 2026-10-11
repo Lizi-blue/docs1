@@ -35,6 +35,8 @@ RUN npm run build \
  && test -f docs/.vitepress/dist/index.html
 # 门禁六：响应式布局（视口声明、四档断点、宽内容自滚动、无固定大宽度）。
 RUN npm run check:responsive
+# 门禁七：导航层级（入口层级、子主题、待补标注、作用域侧边栏、顶栏层级）。
+RUN npm run check:nav
 
 FROM caddy:2-alpine
 

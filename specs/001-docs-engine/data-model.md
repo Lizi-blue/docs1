@@ -174,3 +174,6 @@ DocTree ── 派生 ── 侧边栏 / 导航 / 入口索引 / 反向链接 / 
 | V12 | `tags_index` 非空且为小写短标签 | 判错 |
 | V13 | 结构化载荷（`<ApiTable>` / `<CodeTabs>` 的属性值）可解析 | 判错 |
 | V14 | 枚举字段取值合法（`level` / `component_type` / `reusability` / `entry`） | 判错 |
+| V19 | 知识点页有「官方依据与版本差异」，≥2 条官方链接且每条带版本标注 | 判错 |
+| V20 | 模块接口覆盖（must 全覆盖、common ≥80%）与必会/常用条目字段完整（含 `pitfall`） | 判错 |
+| V22 | 未开写知识域只落目录与登记（`teach.status: outline`，无正文、无 lessons） | 判错 |

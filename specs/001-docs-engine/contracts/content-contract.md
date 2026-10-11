@@ -131,7 +131,25 @@ description: "先按路径学，再按组件查"
 | 一 原理讲解 | `## TL;DR`、`## 概念定义`、`## 原理图解`、`## 关键对比` |
 | 二 API 手册 | `### 官方依据与版本差异
 
-每个知识点页 MUST 在 `## 关键对比` 之后、`## API 手册` 之前给出 `### 官方依据与版本差异`。
+每个知识点页 MUST 在 `## 关键对比` 之后、`### API 手册的字段与覆盖
+
+`<ApiTable>` 的每个条目按重要性分四档：必会、常用、进阶、了解。分档以
+`scripts/data/module-api-index.json` 为准。
+
+- 必会与常用条目 MUST 给全七个字段：`name`、`rank`、`signature`、`params`、
+  `returns`、`effect`、`scenario`、`example`、`pitfall`（`pitfall` 是必填）。
+- `pitfall` MUST 写一条真实误区或边界，MUST NOT 用空串或「无」。
+- 每个知识点页的 `source_module` MUST 覆盖该模块清单里的全部必会条目，
+  常用条目覆盖率 MUST 不低于 80%（门禁 V20）。
+- 覆盖判定：条目名自身，或条目 `methods` 数组里出现的方法名，都算覆盖。
+
+### 未开写领域的占位规则
+
+- 只落目录结构与登记的知识域 MUST 在 `teach` 里写 `status: outline`。
+- `outline` 知识域 MUST NOT 有知识点页，`teach.lessons` MUST 为空。
+- `outline` 不计入已讲清单，导航与学习入口 MUST 标注「待补」（门禁 V22）。
+
+## API 手册` 之前给出 `### 官方依据与版本差异`。
 
 - 至少两条官方链接：`docs.python.org` 或 `peps.python.org`。
 - 每条 MUST 标注适用版本，并写清已知版本差异。

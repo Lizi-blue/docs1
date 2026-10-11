@@ -20,13 +20,24 @@ const typeText: Record<string, string> = { library: '库', framework: '框架', 
 
 const stats = computed(() => {
   const current = domain.value
-  if (!current) return { kds: 0, pages: 0, components: 0 }
+  if (!current) return { kds: 0, pages: 0, components: 0, outlines: 0 }
+  const total = (kd: any) =>
+    kd.pages.length + (kd.subtopics ?? []).reduce((sum: number, sub: any) => sum + sub.pages.length, 0)
   return {
     kds: current.learn.length,
-    pages: current.learn.reduce((sum, kd) => sum + kd.pages.length, 0),
+    pages: current.learn.reduce((sum, kd) => sum + total(kd), 0),
     components: current.components.length,
+    outlines: current.learn.filter((kd) => kd.teach?.status === 'outline').length,
   }
 })
+
+const isOutline = (kd: any) => kd.teach?.status === 'outline'
+const lessonTotal = (kd: any) =>
+  kd.pages.length + (kd.subtopics ?? []).reduce((sum: number, sub: any) => sum + sub.pages.length, 0)
+
+function kdIndex(kd: any) {
+  return (domain.value?.learn.findIndex((item) => item.slug === kd.slug) ?? 0) + 1
+}
 
 function kdTitle(domainSlugValue: string, kdSlug: string) {
   return knowledgeDomainOf(domainSlugValue, kdSlug)
@@ -42,7 +53,9 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
           <div class="entry-card-icon">📚</div>
           <div class="entry-card-title">渐进式学习</div>
           <div class="entry-card-desc">按学习路径逐讲推进：原理 → API 手册 → 组合用法 → 完整 Demo</div>
-          <div class="entry-card-meta">{{ stats.kds }} 个知识域 · {{ stats.pages }} 个知识点</div>
+          <div class="entry-card-meta">
+            {{ stats.kds }} 个知识域 · 已开写 {{ stats.pages }} 讲<template v-if="stats.outlines"> · 待补 {{ stats.outlines }} 域</template>
+          </div>
         </a>
         <a v-if="domain.entry.components" class="entry-card" :href="domain.entry.components">
           <div class="entry-card-icon">🧩</div>
@@ -59,8 +72,10 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
         <section v-for="kd in domain.learn" :key="kd.slug" class="kd-card">
           <header class="kd-header">
             <span class="kd-icon">{{ kd.icon }}</span>
-            <a class="kd-name" :href="kd.url">{{ kd.name }}</a>
-            <span class="kd-count">{{ kd.pages.length }} 讲</span>
+            <a v-if="!isOutline(kd)" class="kd-name" :href="kd.url">{{ kdIndex(kd) }}. {{ kd.name }}</a>
+            <span v-else class="kd-name kd-name-outline">{{ kdIndex(kd) }}. {{ kd.name }}</span>
+            <span v-if="isOutline(kd)" class="badge badge-outline">待补</span>
+            <span class="kd-count">{{ isOutline(kd) ? '未开写' : `${lessonTotal(kd)} 讲` }}</span>
           </header>
           <p v-if="kd.description" class="kd-desc">{{ kd.description }}</p>
           <div v-if="kd.path.length" class="kd-path">
@@ -68,15 +83,29 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
               {{ step.label ?? `${step.from} → ${step.to}` }}
             </span>
           </div>
-          <ol class="kd-pages">
+          <p v-if="isOutline(kd)" class="kd-outline">方向已登记，内容待补。学完能做什么：{{ (kd.teach?.outcomes ?? []).join('；') }}</p>
+          <ol v-else class="kd-pages">
             <li v-for="(item, index) in kd.pages" :key="item.url">
-              <span class="kd-index">{{ index + 1 }}</span>
+              <span class="kd-index">{{ kdIndex(kd) }}.{{ index + 1 }}</span>
               <a :href="item.url">{{ item.title }}</a>
               <span v-if="item.level" class="badge badge-level">{{ levelText[item.level] ?? item.level }}</span>
               <span v-if="item.description" class="kd-page-desc">{{ item.description }}</span>
             </li>
           </ol>
-          <div v-if="kd.pages.length" class="kd-start">
+          <div v-for="(sub, subIndex) in kd.subtopics ?? []" :key="sub.slug" class="kd-sub">
+            <div class="kd-sub-title">{{ kdIndex(kd) }}.{{ subIndex + 1 }} {{ sub.icon }} {{ sub.name }}</div>
+            <ol class="kd-pages kd-pages-sub">
+              <li v-for="(item, index) in sub.pages" :key="item.url">
+                <span class="kd-index">{{ kdIndex(kd) }}.{{ subIndex + 1 }}.{{ index + 1 }}</span>
+                <a :href="item.url">{{ item.title }}</a>
+                <span v-if="item.description" class="kd-page-desc">{{ item.description }}</span>
+              </li>
+            </ol>
+          </div>
+          <div v-if="isOutline(kd) && domain.entry.learn" class="kd-start">
+            已登记方向，内容待补：<a :href="domain.entry.learn">返回学习入口</a>
+          </div>
+          <div v-if="!isOutline(kd) && kd.pages.length" class="kd-start">
             推荐起点：<a :href="kd.pages[0].url">{{ kd.pages[0].title }}</a>
           </div>
         </section>

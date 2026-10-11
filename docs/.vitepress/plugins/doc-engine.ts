@@ -31,6 +31,8 @@ export interface PathStep {
 }
 
 export interface TeachBlock {
+  /** outline 表示未开写：只登记方向，不排路径与讲次 */
+  status?: string
   audience?: string
   outcomes?: string[]
   lessons?: { slug: string; goal: string }[]
@@ -97,6 +99,8 @@ export interface KnowledgeDomainNode {
 
 export interface DomainNode {
   slug: string
+  /** outline 表示未开写领域 */
+  status?: string
   name: string
   icon: string
   order: number
@@ -345,6 +349,7 @@ function buildDomain(docsRoot: string, dirName: string, warnings: string[]): Dom
     name: domain.name,
     icon: domain.icon,
     order: domain.order,
+    status: meta.status,
     description: meta.description,
     url: domain.url,
     entry: {

@@ -5,6 +5,7 @@
  *   <ApiTable :items="[{ name: 'threading.Thread', rank: '必会', signature: 'Thread(group=None, target=None, ...)',
  *     params: [{ name: 'target', type: 'callable', default: 'None', desc: '线程执行的函数' }],
  *     returns: 'Thread 实例', methods: ['start() — 启动线程'], effect: '…', scenario: '…',
+ *     pitfall: '直接 join 一个未 start 的线程会抛 RuntimeError',
  *     example: 'import threading', exampleLang: 'python' }]" />
  */
 export interface ApiParam {
@@ -24,13 +25,18 @@ export interface ApiItem {
   methods?: string[]
   effect?: string
   scenario?: string
+  pitfall?: string
   example?: string
   exampleLang?: string
 }
 
 const props = defineProps<{ items: ApiItem[] }>()
-const rankClass = (rank?: string) =>
-  rank === '必会' ? 'rank-must' : rank === '常用' ? 'rank-common' : 'rank-advanced'
+const rankClass = (rank?: string) => {
+  if (rank === '必会') return 'rank-must'
+  if (rank === '常用') return 'rank-common'
+  if (rank === '了解') return 'rank-aware'
+  return 'rank-advanced'
+}
 const rankText = (rank?: string) => rank ?? '未分档'
 </script>
 
@@ -70,6 +76,8 @@ const rankText = (rank?: string) => rank ?? '未分档'
         <li v-if="item.raises"><strong>异常：</strong>{{ item.raises }}</li>
         <li v-if="item.scenario"><strong>适用场景：</strong>{{ item.scenario }}</li>
       </ul>
+
+      <p v-if="item.pitfall" class="api-pitfall"><strong>常见误区：</strong>{{ item.pitfall }}</p>
 
       <details v-if="item.example" class="api-example">
         <summary>最小示例</summary>

@@ -27,6 +27,8 @@
  *   V13 结构化载荷可解析
  *   V14 枚举字段取值合法
  *   V19 知识点页有官方依据与版本差异（≥2 条官方链接，每条带版本标注）
+ *   V20 模块接口覆盖（必会全覆盖、常用 ≥80%）与必会/常用条目字段完整
+ *   V22 未开写知识域只落目录与登记（status: outline）且无正文
  *   V15 知识域 teach 块字段齐全且类型正确
  *   V16 四教学要素标题存在，追问链条目 3–5 条
  *   V17 teach.lessons 与知识点页双向完整
@@ -415,13 +417,17 @@ function checkTeachBlocks(metas, tree) {
     if (typeof teach.audience !== 'string' || teach.audience.length < 10) misses.push('audience')
     if (!Array.isArray(teach.prerequisites) || teach.prerequisites.length < 1) misses.push('prerequisites')
     if (!Array.isArray(teach.outcomes) || teach.outcomes.length < 1) misses.push('outcomes')
-    if (!Array.isArray(teach.path) || teach.path.length < 1) misses.push('path')
-    if (!Array.isArray(teach.lessons) || teach.lessons.length < 1) misses.push('lessons')
+    // 未开写知识域只登记方向，不要求路径与讲次
+    const isOutline = teach.status === 'outline'
+    if (!isOutline) {
+      if (!Array.isArray(teach.path) || teach.path.length < 1) misses.push('path')
+      if (!Array.isArray(teach.lessons) || teach.lessons.length < 1) misses.push('lessons')
+    }
     if (misses.length) {
       fail('V15', rel(file), 0, `teach 块缺字段或类型不符：${misses.join('、')}`, '按 data-model.md E2 的约束补齐')
       continue
     }
-    for (const lesson of teach.lessons) {
+    for (const lesson of teach.lessons ?? []) {
       if (typeof lesson.goal !== 'string' || lesson.goal.length < 10 || lesson.goal.length > 60) {
         fail('V15', rel(file), 0, `lessons.goal 长度不合规：${lesson.slug}`, 'goal 保持 10–60 字')
       }
@@ -450,14 +456,17 @@ function checkTeachBlocks(metas, tree) {
   }
 }
 
+function decodeEntities(text) {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+}
+
 function checkPayloads(pages) {
-  const entity = (text) =>
-    text
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&#39;/g, "'")
-      .replace(/&quot;/g, '"')
+  const entity = decodeEntities
   for (const page of pages) {
     const content = page.content
     for (const matched of content.matchAll(/<(ApiTable|CodeTabs)\s+:(items|tabs)='([^']*)'\s*\/>/g)) {
@@ -497,6 +506,111 @@ function checkOfficialSources(docs, pages) {
   }
 }
 
+
+const API_INDEX_PATH = path.join(REPO_ROOT, 'scripts', 'data', 'module-api-index.json')
+const API_INDEX = fs.existsSync(API_INDEX_PATH) ? JSON.parse(fs.readFileSync(API_INDEX_PATH, 'utf8')) : { modules: {} }
+const DETAIL_RANKS = new Set(['必会', '常用'])
+const DETAIL_FIELDS = ['signature', 'returns', 'effect', 'scenario', 'example', 'pitfall']
+
+function readApiItems(docs, page) {
+  const content = fs.readFileSync(path.join(docs, page.file), 'utf8')
+  const matched = /<ApiTable :items='([\s\S]*?)'\s*\/>/.exec(content)
+  if (!matched) return []
+  try {
+    return JSON.parse(decodeEntities(matched[1]))
+  } catch {
+    return []
+  }
+}
+
+function candidateNames(item) {
+  const names = new Set()
+  if (typeof item.name === 'string') {
+    names.add(item.name)
+    names.add(item.name.split('.').pop())
+  }
+  for (const method of Array.isArray(item.methods) ? item.methods : []) {
+    const head = String(method).split('—')[0].trim().replace(/\(.*$/, '')
+    if (!head) continue
+    names.add(head)
+    names.add(head.split('.').pop())
+  }
+  return names
+}
+
+function checkModuleCoverage(docs, pages) {
+  const knowledge = pages.filter((page) => page.type === 'knowledge')
+  const byModule = new Map()
+  for (const page of knowledge) {
+    const module = matter(fs.readFileSync(path.join(docs, page.file), 'utf8')).data.source_module
+    if (!module) continue
+    if (!byModule.has(module)) byModule.set(module, [])
+    byModule.get(module).push(page)
+  }
+  for (const [module, modulePages] of byModule) {
+    const spec = API_INDEX.modules[module]
+    if (!spec) continue
+    const covered = new Set()
+    for (const page of modulePages) {
+      for (const item of readApiItems(docs, page)) {
+        for (const name of candidateNames(item)) covered.add(name)
+        if (DETAIL_RANKS.has(item.rank)) {
+          const missing = DETAIL_FIELDS.filter((field) => {
+            const value = item[field]
+            return value === undefined || value === null || String(value).trim() === ''
+          })
+          if (missing.length > 0) {
+            fail('V20', rel(page.file), 1,
+              `条目「${item.name}」缺字段：${missing.join('、')}`,
+              '必会与常用条目要写全签名、返回、作用、场景、示例与误区')
+          }
+        }
+      }
+    }
+    const missingMust = (spec.must ?? []).filter((name) => !covered.has(name) && !covered.has(name.split('.').pop()))
+    if (missingMust.length > 0) {
+      fail('V20', rel(modulePages[0].file), 1,
+        `${module} 缺必会接口 ${missingMust.length} 个：${missingMust.join('、')}`,
+        '按 scripts/data/module-api-index.json 补齐，或调整清单并说明理由')
+    }
+    const common = spec.common ?? []
+    const missingCommon = common.filter((name) => !covered.has(name) && !covered.has(name.split('.').pop()))
+    const ratio = common.length ? (common.length - missingCommon.length) / common.length : 1
+    if (ratio < 0.8) {
+      fail('V20', rel(modulePages[0].file), 1,
+        `${module} 常用接口覆盖 ${(ratio * 100).toFixed(0)}%（下限 80%），缺：${missingCommon.join('、')}`,
+        '补 API 条目或在 methods 里给方法名')
+    }
+  }
+}
+
+function checkOutlineKnowledgeDomains(metas, tree) {
+  for (const domain of tree.domains) {
+    if (domain.status === 'outline') {
+      const pageCount = domain.learn.reduce(
+        (sum, kd) => sum + kd.pages.length + kd.subtopics.reduce((inner, sub) => inner + sub.pages.length, 0), 0)
+      if (pageCount > 0) {
+        fail('V22', `${domain.slug}/_meta.yml`, 1, `领域标记 outline 但有正文页：${pageCount} 个`, '未开写领域只落目录与登记')
+      }
+    }
+    for (const kd of domain.learn) {
+      const isOutline = kd.teach?.status === 'outline'
+      const lessons = kd.teach?.lessons ?? []
+      const pageCount = kd.pages.length + kd.subtopics.reduce((sum, sub) => sum + sub.pages.length, 0)
+      if (isOutline) {
+        if (pageCount > 0) {
+          fail('V22', `${domain.slug}/learn/${kd.slug}/_meta.yml`, 1, `outline 知识域有 ${pageCount} 个正文页`, '未开写知识域只留目录与登记')
+        }
+        if (lessons.length > 0) {
+          fail('V22', `${domain.slug}/learn/${kd.slug}/_meta.yml`, 1, 'outline 知识域仍登记了 lessons', '未开写知识域的 lessons 必须为空')
+        }
+      } else if (pageCount === 0) {
+        fail('V22', `${domain.slug}/learn/${kd.slug}/_meta.yml`, 1, '知识域没有任何正文页，也未标 outline', '补正文页，或把 teach.status 标为 outline')
+      }
+    }
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const rootIndex = args.indexOf('--root')
@@ -519,6 +633,8 @@ function main() {
   checkOfficialSources(docs, tree.pages)
   checkTeachBlocks(metas, tree)
   checkPayloads(pages)
+  checkModuleCoverage(docs, tree.pages)
+  checkOutlineKnowledgeDomains(metas, tree)
 
   if (asJson) {
     console.log(JSON.stringify({

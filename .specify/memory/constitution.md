@@ -1,12 +1,15 @@
 <!--
 Sync Impact Report
-- 版本变化：1.1.0 → 1.2.0（MINOR：新增原则 IX「内容深度与广度基线」）
-- 本次修订：新增原则 IX。知识点 MUST 标注官方依据与版本差异，内容 MUST 覆盖中高级面试问题域，
-  广度 MUST 与标准库模块清单对齐，业界结论 MUST 标注来源类型；并以内容门禁 V19 机械校验。
-- 受影响产物：`specs/001-docs-engine/contracts/content-contract.md`（新增要素）、
-  `scripts/check-content.mjs`（V19）、`.dsh/skills/docs-authoring/SKILL.md`（教学结构表）、
-  全部知识点页（补「官方依据与版本差异」小节）
-- 历史：1.0.0 首版八原则；1.1.0 新增原则 VIII 并扩写 IV 与 V
+- 版本变化：1.2.0 → 1.3.0（MINOR：新增原则 X「导航层级与接口覆盖」）
+- 本次修订：新增原则 X。导航层级 MUST 与内容层级一致且可折叠；学习入口 MUST 呈现层级；
+  API 手册 MUST 覆盖 source_module 的公开接口要点并按重要性分档，必会与常用条目 MUST 给全字段；
+  跨线程与跨进程通信 MUST 单独成体系；未开写领域 MUST 只落目录结构与登记并标注待补。
+- 受影响产物：`specs/001-docs-engine/contracts/content-contract.md`（API 字段与层级）、
+  `scripts/data/module-api-index.json`（模块接口清单与分档，新增）、
+  `scripts/check-content.mjs`（V20/V22）、`scripts/check-nav.mjs`（N1–N4，新增）、
+  `docs/.vitepress/config.mts` 与 `EntryIndex.vue`（层级渲染）、
+  `.dsh/skills/docs-authoring/SKILL.md`、并发与通信各页
+- 历史：1.0.0 首版八原则；1.1.0 新增 VIII 并扩写 IV 与 V；1.2.0 新增 IX 官方依据基线
 -->
 
 # docs-1 Constitution
@@ -146,6 +149,29 @@ MUST 有统一判据，MUST NOT 只停留在各页经验里。
 理由：面试考的是原理与取舍，不是函数签名。官方文档与版本差异是唯一稳定事实源。
 不写官方依据，内容很快会过时，也会把面试准备带偏。
 
+### X. 导航层级与接口覆盖（NON-NEGOTIABLE）
+
+导航层级 MUST 与内容层级一致，接口讲解 MUST 覆盖到方法级。压平层级与一句话描述 MUST 判为不合格。
+
+- 导航层级 MUST 至少四层：领域 → 知识域 → 讲 → 子主题。
+  MUST NOT 把子主题与讲压平到同一层。
+- 侧边栏 MUST 可折叠，MUST 默认展开当前路径所在分支。
+- 渐进式学习入口 MUST 呈现层级：知识域、路径分段、讲、子主题，并标出难度与顺序。
+- 每个知识点页的 API 手册 MUST 覆盖其 `source_module` 的公开接口要点。
+  覆盖清单与重要性分档以 `scripts/data/module-api-index.json` 为准，分四档：
+  必会、常用、进阶、了解。
+- 必会与常用条目 MUST 给全：签名、参数、返回、阻塞或异常语义、适用场景、可运行示例、常见误区。
+  缺任一字段或只写一句话 MUST 判错。
+- 跨线程与跨进程通信 MUST 单独成体系：队列、管道、共享内存与共享状态、信号量与信号、
+  套接字与流协议。MUST NOT 只在各讲里一句话带过。
+- 尚未开写的领域 MUST 只落目录结构与登记，登记 MUST 标 `status: outline`。
+  这类知识域 MUST NOT 出现半成品正文，MUST NOT 计入已讲清单，导航 MUST 明确标注待补。
+- 内容门禁 MUST 机械校验接口覆盖与分层（规则 V20 与 V22），
+  构建后 MUST 机械校验导航层级（脚本 `scripts/check-nav.mjs`，N1–N4）。
+
+理由：面试问的是方法语义与边界。层级压平后读者找不到进度，一句话描述也答不出追问。
+通信是并发最常被追问的一块，必须独立成体系。
+
 ## 技术约束与交付约束
 
 - 渲染层固定为 VitePress 加 Vue 3。理由：它本质是 Vite 应用，解析层能深度介入构建流程。
@@ -198,4 +224,4 @@ MUST 有统一判据，MUST NOT 只停留在各页经验里。
 - 豁免：任何豁免 MUST 写在特性任务里，并给出恢复计划。豁免 MUST NOT 扩散，
   且 MUST NOT 用于跳过受控中文、内容契约与组件测试三类门禁。
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-12
+**Version**: 1.3.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-12

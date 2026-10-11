@@ -16,7 +16,8 @@
     "test:component": "python3 -m pytest tests/ -q",
     "check:responsive": "node scripts/check-responsive.mjs",
     "check:extensibility": "node --experimental-strip-types --no-warnings scripts/assert-extensibility.mjs",
-    "selftest:gates": "node scripts/selftest-gates.mjs"
+    "selftest:gates": "node scripts/selftest-gates.mjs",
+    "check:nav": "node --experimental-strip-types --no-warnings scripts/check-nav.mjs"
   },
   "devDependencies": {
     "gray-matter": "^4.0.3",

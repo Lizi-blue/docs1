@@ -290,3 +290,12 @@ Task: "新建 deploy/{deployment,service,ingress}.yaml"
 
 - [x] T048 按原则 IX 落地「官方依据与版本差异」：内容契约新增要素、门禁新增 V19、
   16 个知识点页补齐官方链接与版本差异、技能 v1.1.0 登记该要素、自测套件补 V19 负例。
+
+## 宪法 1.3.0 落地（2026-10-12）
+
+- [x] T049 按原则 X 落地导航层级与接口覆盖：顶栏与侧边栏加深为领域→知识域→讲→子主题（带编号与难度）、
+  学习入口呈现层级与「待补」、模块接口清单 `scripts/data/module-api-index.json`、门禁 V20 与 V22、
+  构建后导航门禁 `scripts/check-nav.mjs`（N1–N5）并入 CI。
+- [x] T050 通信知识域 4 讲：队列与管道、共享状态、信号量与会话信号、套接字与流（task-9 完成，4 路由 200）
+- [x] T051 其他领域仅目录结构：后端 03-network/04-database/05-os/06-system-design、前端 02-framework/03-browser、新领域 cloudnative（3 个 outline 域）
+- [x] T052 导航层级与接口覆盖落地：顶栏与侧边栏四层、入口层级与「待补」、模块接口清单、V20/V22、check:nav（N1–N5）、技能 1.2.0

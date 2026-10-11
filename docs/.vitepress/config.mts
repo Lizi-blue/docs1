@@ -17,14 +17,28 @@ for (const page of tree.pages) {
   rewrites[page.file] = page.url.replace(/^\//, '') + '.md'
 }
 
-function kdItems(kd: KnowledgeDomainNode) {
-  const items: any[] = kd.pages.map((page) => ({ text: page.title, link: page.url }))
-  for (const sub of kd.subtopics) {
+const levelBadge: Record<string, string> = { basic: '基础', intermediate: '进阶', advanced: '深入' }
+
+/** 层级编号：知识域 1 → 讲 1.1 → 子主题 1.1.1 */
+function kdItems(kd: KnowledgeDomainNode, kdIndex: number, fallbackLink?: string) {
+  const items: any[] = []
+  kd.pages.forEach((page, index) => {
+    const suffix = page.level ? ` · ${levelBadge[page.level] ?? page.level}` : ''
+    items.push({ text: `${kdIndex}.${index + 1} ${page.title}${suffix}`, link: page.url })
+  })
+  kd.subtopics.forEach((sub, subIndex) => {
     items.push({
-      text: `${sub.icon} ${sub.name}`,
+      text: `${sub.icon} ${kdIndex}.${subIndex + 1} ${sub.name}`,
       collapsed: false,
-      items: sub.pages.map((page) => ({ text: page.title, link: page.url })),
+      items: sub.pages.map((page, pageIndex) => ({
+        text: `${kdIndex}.${subIndex + 1}.${pageIndex + 1} ${page.title}`,
+        link: page.url,
+      })),
     })
+  })
+  if (kd.teach?.status === 'outline' || items.length === 0) {
+    // 未开写知识域没有 index.md，直接指向域学习入口，避免 404
+    items.push(fallbackLink ? { text: '待补：内容尚未开写', link: fallbackLink } : { text: '待补：内容尚未开写' })
   }
   return items
 }
@@ -33,9 +47,15 @@ function learnGroup(domain: DomainNode, only?: KnowledgeDomainNode) {
   const knowledgeDomains = only ? [only] : domain.learn
   const items: any[] = []
   if (!only && domain.entry.learn) items.push({ text: '① 学习入口与路径', link: domain.entry.learn })
-  for (const kd of knowledgeDomains) {
-    items.push({ text: `${kd.icon} ${kd.name}`, collapsed: false, items: kdItems(kd) })
-  }
+  knowledgeDomains.forEach((kd, index) => {
+    const number = only ? domain.learn.indexOf(kd) + 1 : index + 1
+    const outline = kd.teach?.status === 'outline' ? '（待补）' : ''
+    items.push({
+      text: `${kd.icon} ${number}. ${kd.name}${outline}`,
+      collapsed: false,
+      items: kdItems(kd, number, domain.entry.learn),
+    })
+  })
   return { text: '📚 渐进式学习', collapsed: false, items }
 }
 
@@ -66,7 +86,7 @@ for (const domain of tree.domains) {
           ...(domain.entry.learn ? [{ text: '学习入口', link: domain.entry.learn }] : []),
         ],
       },
-      { text: `${kd.icon} ${kd.name}`, collapsed: false, items: kdItems(kd) },
+      { text: `${kd.icon} ${domain.learn.indexOf(kd) + 1}. ${kd.name}`, collapsed: false, items: kdItems(kd, domain.learn.indexOf(kd) + 1, domain.entry.learn) },
       componentGroup(domain),
     ].filter(Boolean)
   }
@@ -112,8 +132,16 @@ export default defineConfig({
       { text: '首页', link: '/' },
       ...tree.domains.map((domain) => ({
         text: `${domain.icon} ${domain.name}`,
-        link: domain.url,
         activeMatch: `^/${domain.slug}/`,
+        items: [
+          { text: '领域首页', link: domain.url },
+          ...(domain.entry.learn ? [{ text: '学习入口与路径', link: domain.entry.learn }] : []),
+          ...domain.learn.map((kd, index) => ({
+            text: `${kd.icon} ${index + 1}. ${kd.name}${kd.teach?.status === 'outline' ? '（待补）' : ''}`,
+            items: kdItems(kd, index + 1, domain.entry.learn).map((item: any) => (item.items ? { text: item.text, link: item.items[0]?.link ?? domain.entry.learn } : item)),
+          })),
+          ...(domain.entry.components ? [{ text: '组件查询', link: domain.entry.components }] : []),
+        ],
       })),
     ],
     sidebar,

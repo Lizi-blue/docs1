@@ -26,6 +26,13 @@
 .rank-must { color: #fff; background: #d9480f; border-color: #d9480f; }
 .rank-common { color: #fff; background: #1c7ed6; border-color: #1c7ed6; }
 .rank-advanced { color: var(--vp-c-text-2); }
+.rank-aware { color: var(--vp-c-text-3); }
+
+/* 误区：与事实条目区分开，读者能一眼看到 */
+.api-pitfall {
+  margin: 8px 0; padding: 8px 10px; border-left: 3px solid var(--vp-c-warning-1, #b45309);
+  background: var(--vp-c-bg-soft); border-radius: 6px; font-size: 13px; color: var(--vp-c-text-2);
+}
 
 /* ---- 页面头部 ---- */
 .page-header { margin-bottom: 20px; }
@@ -141,6 +148,14 @@
 .cmp-card-desc { margin-top: 6px; font-size: 13px; color: var(--vp-c-text-2); }
 .cmp-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .cmp-card-meta { margin-top: 8px; font-size: 12px; color: var(--vp-c-text-3); }
+
+/* ---- 层级与待补 ---- */
+.badge-outline { color: var(--vp-c-warning-1, #b45309); border-color: var(--vp-c-warning-1, #b45309); }
+.kd-pages .kd-index { width: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; }
+.kd-sub { margin: 8px 0 4px 12px; padding-left: 10px; border-left: 2px solid var(--vp-c-divider); }
+.kd-sub-title { font-size: 13px; font-weight: 600; color: var(--vp-c-text-2); margin-bottom: 2px; }
+.kd-pages-sub li { font-size: 13px; }
+.kd-outline { margin: 8px 0; padding: 8px 10px; border-left: 3px solid var(--vp-c-warning-1, #b45309); background: var(--vp-c-bg-soft); border-radius: 6px; font-size: 13px; color: var(--vp-c-text-2); }
 
 /* ---- 标签索引 ---- */
 .tag-index { margin-top: 24px; }

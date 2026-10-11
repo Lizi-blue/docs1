@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "note": "模块公开接口清单与重要性分档。判据来源：CPython 官方文档 API 索引 + 业界面试常用度。门禁 V20 用它校验覆盖与细节。",
+  "rank_scale": ["必会", "常用", "进阶", "了解"],
+  "modules": {
+    "threading": {
+      "doc": "https://docs.python.org/3/library/threading.html",
+      "must": ["Thread.start", "Thread.join", "Thread.is_alive", "Lock.acquire", "Lock.release", "current_thread"],
+      "common": ["Thread", "Thread.daemon", "Thread.ident", "Thread.native_id", "Lock", "RLock", "Condition", "Condition.wait", "Condition.notify", "Condition.notify_all", "Event", "Event.set", "Event.wait", "Event.clear", "Semaphore", "Semaphore.acquire", "Semaphore.release", "enumerate", "get_ident", "get_native_id", "local", "Barrier", "Timer", "active_count", "main_thread"],
+      "advanced": ["Thread.run", "Condition.wait_for", "BoundedSemaphore", "stack_size", "settrace", "setprofile", "excepthook"],
+      "aware": ["Thread.getName", "Thread.setName", "Thread.isDaemon", "Thread.setDaemon", "currentThread", "activeCount", "TIMEOUT_MAX"]
+    },
+    "multiprocessing": {
+      "doc": "https://docs.python.org/3/library/multiprocessing.html",
+      "must": ["Process.start", "Process.join", "Pool.map", "Queue.put", "Queue.get"],
+      "common": ["Process", "Process.daemon", "Process.pid", "Process.exitcode", "Process.terminate", "Process.is_alive", "Queue", "Queue.empty", "Queue.qsize", "Queue.close", "Pool", "Pool.apply_async", "Pool.imap_unordered", "Pipe", "Lock", "Event", "Manager", "set_start_method", "get_context", "get_start_method", "cpu_count", "current_process", "active_children", "freeze_support"],
+      "advanced": ["Pool.starmap", "Queue.join_thread", "JoinableQueue", "Barrier", "Semaphore", "Manager.dict", "Manager.list", "Manager.Queue", "parent_process"],
+      "aware": ["Pool.terminate", "Pool.close", "Pool.join", "Pool.map_async", "AllowProxyCreation"]
+    },
+    "queue": {
+      "doc": "https://docs.python.org/3/library/queue.html",
+      "must": ["Queue.put", "Queue.get", "Queue.task_done", "Queue.join"],
+      "common": ["Queue", "Queue.put_nowait", "Queue.get_nowait", "Queue.qsize", "Queue.empty", "Queue.full", "LifoQueue", "PriorityQueue", "SimpleQueue"],
+      "advanced": ["Queue.maxsize", "Queue.shutdown"],
+      "aware": ["Queue.not_empty", "Queue.mutex", "Queue.all_tasks_done"]
+    },
+    "concurrent.futures": {
+      "doc": "https://docs.python.org/3/library/concurrent.futures.html",
+      "must": ["Executor.submit", "Future.result", "Executor.map", "Executor.shutdown"],
+      "common": ["ThreadPoolExecutor", "ProcessPoolExecutor", "Future", "Future.done", "Future.cancel", "Future.exception", "Future.add_done_callback", "as_completed", "wait", "Future.running", "Future.cancelled", "FIRST_COMPLETED", "ALL_COMPLETED"],
+      "advanced": ["Executor.map", "Future.set_result", "Future.set_exception", "ThreadPoolExecutor.initializer", "FIRST_EXCEPTION", "as_completed.timeout"],
+      "aware": ["BrokenExecutor", "InvalidStateError", "TimeoutError", "CancelledError", "Executor.__exit__"]
+    },
+    "asyncio": {
+      "doc": "https://docs.python.org/3/library/asyncio-task.html",
+      "must": ["run", "create_task", "gather", "sleep", "TaskGroup", "timeout", "to_thread"],
+      "common": ["wait_for", "Task", "Task.cancel", "Task.result", "Task.exception", "Task.done", "Queue", "Queue.put", "Queue.get", "Semaphore", "Lock", "Event", "Event.set", "Event.wait", "run_in_executor", "call_soon_threadsafe", "run_coroutine_threadsafe", "current_task", "all_tasks", "get_running_loop", "shield", "wait", "as_completed"],
+      "advanced": ["TaskGroup.create_task", "start_server", "open_connection", "StreamReader.read", "StreamWriter.write", "StreamWriter.drain", "run_forever", "stop", "new_event_loop", "set_event_loop", "add_signal_handler", "loop.call_later"],
+      "aware": ["eager_task_factory", "get_event_loop", "loop.close", "asyncio.Runner", "Task.uncancel", "Task.cancelling"]
+    },
+    "subprocess": {
+      "doc": "https://docs.python.org/3/library/subprocess.html",
+      "must": ["run", "Popen", "Popen.communicate", "Popen.wait"],
+      "common": ["Popen.poll", "Popen.terminate", "Popen.kill", "Popen.returncode", "Popen.pid", "Popen.stdout", "Popen.stdin", "TimeoutExpired", "CalledProcessError", "CompletedProcess", "run.check", "run.capture_output", "run.text", "run.shell", "run.env", "run.cwd"],
+      "advanced": ["Popen.start_new_session", "os.killpg", "os.getpgid", "Popen.send_signal", "Popen.args", "Popen.__enter__", "DEVNULL", "PIPE", "STDOUT"],
+      "aware": ["getoutput", "getstatusoutput", "check_output", "check_call", "call", "list2cmdline"]
+    },
+    "signal": {
+      "doc": "https://docs.python.org/3/library/signal.html",
+      "must": ["signal", "SIGTERM", "SIGINT"],
+      "common": ["SIGHUP", "SIGKILL", "SIGCHLD", "raise_signal", "getsignal", "strsignal", "pause", "alarm", "Signals and threads"],
+      "advanced": ["pthread_sigmask", "sigwait", "set_wakeup_fd", "SIGUSR1", "SIGALRM"],
+      "aware": ["valid_signals", "SIG_IGN", "SIG_DFL", "SIG_BLOCK", "NSIG"]
+    },
+    "multiprocessing.shared_memory": {
+      "doc": "https://docs.python.org/3/library/multiprocessing.shared_memory.html",
+      "must": ["SharedMemory", "SharedMemory.close", "SharedMemory.unlink"],
+      "common": ["SharedMemory.buf", "SharedMemory.name", "SharedMemory.size", "SharedMemoryManager", "ShareableList"],
+      "advanced": ["SharedMemoryManager.ShareableList", "resource_tracker"],
+      "aware": ["SharedMemory.track", "ShareableList.shm"]
+    },
+    "sys": {
+      "doc": "https://docs.python.org/3/library/sys.html",
+      "must": ["getswitchinterval", "setswitchinterval"],
+      "common": ["_is_gil_enabled", "getrecursionlimit", "getrefcount", "intern", "flags"],
+      "advanced": ["setprofile", "settrace", "monitoring", "getasyncgenhooks"],
+      "aware": ["implementation", "version_info", "abiflags", "gettotalrefcount"]
+    },
+    "faulthandler": {
+      "doc": "https://docs.python.org/3/library/faulthandler.html",
+      "must": ["dump_traceback", "dump_traceback_later"],
+      "common": ["enable", "disable", "is_enabled", "cancel_dump_traceback_later", "register"],
+      "advanced": ["unregister", "dump_c_stack"],
+      "aware": ["_sigsegv", "_sigfpe", "_sigabrt"]
+    },
+    "os": {
+      "doc": "https://docs.python.org/3/library/os.html",
+      "must": ["killpg", "getpgid"],
+      "common": ["kill", "getpid", "getppid", "setsid", "fork", "waitpid"],
+      "advanced": ["register_at_fork", "sched_yield", "process_cpu_count", "cpu_count"],
+      "aware": ["WIFEXITED", "WEXITSTATUS", "WNOHANG"]
+    },
+    "socket": {
+      "doc": "https://docs.python.org/3/library/socket.html",
+      "must": ["socket", "socket.bind", "socket.listen", "socket.accept", "socket.connect", "socket.recv", "socket.sendall"],
+      "common": ["socket.close", "socket.settimeout", "socket.shutdown", "socket.setsockopt", "setdefaulttimeout", "AF_UNIX", "AF_INET", "SOCK_STREAM", "SOCK_DGRAM", "create_connection", "getaddrinfo"],
+      "advanced": ["socket.recv_into", "socket.sendmsg", "socket.recvmsg", "makefile", "SO_REUSEADDR", "SOCK_NONBLOCK", "socket.dup"],
+      "aware": ["socket.fileno", "socket.getpeername", "socket.getsockname", "inet_aton", "gethostbyname"]
+    },
+    "vite": {
+      "doc": "https://vitejs.dev/guide/",
+      "must": ["vite dev", "vite build", "vite preview"],
+      "common": ["defineConfig", "server.proxy", "base", "build.outDir", "import.meta.env"],
+      "advanced": ["build.rollupOptions", "resolve.alias", "plugins", "build.sourcemap"],
+      "aware": ["optimizeDeps", "server.watch", "build.target", "envDir"]
+    }
+  }
+}
