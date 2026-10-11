@@ -19,6 +19,11 @@ related_components: []
 
 # 单页 index.html 入口
 
+### 本讲要解决的问题
+
+不装构建工具能写出页面吗？代码变多以后哪里先失控？
+这一讲讲清 script 顺序、全局作用域与四个瓶颈。
+
 ## TL;DR
 
 > 早期前端就是「一个 HTML 加两个 script」。浏览器直接读源码，改完刷新页面。
@@ -136,6 +141,12 @@ python3 -m http.server 8080
 # 浏览器打开 http://127.0.0.1:8080/index.html
 ```
 
+### 常见误区
+
+- 「单页入口只是写法土，功能没差别」是错的。全局变量会互相覆盖，依赖顺序也要手工维护。
+- 「script 标签顺序无关紧要」是错的。顺序错了就会拿到 undefined。
+- 「innerHTML 全量重绘没有代价」是错的。每次重绘都重建整棵子树，列表一大就卡。
+
 ### 面试追问链
 
 <details>
@@ -146,18 +157,22 @@ python3 -m http.server 8080
 </details>
 
 <details>
-<summary>Q2：为什么 innerHTML 全量重绘在复杂页面会卡？</summary>
+<summary>Q2：再把规模放大，innerHTML 全量重绘会先卡在哪？</summary>
 
 每次重绘都重建整棵子树。真实列表要改成差分更新，这正是框架做的事。
 
 </details>
 
 <details>
-<summary>Q3：这页代码放到工程化项目里会变成什么？</summary>
+<summary>Q3：要根治这两个问题，这页代码放到工程化项目里会变成什么？</summary>
 
 HTML 变成模板，状态与 render 变成组件，依赖改为 import，构建器负责打包压缩。
 
 </details>
+
+### 下一讲衔接
+
+页面靠手工管依赖，下一讲 [npm 与模块](/frontend/learn/engineering/npm-and-modules) 讲依赖从哪里来。
 
 ### 关联组件
 

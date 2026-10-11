@@ -22,6 +22,11 @@ related_components:
 
 # 异步 I/O
 
+### 本讲要解决的问题
+
+单线程怎么扛住上万并发连接？同步库为什么拖垮整个循环？
+这一讲讲清事件循环的调度与协程的适用边界。
+
 ## TL;DR
 
 > 协程在等待 I/O 时主动让出控制权，单线程就能撑住高并发。
@@ -124,6 +129,12 @@ if __name__ == "__main__":
 python3 async_fetch.py
 ```
 
+### 常见误区
+
+- 「协程是更快的线程」是错的。协程只在 await 时让出，阻塞调用会卡住整个循环。
+- 「把 requests 放进协程就能并发」是错的。requests 是同步库，要改用异步客户端或 to_thread。
+- 「gather 与 TaskGroup 随便换」是错的。一个允许部分成功，一个要求整体成败一致。
+
 ### 面试追问链
 
 <details>
@@ -134,18 +145,22 @@ requests 是同步库。它阻塞线程，也就阻塞整个事件循环。
 </details>
 
 <details>
-<summary>Q2：asyncio.to_thread 的代价是什么？</summary>
+<summary>Q2：改用 to_thread 绕开阻塞，代价是什么？</summary>
 
 每次调用占一个线程。线程池被打满后，异步并发退化为排队。
 
 </details>
 
 <details>
-<summary>Q3：gather 与 TaskGroup 怎么选？</summary>
+<summary>Q3：并发发起多个任务后，gather 与 TaskGroup 怎么选？</summary>
 
 需要部分成功就选 gather。需要整体成败一致就选 TaskGroup。
 
 </details>
+
+### 下一讲衔接
+
+本域路径到此收尾，可看组件 [进程安全队列](/backend/components/safe-queue) 复用同步队列语义。
 
 ### 关联组件
 

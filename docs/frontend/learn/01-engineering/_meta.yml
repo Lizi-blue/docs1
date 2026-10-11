@@ -2,8 +2,26 @@ name: "工程化基础"
 order: 1
 icon: "🧰"
 description: "入口方式、依赖管理、构建工具与目录约定"
-prerequisites: []
-path:
-  - from: "01-single-html-entry"
-    to: "04-project-structure"
-    label: "手写页面 → 工程化项目"
+teach:
+  audience: "掌握 HTML 与 JavaScript 语法、准备前端面试的开发者"
+  prerequisites:
+    - "能写 HTML 结构并操作 DOM"
+    - "了解命令行与 npm 的基本用法"
+  outcomes:
+    - "能说清单页入口为什么撑不住规模"
+    - "能用 npm 声明依赖并锁定版本"
+    - "能解释 Vite 开发态与构建态的分工"
+    - "能按目录职责写出部署清单"
+  path:
+    - from: "01-single-html-entry"
+      to: "04-project-structure"
+      label: "手写页面 → 工程化项目"
+  lessons:
+    - slug: "01-single-html-entry"
+      goal: "讲清无构建页面的四个瓶颈"
+    - slug: "02-npm-and-modules"
+      goal: "讲清依赖来源、安装位置与锁版本"
+    - slug: "03-vite-dev-and-build"
+      goal: "讲清按需编译与生产打包的两段式模型"
+    - slug: "04-project-structure"
+      goal: "讲清目录职责与构建产物的部署"

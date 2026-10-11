@@ -2,11 +2,29 @@ name: "并发编程"
 order: 1
 icon: "⚡"
 description: "线程、进程、队列与异步 I/O"
-prerequisites: []
-path:
-  - from: "01-thread-basics"
-    to: "02-process-basics"
-    label: "线程基础 → 进程基础"
-  - from: "03-queue-pipe"
-    to: "04-async-io"
-    label: "Queue 通信 → 异步 I/O"
+teach:
+  audience: "有 Python 语法基础、准备中高级后端面试的开发者"
+  prerequisites:
+    - "能读写 Python 函数与类"
+    - "了解进程与线程的基本概念"
+  outcomes:
+    - "能解释 GIL 对并发选型的影响"
+    - "能按任务类型选择线程、进程或协程"
+    - "能用队列与哨兵组织生产者消费者模型"
+    - "能识别阻塞事件循环的同步调用"
+  path:
+    - from: "01-thread-basics"
+      to: "02-process-basics"
+      label: "线程基础 → 进程基础"
+    - from: "03-queue-pipe"
+      to: "04-async-io"
+      label: "Queue 通信 → 异步 I/O"
+  lessons:
+    - slug: "01-thread-basics"
+      goal: "讲清线程创建、锁与 GIL 的关系"
+    - slug: "02-process-basics"
+      goal: "讲清进程启动方式与跨进程数据传递"
+    - slug: "03-queue-pipe"
+      goal: "讲清队列、哨兵与消费者的优雅退出"
+    - slug: "04-async-io"
+      goal: "讲清事件循环、协程与限流边界"

@@ -22,6 +22,11 @@ related_components:
 
 # 多线程基础
 
+### 本讲要解决的问题
+
+I/O 密集任务用线程能提速吗？GIL 会不会让多线程失效？
+这一讲讲清线程的创建、同步与 GIL 的约束。
+
 ## TL;DR
 
 > 多线程适合 I/O 密集任务。线程共享进程内存，创建与切换便宜。
@@ -150,6 +155,12 @@ if __name__ == "__main__":
 python3 thread_downloader.py
 ```
 
+### 常见误区
+
+- 「线程越多吞吐越高」是错的。切换成本会吃掉收益，网络还有连接上限。
+- 「加了锁就一定慢」是错的。锁只串行化临界区，临界区外的代码照常跑。
+- 「daemon 线程能保证任务做完」是错的。主线程退出时守护线程直接消失，结果会丢。
+
 ### 面试追问链
 
 <details>
@@ -160,25 +171,29 @@ python3 thread_downloader.py
 </details>
 
 <details>
-<summary>Q2：为什么用 task_done 与 join？</summary>
+<summary>Q2：既然不能靠 daemon 收尾，为什么还要 task_done 与 join？</summary>
 
 Queue.join 等到所有任务被标记完成。task_done 是标记动作。少一次调用就会永久阻塞。
 
 </details>
 
 <details>
-<summary>Q3：并发数为什么不是越大越好？</summary>
+<summary>Q3：靠线程数提吞吐，为什么并发数不是越大越好？</summary>
 
 线程过多会让切换成本超过收益。网络 I/O 还会触发连接数上限与远端限流。
 
 </details>
 
 <details>
-<summary>Q4：这个场景换成 asyncio 会怎样？</summary>
+<summary>Q4：既然并发数有上限，这个场景换成 asyncio 会怎样？</summary>
 
 单线程事件循环即可支撑同样并发。代码要去掉线程，改用 aiohttp 之类的异步客户端。
 
 </details>
+
+### 下一讲衔接
+
+线程受 GIL 限制，下一讲 [多进程基础](/backend/learn/concurrency/process-basics) 讲进程如何拿到真并行。
 
 ### 关联组件
 

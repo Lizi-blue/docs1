@@ -21,6 +21,11 @@ related_components: []
 
 # Vite 开发与构建
 
+### 本讲要解决的问题
+
+开发服务器为什么要先打包才能启动？改一个文件要等多久？
+这一讲讲清 Vite 开发态与构建态的两套执行模型。
+
 ## TL;DR
 
 > 开发时 Vite 不打包。它用浏览器原生 ESM 按需编译，所以冷启动快。
@@ -48,7 +53,7 @@ Vite 是前端构建工具，开发态负责按需编译与热更新，生产态
 
 ## API 手册：Vite
 
-<ApiTable ::items='[{"name": "vite dev", "rank": "必会", "signature": "vite [--host] [--port]", "params": [{"name": "--host", "type": "flag", "default": "关闭", "desc": "监听所有网卡，便于容器访问"}, {"name": "--port", "type": "number", "default": "5173", "desc": "监听端口"}], "returns": "开发服务器进程", "methods": ["vite — 启动开发服务器", "vite build — 生产构建", "vite preview — 预览构建产物"], "effect": "按需编译源码并推送热更新", "scenario": "本地开发", "example": "npx vite --host\nnpx vite build\nnpx vite preview", "exampleLang": "bash"}, {"name": "vite.config.js", "rank": "必会", "signature": "defineConfig({ plugins, resolve, server, build, base })", "params": [{"name": "plugins", "type": "array", "default": "[]", "desc": "插件列表"}, {"name": "base", "type": "string", "default": "&#39;/&#39;", "desc": "部署子路径前缀"}, {"name": "server.proxy", "type": "object", "default": "{}", "desc": "开发代理规则"}, {"name": "build.outDir", "type": "string", "default": "dist", "desc": "构建输出目录"}], "returns": "配置对象", "methods": ["defineConfig() — 带类型提示的配置导出"], "effect": "声明构建行为，插件可深度介入管线", "scenario": "任何 Vite 项目", "example": "import { defineConfig } from \"vite\"\nimport vue from \"@vitejs/plugin-vue\"\n\nexport default defineConfig({\n  plugins: [vue()],\n  server: { proxy: { \"/api\": \"http://127.0.0.1:8000\" } }\n})", "exampleLang": "javascript"}, {"name": "import.meta.env", "rank": "常用", "signature": "import.meta.env.VITE_*", "params": [{"name": "MODE", "type": "string", "default": "development", "desc": "当前模式"}, {"name": "PROD", "type": "bool", "default": "false", "desc": "是否生产构建"}], "returns": "环境变量对象", "methods": ["import.meta.env.VITE_KEY — 读取自定义变量"], "effect": "让同一份代码在开发与生产走不同配置", "scenario": "接口地址、开关与埋点配置", "example": "const base = import.meta.env.VITE_API_BASE ?? \"/api\"\nconsole.log(base)", "exampleLang": "javascript"}]' />
+<ApiTable :items='[{"name": "vite dev", "rank": "必会", "signature": "vite [--host] [--port]", "params": [{"name": "--host", "type": "flag", "default": "关闭", "desc": "监听所有网卡，便于容器访问"}, {"name": "--port", "type": "number", "default": "5173", "desc": "监听端口"}], "returns": "开发服务器进程", "methods": ["vite — 启动开发服务器", "vite build — 生产构建", "vite preview — 预览构建产物"], "effect": "按需编译源码并推送热更新", "scenario": "本地开发", "example": "npx vite --host\nnpx vite build\nnpx vite preview", "exampleLang": "bash"}, {"name": "vite.config.js", "rank": "必会", "signature": "defineConfig({ plugins, resolve, server, build, base })", "params": [{"name": "plugins", "type": "array", "default": "[]", "desc": "插件列表"}, {"name": "base", "type": "string", "default": "&#39;/&#39;", "desc": "部署子路径前缀"}, {"name": "server.proxy", "type": "object", "default": "{}", "desc": "开发代理规则"}, {"name": "build.outDir", "type": "string", "default": "dist", "desc": "构建输出目录"}], "returns": "配置对象", "methods": ["defineConfig() — 带类型提示的配置导出"], "effect": "声明构建行为，插件可深度介入管线", "scenario": "任何 Vite 项目", "example": "import { defineConfig } from \"vite\"\nimport vue from \"@vitejs/plugin-vue\"\n\nexport default defineConfig({\n  plugins: [vue()],\n  server: { proxy: { \"/api\": \"http://127.0.0.1:8000\" } }\n})", "exampleLang": "javascript"}, {"name": "import.meta.env", "rank": "常用", "signature": "import.meta.env.VITE_*", "params": [{"name": "MODE", "type": "string", "default": "development", "desc": "当前模式"}, {"name": "PROD", "type": "bool", "default": "false", "desc": "是否生产构建"}], "returns": "环境变量对象", "methods": ["import.meta.env.VITE_KEY — 读取自定义变量"], "effect": "让同一份代码在开发与生产走不同配置", "scenario": "接口地址、开关与埋点配置", "example": "const base = import.meta.env.VITE_API_BASE ?? \"/api\"\nconsole.log(base)", "exampleLang": "javascript"}]' />
 
 ## 组合用法：开发代理加路径别名
 
@@ -133,6 +138,12 @@ npx vite build         # 构建：产物在 dist/
 npx vite preview       # 预览构建产物
 ```
 
+### 常见误区
+
+- 「Vite 开发时也在打包，只是更快」是错的。开发态不打包，浏览器按需请求模块。
+- 「热更新会刷新整个页面」是错的。它替换受影响的模块并保留组件状态。
+- 「生产构建还用 esbuild」是错的。生产构建换 Rollup，分包与产物优化更成熟。
+
 ### 面试追问链
 
 <details>
@@ -143,18 +154,22 @@ Vite 不先打包。它只启动服务器，浏览器按需请求模块，依赖
 </details>
 
 <details>
-<summary>Q2：热更新为什么不刷新页面？</summary>
+<summary>Q2：启动快之后，热更新为什么不刷新页面？</summary>
 
 它把新模块推给浏览器，由运行时代码替换旧模块并保留组件状态。
 
 </details>
 
 <details>
-<summary>Q3：生产构建为什么不用 esbuild 打包？</summary>
+<summary>Q3：开发态既然用 esbuild 预构建，生产构建为什么不用它打包？</summary>
 
 esbuild 快但代码分割与插件生态弱。Rollup 的产物更小、分包更成熟。
 
 </details>
+
+### 下一讲衔接
+
+开发与构建跑通后，下一讲 [工程化项目结构](/frontend/learn/engineering/project-structure) 讲目录职责与产物落位。
 
 ### 关联组件
 

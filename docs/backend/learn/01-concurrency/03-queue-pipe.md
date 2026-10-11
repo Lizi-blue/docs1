@@ -23,6 +23,11 @@ related_components:
 
 # Queue 通信
 
+### 本讲要解决的问题
+
+生产快过消费时会丢任务吗？消费者怎么知道该退出？
+这一讲讲清队列的阻塞语义与哨兵结束标记。
+
 ## TL;DR
 
 > 队列是生产者与消费者之间的缓冲。线程用 `queue.Queue`，跨进程用 `multiprocessing.Queue`。
@@ -139,6 +144,12 @@ if __name__ == "__main__":
 python3 queue_demo.py
 ```
 
+### 常见误区
+
+- 「队列空了消费者会自动退出」是错的。队列不发结束信号，要自己投哨兵。
+- 「一个哨兵能唤醒全部消费者」是错的。一个哨兵只唤醒一个消费者，其余永久阻塞在 get。
+- 「task_done 可有可无」是错的。少一次调用，join 就会一直等。
+
 ### 面试追问链
 
 <details>
@@ -149,18 +160,22 @@ python3 queue_demo.py
 </details>
 
 <details>
-<summary>Q2：为什么用列表 counter 而不是全局变量？</summary>
+<summary>Q2：哨兵退出之后，计数器为什么用列表而不是全局变量？</summary>
 
 闭包内改整数需要 global。列表是可变对象，闭包直接原地修改。
 
 </details>
 
 <details>
-<summary>Q3：跨进程版本要注意什么？</summary>
+<summary>Q3：换成跨进程队列后，这些约定哪里会变？</summary>
 
 任务与结果都必须可 pickle。子进程写队列后要 join_thread，否则数据可能丢。
 
 </details>
+
+### 下一讲衔接
+
+线程与队列都在等 I/O，下一讲 [异步 I/O](/backend/learn/concurrency/async-io) 讲单线程事件循环怎么接手。
 
 ### 关联组件
 

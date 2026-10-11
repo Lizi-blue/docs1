@@ -21,6 +21,11 @@ related_components: []
 
 # 工程化项目结构
 
+### 本讲要解决的问题
+
+源码、静态资源与构建产物各放哪一层？上线时把什么交给服务器？
+这一讲讲清目录职责与静态托管的回落规则。
+
 ## TL;DR
 
 > 根目录的 index.html 是入口，src 放源码，public 放原样拷贝的静态文件。
@@ -126,6 +131,12 @@ npm run build
 docker run --rm -p 8080:80 -v "$PWD/dist:/srv:ro" caddy:2-alpine
 ```
 
+### 常见误区
+
+- 「public 与 assets 只是目录名不同」是错的。public 原样拷贝，assets 交给构建加哈希。
+- 「index.html 可以挪进 src」是错的。Vite 把它当入口模板，放错位置构建找不到入口。
+- 「环境变量不加前缀也能读」是错的。Vite 只注入带 VITE_ 前缀的变量，避免服务端密钥进浏览器。
+
 ### 面试追问链
 
 <details>
@@ -136,25 +147,29 @@ Vite 把它当入口模板处理。放错位置会导致构建找不到入口。
 </details>
 
 <details>
-<summary>Q2：public 与 assets 怎么选？</summary>
+<summary>Q2：入口定好之后，public 与 assets 怎么选？</summary>
 
 需要构建处理与哈希就放 assets。需要保持原文件名与路径就放 public。
 
 </details>
 
 <details>
-<summary>Q3：单页应用为什么需要回落规则？</summary>
+<summary>Q3：资源放好之后，单页应用为什么还需要回落规则？</summary>
 
 前端路由由 JS 接管。刷新子路径时服务端找不到文件，就要回落到 index.html。
 
 </details>
 
 <details>
-<summary>Q4：环境变量为什么必须加 VITE_ 前缀？</summary>
+<summary>Q4：跨环境部署时，环境变量为什么必须加 VITE_ 前缀？</summary>
 
 Vite 只把带该前缀的变量注入客户端，避免把服务端密钥打进浏览器。
 
 </details>
+
+### 下一讲衔接
+
+本域路径到此收尾，可回到 [工程化基础](/frontend/learn/) 入口复习整条路径。
 
 ### 关联组件
 
