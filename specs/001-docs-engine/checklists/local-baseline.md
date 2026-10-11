@@ -269,3 +269,12 @@ PASS。跨领域类型进入页面模型、依赖汇聚按两个领域分组、�
 | `checkDiagrams` / `checkEntryPages` 拼相对路径 | `--root` 传绝对路径时脚本异常 | 统一把已解析的绝对 docs 传给各检查函数 |
 | 站点首页豁免写死 `docs/index.md` | 非默认扫描根的正例被误判 V2 | 改为「扫描根下的 index.md」 |
 | V15/V17 按固定段数解析领域 | 任意扫描根下领域定位错误 | 改为按 `learn` 段定位 |
+
+## 最终部署（收口）
+
+| 项 | 值 |
+|---|---|
+| CI Run | **#4379** 全绿（build + deploy），镜像 tag `d62ee57` = main 提交短 SHA |
+| 线上 | `https://docs1.minilab.uzibird.cn/`；10 条路由 200；6 个入口页索引各渲染 1 份（重复渲染已修） |
+| 响应式 | 产物 CSS 含 480/640/768/1024 四档断点、`safe-area-inset` 与 `min(var(--diagram-height), …vh)` |
+| 门禁 | 八条命令本地与 CI 双绿（内容、中文、编排、组件、门禁自测、零配置、响应式、构建） |
