@@ -334,6 +334,12 @@ function buildDomain(docsRoot: string, dirName: string, warnings: string[]): Dom
     components.push(toPageNode(readPage(path.join(componentsDir, file), docsRoot, warnings), { docsRoot, domain }, warnings))
   }
 
+  // 入口缺失是内容问题，构建不停，但必须让作者看见
+  const entryLearn = fs.existsSync(path.join(learnDir, 'index.md')) ? `${domain.url}learn/` : undefined
+  const entryComponents = fs.existsSync(path.join(componentsDir, 'index.md')) ? `${domain.url}components/` : undefined
+  if (!entryLearn) warnings.push(`领域 ${domain.slug} 缺 learn/index.md 入口页`)
+  if (!entryComponents) warnings.push(`领域 ${domain.slug} 缺 components/index.md 入口页`)
+
   return {
     slug: domain.slug,
     name: domain.name,

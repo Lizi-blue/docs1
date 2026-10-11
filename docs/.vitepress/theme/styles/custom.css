@@ -209,3 +209,29 @@
 .vp-doc { overflow-wrap: break-word; }
 .vp-doc a { overflow-wrap: anywhere; }
 .vp-doc :not(pre) > code { white-space: break-spaces; }
+
+/* 小屏手机（≤480px）：进一步压缩留白，按钮占满一行 */
+@media (max-width: 480px) {
+  .entry-card, .kd-card, .cmp-card { padding: 12px; }
+  .entry-card-title { font-size: 15px; }
+  .install-row { flex-direction: column; align-items: stretch; }
+  .install-copy { width: 100%; }
+  .badge { font-size: 11px; padding: 1px 6px; }
+  .api-params { font-size: 12px; }
+  .diagram-frame iframe { min-height: 240px; }
+  .related-links { margin-top: 20px; }
+}
+
+/* 刘海屏与圆角屏：左右留出安全区，避免内容贴边 */
+@supports (padding: env(safe-area-inset-left)) {
+  .VPDoc .content-container {
+    padding-left: max(24px, env(safe-area-inset-left));
+    padding-right: max(24px, env(safe-area-inset-right));
+  }
+}
+
+/* 触屏设备：把可点区域的命中范围抬高到 44px 级别 */
+@media (pointer: coarse) {
+  .vp-doc a, .vp-doc summary, .code-tab, .install-copy { min-height: 32px; }
+  .vp-doc details summary { padding: 4px 0; }
+}

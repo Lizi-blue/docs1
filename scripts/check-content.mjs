@@ -37,7 +37,7 @@ import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
 import { buildDocTree } from '../docs/.vitepress/plugins/doc-engine.ts'
-import { parseSegment } from '../docs/.vitepress/shared/links.ts'
+import { normalizeLink, parseSegment } from '../docs/.vitepress/shared/links.ts'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -165,7 +165,7 @@ function sectionBody(content, heading) {
 /* ------------------------------------------------------------------ 扫描 */
 
 function scan(root) {
-  const docs = path.join(REPO_ROOT, root)
+  const docs = path.isAbsolute(root) ? root : path.join(REPO_ROOT, root)
   const metas = []
   const pages = []
   for (const dir of walkDirs(docs)) {
@@ -190,10 +190,10 @@ function checkMetas(metas) {
   }
 }
 
-function checkFrontmatter(page, tree) {
+function checkFrontmatter(page, tree, docs) {
   const file = rel(page.file)
   // 站点首页用 layout: home，不属于任何领域，豁免类型约束
-  if (file === 'docs/index.md') return
+  if (path.relative(docs, page.file) === 'index.md') return
   const data = page.data
   const type = data.type
   if (!type) {
@@ -331,8 +331,7 @@ function checkUniqueUrls(tree, pages) {
   }
 }
 
-function checkDiagrams(root, tree) {
-  const docs = path.join(REPO_ROOT, root)
+function checkDiagrams(docs, tree) {
   for (const page of tree.pages) {
     const content = fs.readFileSync(path.join(docs, page.file), 'utf8')
     const refs = [...content.matchAll(/<DiagramFrame[^>]*src=["']([^"']+)["']/g)].map((matched) => matched[1])
@@ -354,8 +353,7 @@ function checkDiagrams(root, tree) {
   }
 }
 
-function checkEntryPages(root, tree) {
-  const docs = path.join(REPO_ROOT, root)
+function checkEntryPages(docs, tree) {
   for (const domain of tree.domains) {
     const entries = [
       ['learn', path.join(docs, domain.slug, 'learn', 'index.md')],
@@ -370,14 +368,24 @@ function checkEntryPages(root, tree) {
       if (data.entry !== kind) {
         fail('V11', rel(file), 1, `entry 与目录不符：${data.entry ?? '缺失'}`, `改为 entry: ${kind}`)
       }
-      if (!content.includes(`<EntryIndex kind="${kind}"`)) {
-        fail('V11', rel(file), 1, '入口页缺少 EntryIndex 组件', `补 <EntryIndex kind="${kind}" />`)
+      // 索引由 Layout 依 frontmatter.entry 渲染。正文再写一次会导致重复渲染（实测出现两份索引）
+      if (content.includes('<EntryIndex')) {
+        fail('V11', rel(file), 1, '入口页正文重复声明 EntryIndex', '删除正文里的 <EntryIndex>，索引由引擎按 frontmatter.entry 渲染')
       }
       if (kind === 'components') {
         const declared = Number((content.match(/条目数[:：]\s*(\d+)/) ?? [])[1] ?? NaN)
         if (Number.isFinite(declared) && declared !== domain.components.length) {
           fail('V11', rel(file), 1, `入口页条目数 ${declared} 与实际 ${domain.components.length} 不一致`, '索引由引擎生成，不要手写条目数')
         }
+      }
+      // 条目清单必须由引擎渲染，作者不手写（宪法 I）
+      const handWritten = [...content.matchAll(/\[[^\]]+\]\((\/[^)\s]+)\)/g)]
+        .map((matched) => normalizeLink(matched[1]))
+        .filter((url) => url.startsWith(kind === 'learn' ? `/${domain.slug}/learn/` : `/${domain.slug}/components/`))
+        .filter((url) => !url.endsWith('/'))
+      if (handWritten.length > 0) {
+        fail('V11', rel(file), 1, `入口页手写条目链接 ${handWritten.length} 处：${handWritten.slice(0, 3).join('、')}`,
+          '条目由 <EntryIndex> 渲染，删除手写清单')
       }
     }
   }
@@ -410,10 +418,12 @@ function checkTeachBlocks(metas, tree) {
         fail('V15', rel(file), 0, `lessons.goal 长度不合规：${lesson.slug}`, 'goal 保持 10–60 字')
       }
     }
-    // 目录形如 docs/<domain>/learn/<NN-knowledge-domain>/_meta.yml
+    // 目录形如 <docs>/<domain>/learn/<NN-knowledge-domain>/_meta.yml
+    // 按 learn 段定位，兼容任意扫描根
     const parts = rel(file).split('/')
-    const domainSlug = parseSegment(parts[1]).slug
-    const kdSlug = parseSegment(parts[3]).slug
+    const learnIndex = parts.indexOf('learn')
+    const domainSlug = parseSegment(parts[learnIndex - 1]).slug
+    const kdSlug = parseSegment(parts[learnIndex + 1]).slug
     const pages = tree.pages.filter(
       (page) => page.type === 'knowledge' && page.domain === domainSlug && page.knowledgeDomain === kdSlug,
     )
@@ -471,9 +481,9 @@ function main() {
   checkMetas(metas)
   checkNaming(pages)
   checkUniqueUrls(tree, pages)
-  for (const page of pages) checkFrontmatter(page, tree)
-  checkDiagrams(root, tree)
-  checkEntryPages(root, tree)
+  for (const page of pages) checkFrontmatter(page, tree, docs)
+  checkDiagrams(docs, tree)
+  checkEntryPages(docs, tree)
   checkTeachBlocks(metas, tree)
   checkPayloads(pages)
 

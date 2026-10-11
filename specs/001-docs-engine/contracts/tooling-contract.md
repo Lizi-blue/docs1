@@ -27,7 +27,7 @@ node scripts/check-content.mjs [--root docs] [--json] [--max-pages N]
 | 规则 | V1–V12 见 `data-model.md`；V13 结构化载荷可解析；V14 未知字段 |
 | 链接判定 | 用虚拟模块同一份 `linkMap`（MUST 复用 `docs/.vitepress/shared/links.ts` 的归一化规则） |
 | 图解判定 | 扫描 `docs/**` 里的 `<DiagramFrame src="/diagrams/x.html">`，断言 `docs/public/diagrams/x.html` 存在且不含外部 `http(s)://` 资源引用 |
-| 入口页判定 | 断言每个领域有 `learn/index.md` 与 `components/index.md`，且 `<EntryIndex>` 的 `kind` 与 `entry` 一致 |
+| 入口页判定 | 断言每个领域有 `learn/index.md` 与 `components/index.md`，`entry` 与目录一致，且正文不手写条目清单或 `<EntryIndex>` |
 
 **MUST NOT**：修改任何文件（只读校验）。`--fix` 类能力不提供，修复由脚手架或作者完成。
 

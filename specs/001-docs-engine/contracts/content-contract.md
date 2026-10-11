@@ -119,7 +119,7 @@ description: "先按路径学，再按组件查"
 ---
 ```
 
-入口页正文 MUST 含 `<EntryIndex kind="..." />`（`kind` 与 `entry` 一致）。索引条目由引擎生成，
+入口页只写导语，MUST NOT 在正文写 `<EntryIndex>`。索引区由引擎按 `frontmatter.entry` 生成，
 作者只写导语。作者 MUST NOT 手写条目清单。
 
 ## 4. 知识点页四段式（必需小节）
