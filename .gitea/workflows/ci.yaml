@@ -1,0 +1,43 @@
+# 业务仓薄 workflow（A 路径：可复用工作流）。
+# 只负责触发，编排逻辑由 ci 仓 template.yaml 提供；流水线以本仓自己的 Run 展示。
+# 前提：Gitea >= 1.27；ci 仓已配协作所有者；组织级 Secrets 已配置。
+# project 自动取仓库名（docs-1），派生仓或改名后无需改本文件。
+#
+# 本仓行为：
+#   - push 到 main/master/dev → 构建镜像（短 hash tag）→ 部署 docs1.minilab.uzibird.cn
+#   - 打 vX.Y.Z tag → 额外推送版本号与 latest，并按 release 逻辑发布
+#   - 纯文档仓：镜像 = VitePress 静态站点 + Caddy；无后端、无数据库、无持久卷
+
+name: CI
+
+on:
+  push:
+    branches: [main, dev, master]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "是否部署到 K3s"
+        required: false
+        type: string
+        default: "true"
+
+concurrency:
+  group: ci-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: dev/ci/.gitea/workflows/template.yaml@main   # 生产建议 pin 到 tag，如 @v1
+    with:
+      project: ${{ github.event.repository.name }}
+      ref: ${{ github.ref_name }}
+      deploy: ${{ github.event.inputs.deploy }}
+      release: ${{ github.ref_type == 'tag' }}
+    secrets:
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      CI_REPO_TOKEN: ${{ secrets.CI_REPO_TOKEN }}

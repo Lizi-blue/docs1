@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${DEPLOYMENT_NAME}
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: ${DEPLOYMENT_NAME}
+spec:
+  # 静态站单副本即可；无状态，滚动更新即可发布。
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${DEPLOYMENT_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${DEPLOYMENT_NAME}
+    spec:
+      # 镜像拉取凭据由 ci 流水线保证：ENSURE_IMAGE_PULL_SECRET + BIND_DEFAULT_SA
+      # 会给本命名空间的 default SA 挂 gitea-regcred，清单里不写 imagePullSecrets。
+      containers:
+        - name: ${DEPLOYMENT_NAME}
+          image: ${IMAGE_FULL}
+          imagePullPolicy: Always
+          env:
+            - name: APP_VERSION
+              value: "${APP_VERSION}"
+          ports:
+            - containerPort: ${CONTAINER_PORT}
+          # Caddy 直接返回 /health = 200，不依赖后端。
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: ${CONTAINER_PORT}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: ${CONTAINER_PORT}
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_BIND_SERVICE"]

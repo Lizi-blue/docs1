@@ -1,0 +1,25 @@
+# Docker 构建上下文裁剪：镜像里不放依赖、缓存与 Git 历史。
+# 注意：不要排除 package-lock.json 与 docs/**（构建需要）。
+
+# ---- Node 依赖与构建产物 ----
+node_modules/
+.pnpm-store/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+.cache/
+build/
+
+# ---- 本地工具与回执 ----
+.tools/
+docs/public/diagrams/*.delivery*.json
+
+# ---- 版本库与编辑器 ----
+.git/
+.gitignore
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+*.log

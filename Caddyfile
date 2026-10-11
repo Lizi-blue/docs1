@@ -1,0 +1,13 @@
+# 静态文档站 Caddyfile —— 只托管 VitePress 构建产物，无后端。
+# 容器内 root 指向镜像里的 /usr/share/caddy，Dockerfile 已把 dist 拷进去。
+
+:80 {
+	root * /usr/share/caddy
+
+	# 目录页与 cleanUrls：站点所有页面 URL 都不带 .html。
+	file_server
+	try_files {path} {path}.html {path}/index.html /index.html
+
+	# 健康检查：K8s 探针用，直接返回 200，不依赖任何后端。
+	respond /health 200
+}
