@@ -131,16 +131,103 @@ curl -sS https://docs1.minilab.uzibird.cn/backend/learn/concurrency/thread-basic
 
 **期望**：镜像标签等于本次提交短 hash；`/health` 为 200；首页与知识点页 200；页面含本次提交内容。
 
+**回滚验收**（FR-030，完整步骤与预期见 `contracts/deploy-contract.md` §8）：
+
+```bash
+kubectl -n docs get deploy docs-1-docs -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl -n docs rollout undo deploy/docs-1-docs          # 期望：rolled back
+kubectl -n docs rollout status deploy/docs-1-docs --timeout=60s   # 期望：successfully rolled out
+curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/health  # 期望 200
+```
+
+**期望**：镜像标签切回上一 revision；`/health` 仍为 200；无需数据迁移。命名空间随触发而变：
+`push main` 在 `docs`，`tag vX.Y.Z` 的 release 在 `production`。
+
 ## S10 跨领域类型契约（FR-015，示例内容延后）
 
-在临时目录构造一份 `cross-domain/*.md`（`type: cross-component`，`depends_on` 含两个领域），
-跑一次 `npm run build`，确认：
+夹具是临时文件，验证后 MUST 删除，不得提交（本里程碑只交付契约）。
 
-- 该页出现在「跨领域组件」分组；
-- 顶部渲染「依赖汇聚」，按领域聚合依赖项；
-- 双栏切分与组件页一致。
+````bash
+mkdir -p docs/cross-domain
+cat > docs/cross-domain/task-scheduler-ui.md <<'MD'
+---
+title: "任务看板跨端组件"
+type: cross-component
+domain: cross-domain
+order: 1
+depends_on:
+  backend:
+    - /backend/learn/concurrency/queue-pipe
+    - /backend/learn/concurrency/process-basics
+  frontend:
+    - /frontend/learn/engineering/vite-dev-and-build
+    - /frontend/learn/engineering/npm-and-modules
+install_command: "pip install task-scheduler-ui"
+tags_index: [cross-domain, scheduler]
+reusability: medium
+description: "后端任务队列与前端看板视图拼成同一个可复用组件"
+---
+
+# 任务看板跨端组件
+
+## 组件简介
+
+本组件把后端任务队列与前端看板视图拼在一起。
+
+## 涉及的知识点
+
+| 领域 | 知识点 | 作用 |
+|---|---|---|
+| Python 后端 | [Queue 通信](/backend/learn/concurrency/queue-pipe) | 任务缓冲与结束 |
+| 前端工程化 | [Vite 开发与构建](/frontend/learn/engineering/vite-dev-and-build) | 看板页面构建 |
+
+## 其他项目如何引用
+
+### 方式一：pip 安装
+
+```bash
+pip install task-scheduler-ui
+```
+
+### 方式二：复制源码
+
+把两端源码各复制一份到项目内。
+
+### 方式三：按框架集成
+
+后端挂到 Flask 蓝图，前端挂到 Vite 页面。
+MD
+
+# 1 模型断言：进入 cross-domain 分组、依赖汇聚、反链
+node --input-type=module -e "
+const { buildDocTree, normalizeLink } = await import('./docs/.vitepress/plugins/doc-engine.ts')
+const tree = buildDocTree('docs')
+const page = tree.pages.find((item) => item.url === '/cross-domain/task-scheduler-ui')
+console.log('type=', page.type, 'domain=', page.domain, '分组=', tree.domains.map((d) => d.slug).join(','))
+console.log('依赖=', page.dependsOnKnowledge.length, '未命中告警=', tree.warnings.filter((w) => w.includes('task-scheduler-ui')).length)
+console.log('被复用=', tree.backlinks['/backend/learn/concurrency/queue-pipe'].reusedByComponents)
+"
+
+# 2 构建后断言产物
+npm run build
+grep -c 'cmp-grid' docs/.vitepress/dist/cross-domain/task-scheduler-ui.html
+grep -o '依赖汇聚（后端与前端如何汇入本组件）' docs/.vitepress/dist/cross-domain/task-scheduler-ui.html | wc -l
+grep -oE 'Python 后端|前端工程化' docs/.vitepress/dist/cross-domain/task-scheduler-ui.html | sort -u
+
+# 3 清理夹具
+rm -f docs/cross-domain/task-scheduler-ui.md && rmdir docs/cross-domain
+````
+
+**期望**：
+
+- 页面进入「跨领域组件」分组（`domain=cross-domain`），`type=cross-component`；
+- `depends_on` 的 backend 与 frontend 条目全部命中 `linkMap`，未命中告警 0 条；
+- 顶部渲染「依赖汇聚」，按领域分成「Python 后端」与「前端工程化」两组，条目可点击；
+- 双栏切分与组件页一致（产物 HTML 含 `cmp-grid`、`cmp-main`、`cmp-aside`）；
+- 被测知识点页的反链 `reusedByComponents` 含本组件 URL。
 
 临时文件 MUST NOT 提交（本里程碑只交付契约，不交付示例内容）。
+2026-10-11 实测：17 条断言全过，证据见 `checklists/local-baseline.md` 的 FR-015 一节。
 
 ## 验收对照
 

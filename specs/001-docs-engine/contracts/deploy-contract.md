@@ -101,11 +101,37 @@ curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' ht
 
 ## 8. 回滚
 
+静态站无状态，回滚只切镜像标签，不做数据迁移。
+
+### 8.1 命令
+
 ```bash
+kubectl -n docs rollout history deploy/docs-1-docs
 kubectl -n docs rollout undo deploy/docs-1-docs
+kubectl -n docs rollout status deploy/docs-1-docs --timeout=60s
 ```
 
-静态站无状态、无数据迁移，回滚 MUST NOT 需要额外步骤。
+### 8.2 验收步骤与预期
+
+| 步骤 | 命令 | 预期 |
+|---|---|---|
+| 1 记当前版本 | `kubectl -n docs get deploy docs-1-docs -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'` | 本次短 hash 或 `vX.Y.Z` |
+| 2 回滚 | `kubectl -n docs rollout undo deploy/docs-1-docs` | 输出 `deployment.apps/docs-1-docs rolled back` |
+| 3 等就绪 | `kubectl -n docs rollout status deploy/docs-1-docs --timeout=60s` | `successfully rolled out`，副本 1/1 |
+| 4 查镜像 | 重跑步骤 1 | 标签变成上一 revision，且与步骤 1 不同 |
+| 5 查 revision | `kubectl -n docs rollout history deploy/docs-1-docs` | revision 递增；回滚目标在历史中 |
+| 6 探活 | `curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/health` | `200` |
+| 7 验内容 | `curl -sS -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/ \| grep -c '<上一版标题>'` | 计数 ≥1，内容回到上一版 |
+
+**前置**：`revisionHistoryLimit` 保留历史 ReplicaSet（清单未设，用默认 10）；每次部署的镜像标签
+唯一（ci 按短 hash 或 tag 派生），`undo` 才能切回上一 ReplicaSet。清单见
+`deploy/deployment.yaml`（单副本、`/health` 探针）。
+
+**命名空间口径**：`push main` 部署在 `docs`；`tag vX.Y.Z` 的 release 走 `production`
+（ci 模板 `RELEASE_NAMESPACE` 默认值，见 `.gitea/workflows/ci.yaml` 与 ci 仓
+`docs/CAPABILITIES.md` §4）。回滚前先用 `kubectl -n <ns> get deploy docs-1-docs` 确认命名空间。
+
+**MUST NOT** 需要额外步骤：无持久卷、无数据库、无配置中心。
 
 ## 9. 风险与对策
 

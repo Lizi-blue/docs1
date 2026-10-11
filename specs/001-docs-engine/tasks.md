@@ -150,11 +150,11 @@ description: "Task list for feature 001-docs-engine"
 
 **Independent Test**: 用脚手架生成一个知识域与一个知识点，校验通过、导航自动出现；合成 1000 页夹具测得构建与体积在预算内
 
-- [ ] T038 [US6] 新建 `scripts/check-budget.mjs`：在临时目录合成 N 页（默认 1000）夹具，测量解析时长、构建时长、`virtual:doc-tree` 载荷体积与静态资源总量，输出与预算的对比
-- [ ] T039 [US6] 把 `contracts/engine-contract.md` §9 的预算写成脚本判据（1000 页构建 ≤180s、站点资源 ≤20 MB、单图 ≤1.5 MB），超限时退出码 1 并打印超出指标与数值
+- [x] T038 [US6] 新建 `scripts/check-budget.mjs`：在临时目录合成 N 页（默认 1000）夹具，测量解析时长、构建时长、`virtual:doc-tree` 载荷体积与静态资源总量，输出与预算的对比
+- [x] T039 [US6] 把 `contracts/engine-contract.md` §9 的预算写成脚本判据（1000 页构建 ≤180s、站点资源 ≤20 MB、单图 ≤1.5 MB），超限时退出码 1 并打印超出指标与数值
 - [ ] T040 [US6] 脚手架端到端演练：`node scripts/new-content.mjs knowledge-domain …` 与 `… knowledge …` 生成内容，跑 `npm run check:content` 与 `npm run build` 全绿，随后删除夹具并在 `checklists/local-baseline.md` 记录
 - [ ] T041 [US6] 把创作规范上架 `dev/skill` 仓：技能正文只放「何时加载、目录落位、页面结构、常见错误、自检命令」，取值指向本仓 `contracts/content-contract.md`；断言两处无重复取值
-- [ ] T042 [US6] 跨领域契约夹具验证：构造临时 `docs/cross-domain/<fixture>.md`（`type: cross-component`，`depends_on` 含 `backend` 与 `frontend`），断言页面进入「跨领域组件」分组、顶部渲染依赖汇聚、双栏切分与组件页一致；验证后删除（示例内容不属本里程碑）
+- [x] T042 [US6] 跨领域契约夹具验证：构造临时 `docs/cross-domain/<fixture>.md`（`type: cross-component`，`depends_on` 含 `backend` 与 `frontend`），断言页面进入「跨领域组件」分组、顶部渲染依赖汇聚、双栏切分与组件页一致；验证后删除（示例内容不属本里程碑）
 
 **Checkpoint**: 规范可执行、可扩展、可测量
 
