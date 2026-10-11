@@ -1,0 +1,5 @@
+name: "前端工程化"
+icon: "🧰"
+order: 1
+description: "从单页 index.html 到 npm + Vite 的工程化开发"
+entry_type: domain

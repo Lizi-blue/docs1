@@ -1,0 +1,5 @@
+name: "技术面试备考"
+icon: "🎯"
+order: 0
+description: "每个学习方向都提供两个入口：渐进式学习与组件查询"
+entry_type: root

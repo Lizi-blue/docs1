@@ -1,0 +1,155 @@
+/* docs-1 主题样式：只补充 VitePress 默认主题没有的部分（卡片、徽标、API 表、双栏）。 */
+
+/* ---- 通用徽标 ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.badge-level,
+.badge-type { color: var(--vp-c-brand-1); border-color: var(--vp-c-brand-2); }
+.badge-tag { color: var(--vp-c-text-3); }
+.badge-link { color: var(--vp-c-green-1, #10b981); }
+.rank-must { color: #fff; background: #d9480f; border-color: #d9480f; }
+.rank-common { color: #fff; background: #1c7ed6; border-color: #1c7ed6; }
+.rank-advanced { color: var(--vp-c-text-2); }
+
+/* ---- 页面头部 ---- */
+.page-header { margin-bottom: 20px; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+
+/* ---- 进度条 ---- */
+.progress-bar { margin: 4px 0 12px; }
+.progress-text { display: flex; justify-content: space-between; font-size: 13px; color: var(--vp-c-text-2); }
+.progress-label { font-weight: 600; }
+.progress-track { height: 6px; margin-top: 6px; border-radius: 999px; background: var(--vp-c-bg-soft); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; background: var(--vp-c-brand-1); transition: width 0.3s ease; }
+
+/* ---- 前置知识 ---- */
+.prerequisite {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 8px 12px; border-left: 3px solid var(--vp-c-brand-1);
+  background: var(--vp-c-bg-soft); border-radius: 6px; font-size: 13px;
+}
+.prerequisite-title { color: var(--vp-c-text-2); font-weight: 600; }
+.prerequisite-item { color: var(--vp-c-brand-1); }
+
+/* ---- 安装命令 ---- */
+.install-box {
+  margin: 12px 0; padding: 10px 12px;
+  border: 1px solid var(--vp-c-divider); border-radius: 8px; background: var(--vp-c-bg-soft);
+}
+.install-label { font-size: 12px; color: var(--vp-c-text-3); margin-bottom: 6px; }
+.install-row { display: flex; align-items: center; gap: 8px; }
+.install-command { flex: 1; overflow-x: auto; font-size: 13px; }
+.install-copy {
+  padding: 4px 10px; border: 1px solid var(--vp-c-divider); border-radius: 6px;
+  background: var(--vp-c-bg); color: var(--vp-c-text-1); cursor: pointer; font-size: 12px;
+}
+.install-copy:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-brand-1); }
+
+/* ---- API 手册 ---- */
+.api-item { margin: 20px 0 26px; }
+.api-name { display: flex; align-items: center; gap: 8px; }
+.api-signature { font-size: 13px; }
+.api-params { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+.api-params th, .api-params td { border: 1px solid var(--vp-c-divider); padding: 6px 10px; text-align: left; }
+.api-params th { background: var(--vp-c-bg-soft); }
+.api-facts { margin: 8px 0; padding-left: 18px; font-size: 14px; }
+.api-example summary { cursor: pointer; color: var(--vp-c-brand-1); font-size: 13px; }
+.api-example pre { margin-top: 8px; padding: 12px; border-radius: 8px; background: var(--vp-c-bg-soft); overflow-x: auto; font-size: 13px; }
+
+/* ---- 代码标签页 ---- */
+.code-tabs { margin: 16px 0; border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden; }
+.code-tabs-header { display: flex; background: var(--vp-c-bg-soft); }
+.code-tab { padding: 6px 14px; border: none; background: transparent; color: var(--vp-c-text-2); cursor: pointer; font-size: 13px; }
+.code-tab.active { color: var(--vp-c-brand-1); box-shadow: inset 0 -2px 0 var(--vp-c-brand-1); }
+.code-tabs-body { margin: 0; padding: 14px; overflow-x: auto; font-size: 13px; }
+
+/* ---- 图解外框 ---- */
+.diagram-frame { margin: 18px 0; border: 1px solid var(--vp-c-divider); border-radius: 10px; overflow: hidden; }
+.diagram-frame figcaption {
+  display: flex; justify-content: space-between; padding: 8px 12px;
+  background: var(--vp-c-bg-soft); font-size: 13px; color: var(--vp-c-text-2);
+}
+.diagram-frame iframe { width: 100%; border: 0; display: block; background: var(--vp-c-bg); }
+
+/* ---- 组件页双栏（由 markdown 插件自动分段） ---- */
+.cmp-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 28px; align-items: start; }
+.cmp-aside {
+  position: sticky; top: calc(var(--vp-nav-height) + 16px);
+  padding-left: 18px; border-left: 1px solid var(--vp-c-divider);
+}
+@media (max-width: 1100px) {
+  .cmp-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .cmp-aside { position: static; padding-left: 0; border-left: none; }
+}
+
+/* ---- 入口页 ---- */
+.entry-index { margin: 8px 0 24px; }
+.entry-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.entry-card {
+  display: block; padding: 18px; border: 1px solid var(--vp-c-divider); border-radius: 12px;
+  background: var(--vp-c-bg-soft); text-decoration: none !important;
+}
+.entry-card:hover { border-color: var(--vp-c-brand-1); }
+.entry-card-icon { font-size: 22px; }
+.entry-card-title { margin-top: 6px; font-size: 17px; font-weight: 700; color: var(--vp-c-text-1); }
+.entry-card-desc { margin-top: 6px; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6; }
+.entry-card-meta { margin-top: 10px; font-size: 12px; color: var(--vp-c-text-3); }
+
+.kd-list { display: grid; gap: 16px; }
+.kd-card { padding: 16px 18px; border: 1px solid var(--vp-c-divider); border-radius: 12px; }
+.kd-header { display: flex; align-items: center; gap: 8px; }
+.kd-icon { font-size: 18px; }
+.kd-name { font-size: 16px; font-weight: 700; }
+.kd-count { margin-left: auto; font-size: 12px; color: var(--vp-c-text-3); }
+.kd-desc { margin: 6px 0; font-size: 13px; color: var(--vp-c-text-2); }
+.kd-path { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.kd-path-step { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--vp-c-bg-soft); color: var(--vp-c-text-2); }
+.kd-pages { margin: 10px 0 0; padding-left: 0; list-style: none; }
+.kd-pages li { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; font-size: 14px; }
+.kd-index {
+  display: inline-flex; justify-content: center; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--vp-c-bg-soft); color: var(--vp-c-text-3); font-size: 12px;
+}
+.kd-page-desc { color: var(--vp-c-text-3); font-size: 12px; }
+.kd-start { margin-top: 10px; font-size: 13px; color: var(--vp-c-text-2); }
+
+.cmp-list { display: grid; gap: 14px; }
+.cmp-card { display: block; padding: 16px 18px; border: 1px solid var(--vp-c-divider); border-radius: 12px; text-decoration: none !important; }
+.cmp-card:hover { border-color: var(--vp-c-brand-1); }
+.cmp-card-head { display: flex; align-items: center; gap: 8px; }
+.cmp-card-title { font-size: 16px; font-weight: 700; }
+.cmp-card-desc { margin-top: 6px; font-size: 13px; color: var(--vp-c-text-2); }
+.cmp-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.cmp-card-meta { margin-top: 8px; font-size: 12px; color: var(--vp-c-text-3); }
+
+/* ---- 标签索引 ---- */
+.tag-index { margin-top: 24px; }
+.tag-index-title { font-size: 16px; }
+.tag-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--vp-c-divider); font-size: 13px; }
+.tag-name { min-width: 120px; color: var(--vp-c-text-2); }
+.tag-item { color: var(--vp-c-brand-1); }
+
+/* ---- 底部关联 ---- */
+.related-links { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--vp-c-divider); }
+.related-title { font-size: 16px; border-top: none; padding-top: 0; }
+.related-group { margin-top: 10px; }
+.related-group-title { font-size: 13px; color: var(--vp-c-text-2); }
+.related-list { margin: 4px 0 0; padding-left: 18px; font-size: 14px; }
+.related-empty { font-size: 13px; color: var(--vp-c-text-3); }
+
+/* ---- 跨领域依赖汇聚 ---- */
+.dep-aggregate { margin: 12px 0; padding: 12px; border: 1px dashed var(--vp-c-divider); border-radius: 8px; }
+.dep-title { font-size: 13px; color: var(--vp-c-text-2); margin-bottom: 8px; }
+.dep-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0; font-size: 13px; }
+.dep-domain { min-width: 80px; color: var(--vp-c-text-3); }
+.dep-chip { padding: 2px 8px; border-radius: 999px; background: var(--vp-c-bg-soft); }

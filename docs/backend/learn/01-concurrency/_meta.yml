@@ -1,0 +1,12 @@
+name: "并发编程"
+order: 1
+icon: "⚡"
+description: "线程、进程、队列与异步 I/O"
+prerequisites: []
+path:
+  - from: "01-thread-basics"
+    to: "02-process-basics"
+    label: "线程基础 → 进程基础"
+  - from: "03-queue-pipe"
+    to: "04-async-io"
+    label: "Queue 通信 → 异步 I/O"

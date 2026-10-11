@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "事件循环轮转与阻塞点",
+    "output": "docs/public/diagrams/async-event-loop.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      600
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "loop",
+      "type": "messagebus",
+      "label": "事件循环",
+      "sublabel": "select/epoll"
+    },
+    {
+      "id": "a",
+      "type": "backend",
+      "label": "协程 A",
+      "sublabel": "fetch(url-1)"
+    },
+    {
+      "id": "b",
+      "type": "backend",
+      "label": "协程 B",
+      "sublabel": "fetch(url-2)"
+    },
+    {
+      "id": "net",
+      "type": "external",
+      "label": "网络",
+      "sublabel": "socket"
+    },
+    {
+      "id": "sync",
+      "type": "database",
+      "label": "同步库调用",
+      "sublabel": "requests.get"
+    },
+    {
+      "id": "timer",
+      "type": "cloud",
+      "label": "定时器",
+      "sublabel": "sleep / timeout"
+    }
+  ],
+  "segments": [
+    {
+      "from": 156,
+      "to": 245,
+      "label": "注册等待"
+    },
+    {
+      "from": 245,
+      "to": 365,
+      "label": "就绪与恢复"
+    },
+    {
+      "from": 365,
+      "to": 484,
+      "label": "阻塞点"
+    }
+  ],
+  "messages": [
+    {
+      "id": "a-await",
+      "from": "a",
+      "to": "loop",
+      "y": 170,
+      "label": "await fetch(url-1)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a-reg",
+      "from": "loop",
+      "to": "net",
+      "y": 200,
+      "label": "注册读事件",
+      "variant": "default"
+    },
+    {
+      "id": "b-await",
+      "from": "b",
+      "to": "loop",
+      "y": 230,
+      "label": "await fetch(url-2)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "b-reg",
+      "from": "loop",
+      "to": "net",
+      "y": 260,
+      "label": "注册读事件",
+      "variant": "default"
+    },
+    {
+      "id": "ready1",
+      "from": "net",
+      "to": "loop",
+      "y": 290,
+      "label": "url-1 可读",
+      "variant": "return"
+    },
+    {
+      "id": "resume-a",
+      "from": "loop",
+      "to": "a",
+      "y": 320,
+      "label": "恢复协程 A",
+      "variant": "return"
+    },
+    {
+      "id": "ready2",
+      "from": "net",
+      "to": "loop",
+      "y": 350,
+      "label": "url-2 可读",
+      "variant": "return"
+    },
+    {
+      "id": "resume-b",
+      "from": "loop",
+      "to": "b",
+      "y": 380,
+      "label": "恢复协程 B",
+      "variant": "return"
+    },
+    {
+      "id": "timer-tick",
+      "from": "timer",
+      "to": "loop",
+      "y": 410,
+      "label": "到期回调",
+      "variant": "dashed"
+    },
+    {
+      "id": "block",
+      "from": "a",
+      "to": "sync",
+      "y": 440,
+      "label": "同步调用，不放控制权",
+      "variant": "emphasis"
+    },
+    {
+      "id": "blocked",
+      "from": "loop",
+      "to": "b",
+      "y": 470,
+      "label": "整个循环被卡住",
+      "variant": "dashed"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "a",
+      "from": 162,
+      "to": 208,
+      "type": "backend"
+    },
+    {
+      "participant": "loop",
+      "from": 162,
+      "to": 238,
+      "type": "messagebus"
+    },
+    {
+      "participant": "net",
+      "from": 162,
+      "to": 298,
+      "type": "external"
+    },
+    {
+      "participant": "b",
+      "from": 192,
+      "to": 268,
+      "type": "backend"
+    },
+    {
+      "participant": "loop",
+      "from": 282,
+      "to": 388,
+      "type": "messagebus"
+    },
+    {
+      "participant": "a",
+      "from": 282,
+      "to": 328,
+      "type": "backend"
+    },
+    {
+      "participant": "b",
+      "from": 342,
+      "to": 388,
+      "type": "backend"
+    },
+    {
+      "participant": "sync",
+      "from": 432,
+      "to": 478,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "单线程也能高并发",
+      "items": [
+        "等待网络时循环去跑别的协程",
+        "不创建线程，栈开销几乎为零",
+        "并发数量级可达数万"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "切换由循环决定",
+      "items": [
+        "await 是显式让出点",
+        "就绪队列与定时器统一调度",
+        "切换成本是纳秒级"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "一个阻塞调用毁掉全部",
+      "items": [
+        "同步库会卡住整个循环",
+        "同步库放进线程池再 await",
+        "CPU 密集任务换多进程"
+      ]
+    }
+  ]
+}

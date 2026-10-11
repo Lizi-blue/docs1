@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "线程与进程的内存模型",
+    "output": "docs/public/diagrams/process-model.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "main", "type": "backend", "label": "主进程", "sublabel": "python main.py", "pos": [40, 260], "size": [140, 64] },
+    { "id": "gil", "type": "messagebus", "label": "GIL", "sublabel": "每进程一个", "pos": [250, 260], "size": [130, 60] },
+    { "id": "mem", "type": "database", "label": "共享内存", "sublabel": "堆 + 文件描述符", "pos": [250, 130], "size": [150, 60] },
+    { "id": "t1", "type": "backend", "label": "线程 1", "sublabel": "独立栈", "pos": [470, 130], "size": [130, 60] },
+    { "id": "t2", "type": "backend", "label": "线程 2", "sublabel": "独立栈", "pos": [470, 260], "size": [130, 60] },
+    { "id": "p1", "type": "cloud", "label": "子进程 1", "sublabel": "独立解释器", "pos": [250, 420], "size": [140, 64] },
+    { "id": "p2", "type": "cloud", "label": "子进程 2", "sublabel": "独立解释器", "pos": [470, 420], "size": [140, 64] },
+    { "id": "pipe", "type": "messagebus", "label": "Queue / Pipe", "sublabel": "pickle 序列化", "pos": [700, 420], "size": [160, 60] },
+    { "id": "lock", "type": "security", "label": "Lock", "sublabel": "保护临界区", "pos": [700, 260], "size": [130, 60] }
+  ],
+  "boundaries": [
+    { "kind": "security-group", "label": "进程边界：内存不共享", "wraps": ["main", "gil", "mem", "t1", "t2", "lock"] },
+    { "kind": "region", "label": "新增解释器：可多核并行", "wraps": ["p1", "p2"] }
+  ],
+  "connections": [
+    { "id": "main-fork", "from": "main", "to": "p1", "label": "fork / spawn", "variant": "emphasis" },
+    { "id": "main-fork2", "from": "main", "to": "p2", "label": "fork / spawn" },
+    { "id": "main-gil", "from": "main", "to": "gil", "label": "持有" },
+    { "id": "gil-t1", "from": "gil", "to": "t1" },
+    { "id": "gil-t2", "from": "gil", "to": "t2" },
+    { "id": "mem-t1", "from": "mem", "to": "t1", "label": "共享读写", "variant": "dashed" },
+    { "id": "mem-t2", "from": "mem", "to": "t2", "label": "共享读写", "variant": "dashed" },
+    { "id": "t2-lock", "from": "t2", "to": "lock", "label": "with lock", "variant": "security" },
+    { "id": "p1-pipe", "from": "p1", "to": "pipe", "label": "put(obj)" },
+    { "id": "p2-pipe", "from": "p2", "to": "pipe", "label": "put(obj)" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "同进程：共享但受限",
+      "items": [
+        "线程共享堆与文件描述符",
+        "GIL 让字节码串行执行",
+        "共享写要加锁保护"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "跨进程：独立但可并行",
+      "items": [
+        "每个子进程有自己的解释器与 GIL",
+        "CPU 密集任务能真正跑满多核",
+        "创建成本在毫秒级"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "跨界要过序列化关口",
+      "items": [
+        "对象必须可 pickle",
+        "大对象复制代价高",
+        "共享内存可绕过复制"
+      ]
+    }
+  ]
+}

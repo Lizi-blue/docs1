@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "GIL 持有、释放与线程切换",
+    "output": "docs/public/diagrams/gil-workflow.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      570
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "t1",
+      "type": "backend",
+      "label": "线程 A",
+      "sublabel": "target=work"
+    },
+    {
+      "id": "t2",
+      "type": "backend",
+      "label": "线程 B",
+      "sublabel": "target=work"
+    },
+    {
+      "id": "gil",
+      "type": "messagebus",
+      "label": "GIL",
+      "sublabel": "全局解释器锁"
+    },
+    {
+      "id": "io",
+      "type": "external",
+      "label": "网络 I/O",
+      "sublabel": "socket"
+    },
+    {
+      "id": "sched",
+      "type": "cloud",
+      "label": "调度器",
+      "sublabel": "时间片"
+    }
+  ],
+  "segments": [
+    {
+      "from": 156,
+      "to": 245,
+      "label": "抢占 GIL"
+    },
+    {
+      "from": 245,
+      "to": 335,
+      "label": "执行与让出"
+    },
+    {
+      "from": 335,
+      "to": 454,
+      "label": "I/O 等待与切回"
+    }
+  ],
+  "messages": [
+    {
+      "id": "a-hold",
+      "from": "t1",
+      "to": "gil",
+      "y": 170,
+      "label": "acquire()",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a-run",
+      "from": "gil",
+      "to": "t1",
+      "y": 200,
+      "label": "持有并执行字节码",
+      "variant": "return"
+    },
+    {
+      "id": "a-wait",
+      "from": "t1",
+      "to": "io",
+      "y": 230,
+      "label": "read()",
+      "variant": "default"
+    },
+    {
+      "id": "a-release",
+      "from": "t1",
+      "to": "gil",
+      "y": 260,
+      "label": "release() 等待 I/O 时让出",
+      "variant": "dashed"
+    },
+    {
+      "id": "b-hold",
+      "from": "t2",
+      "to": "gil",
+      "y": 290,
+      "label": "acquire()",
+      "variant": "emphasis"
+    },
+    {
+      "id": "b-run",
+      "from": "gil",
+      "to": "t2",
+      "y": 320,
+      "label": "持有并执行字节码",
+      "variant": "return"
+    },
+    {
+      "id": "sched",
+      "from": "sched",
+      "to": "t2",
+      "y": 350,
+      "label": "时间片到期，请求让出",
+      "variant": "default"
+    },
+    {
+      "id": "b-release",
+      "from": "t2",
+      "to": "gil",
+      "y": 380,
+      "label": "release()",
+      "variant": "dashed"
+    },
+    {
+      "id": "io-ready",
+      "from": "io",
+      "to": "t1",
+      "y": 410,
+      "label": "数据就绪",
+      "variant": "return"
+    },
+    {
+      "id": "a-resume",
+      "from": "t1",
+      "to": "gil",
+      "y": 440,
+      "label": "重新 acquire() 继续执行",
+      "variant": "emphasis"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "t1",
+      "from": 162,
+      "to": 238,
+      "type": "backend"
+    },
+    {
+      "participant": "gil",
+      "from": 162,
+      "to": 268,
+      "type": "messagebus"
+    },
+    {
+      "participant": "io",
+      "from": 192,
+      "to": 418,
+      "type": "external"
+    },
+    {
+      "participant": "t2",
+      "from": 252,
+      "to": 388,
+      "type": "backend"
+    },
+    {
+      "participant": "gil",
+      "from": 252,
+      "to": 388,
+      "type": "messagebus"
+    },
+    {
+      "participant": "t1",
+      "from": 402,
+      "to": 448,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "orange",
+      "title": "同一时刻只有一个线程跑字节码",
+      "items": [
+        "线程必须先拿到 GIL 才能执行 Python 代码",
+        "CPU 密集任务因此无法真正并行",
+        "换多进程才能用满多核"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "I/O 等待时会主动让出",
+      "items": [
+        "阻塞式 I/O 前解释器释放 GIL",
+        "别的线程立刻接上继续执行",
+        "I/O 密集任务因此仍能重叠"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "切换有成本",
+      "items": [
+        "线程切换由时间片与解释器共同决定",
+        "线程过多时切换开销超过收益",
+        "并发数要按任务类型定"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "线程池批量取数的数据流",
+    "output": "docs/public/diagrams/thread-pool-flow.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      630
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "main",
+      "type": "backend",
+      "label": "主线程",
+      "sublabel": "投递与汇总"
+    },
+    {
+      "id": "tasks",
+      "type": "messagebus",
+      "label": "任务队列",
+      "sublabel": "queue.Queue"
+    },
+    {
+      "id": "w1",
+      "type": "backend",
+      "label": "worker 1",
+      "sublabel": "取 URL"
+    },
+    {
+      "id": "w2",
+      "type": "backend",
+      "label": "worker 2",
+      "sublabel": "取 URL"
+    },
+    {
+      "id": "net",
+      "type": "external",
+      "label": "目标站点",
+      "sublabel": "HTTPS"
+    },
+    {
+      "id": "results",
+      "type": "messagebus",
+      "label": "结果队列",
+      "sublabel": "queue.Queue"
+    }
+  ],
+  "segments": [
+    {
+      "from": 156,
+      "to": 275,
+      "label": "投递任务"
+    },
+    {
+      "from": 275,
+      "to": 395,
+      "label": "并发取数"
+    },
+    {
+      "from": 395,
+      "to": 514,
+      "label": "回收与结束"
+    }
+  ],
+  "messages": [
+    {
+      "id": "put-urls",
+      "from": "main",
+      "to": "tasks",
+      "y": 170,
+      "label": "put(url) × 20",
+      "variant": "emphasis"
+    },
+    {
+      "id": "w1-get",
+      "from": "w1",
+      "to": "tasks",
+      "y": 200,
+      "label": "get()",
+      "variant": "default"
+    },
+    {
+      "id": "w2-get",
+      "from": "w2",
+      "to": "tasks",
+      "y": 230,
+      "label": "get()",
+      "variant": "default"
+    },
+    {
+      "id": "w1-fetch",
+      "from": "w1",
+      "to": "net",
+      "y": 260,
+      "label": "GET /page=1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "w2-fetch",
+      "from": "w2",
+      "to": "net",
+      "y": 290,
+      "label": "GET /page=2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "w1-ok",
+      "from": "net",
+      "to": "w1",
+      "y": 320,
+      "label": "200",
+      "variant": "return"
+    },
+    {
+      "id": "w2-ok",
+      "from": "net",
+      "to": "w2",
+      "y": 350,
+      "label": "200",
+      "variant": "return"
+    },
+    {
+      "id": "w1-put",
+      "from": "w1",
+      "to": "results",
+      "y": 380,
+      "label": "put((url, 200))",
+      "variant": "default"
+    },
+    {
+      "id": "w2-put",
+      "from": "w2",
+      "to": "results",
+      "y": 410,
+      "label": "put((url, 200))",
+      "variant": "default"
+    },
+    {
+      "id": "drain",
+      "from": "main",
+      "to": "results",
+      "y": 440,
+      "label": "get() × 20 汇总",
+      "variant": "return"
+    },
+    {
+      "id": "sentinel",
+      "from": "main",
+      "to": "tasks",
+      "y": 470,
+      "label": "put(None) × worker 数",
+      "variant": "dashed"
+    },
+    {
+      "id": "exit",
+      "from": "w1",
+      "to": "tasks",
+      "y": 500,
+      "label": "取到哨兵，退出循环",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "main",
+      "from": 162,
+      "to": 208,
+      "type": "backend"
+    },
+    {
+      "participant": "tasks",
+      "from": 162,
+      "to": 208,
+      "type": "messagebus"
+    },
+    {
+      "participant": "w1",
+      "from": 162,
+      "to": 388,
+      "type": "backend"
+    },
+    {
+      "participant": "w2",
+      "from": 192,
+      "to": 418,
+      "type": "backend"
+    },
+    {
+      "participant": "net",
+      "from": 222,
+      "to": 358,
+      "type": "external"
+    },
+    {
+      "participant": "results",
+      "from": 342,
+      "to": 448,
+      "type": "messagebus"
+    },
+    {
+      "participant": "main",
+      "from": 402,
+      "to": 478,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "主路径",
+      "items": [
+        "主线程只负责投递与汇总",
+        "worker 数量决定并发上限",
+        "I/O 等待期间别的 worker 继续取任务"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "背压",
+      "items": [
+        "队列有上限时主线程会被阻塞",
+        "队列无上限时内存会涨",
+        "按内存与延迟目标设 maxsize"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "结束条件",
+      "items": [
+        "哨兵数量必须等于 worker 数量",
+        "少投一个就有 worker 永久阻塞",
+        "task_done 与 join 配对使用"
+      ]
+    }
+  ]
+}

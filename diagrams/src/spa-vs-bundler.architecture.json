@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "单页入口与工程化入口的差别",
+    "output": "docs/public/diagrams/spa-vs-bundler.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "html", "type": "frontend", "label": "index.html", "sublabel": "手写结构", "pos": [40, 130], "size": [140, 60] },
+    { "id": "s1", "type": "frontend", "label": "jquery.min.js", "sublabel": "script 标签 1", "pos": [250, 60], "size": [150, 60] },
+    { "id": "s2", "type": "frontend", "label": "utils.js", "sublabel": "script 标签 2", "pos": [250, 160], "size": [150, 60] },
+    { "id": "s3", "type": "frontend", "label": "app.js", "sublabel": "script 标签 3", "pos": [250, 260], "size": [150, 60] },
+    { "id": "globals", "type": "external", "label": "window 全局", "sublabel": "靠约定通信", "pos": [470, 160], "size": [150, 60] },
+    { "id": "src", "type": "frontend", "label": "src/main.js", "sublabel": "ESM 入口", "pos": [40, 420], "size": [140, 60] },
+    { "id": "npm", "type": "cloud", "label": "npm registry", "sublabel": "版本化依赖", "pos": [250, 380], "size": [150, 60] },
+    { "id": "vite", "type": "backend", "label": "Vite", "sublabel": "按需编译 + 打包", "pos": [470, 420], "size": [150, 60] },
+    { "id": "dist", "type": "database", "label": "dist 产物", "sublabel": "带哈希静态文件", "pos": [700, 420], "size": [160, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "无构建：浏览器直接读源码", "wraps": ["html", "s1", "s2", "s3", "globals"] },
+    { "kind": "security-group", "label": "工程化：依赖声明 + 构建管线", "wraps": ["src", "npm", "vite", "dist"] }
+  ],
+  "connections": [
+    { "id": "html-s1", "from": "html", "to": "s1", "label": "顺序 1", "variant": "emphasis" },
+    { "id": "html-s2", "from": "html", "to": "s2", "label": "顺序 2" },
+    { "id": "html-s3", "from": "html", "to": "s3", "label": "顺序 3" },
+    { "id": "s1-globals", "from": "s1", "to": "globals", "variant": "dashed" },
+    { "id": "s2-globals", "from": "s2", "to": "globals", "variant": "dashed" },
+    { "id": "s3-globals", "from": "s3", "to": "globals", "variant": "dashed" },
+    { "id": "src-npm", "from": "src", "to": "npm", "label": "import", "variant": "emphasis" },
+    { "id": "src-vite", "from": "src", "to": "vite", "label": "交给构建器" },
+    { "id": "vite-dist", "from": "vite", "to": "dist", "label": "build" }
+  ],
+  "cards": [
+    {
+      "dot": "orange",
+      "title": "无构建方式的四个瓶颈",
+      "items": [
+        "全局变量互相覆盖",
+        "脚本顺序靠手工维护",
+        "没有模块边界",
+        "没有压缩与缓存策略"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "工程化补上的四件事",
+      "items": [
+        "依赖写进 package.json",
+        "模块作用域替代全局变量",
+        "构建器处理压缩与哈希",
+        "开发态热更新"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "迁移不是重写",
+      "items": [
+        "HTML 变模板",
+        "渲染逻辑变组件",
+        "script 标签变 import"
+      ]
+    }
+  ]
+}

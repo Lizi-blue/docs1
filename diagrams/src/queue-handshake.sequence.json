@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "生产者消费者握手与哨兵",
+    "output": "docs/public/diagrams/queue-handshake.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      660
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "producer",
+      "type": "backend",
+      "label": "生产者",
+      "sublabel": "投递任务"
+    },
+    {
+      "id": "queue",
+      "type": "messagebus",
+      "label": "队列",
+      "sublabel": "queue.Queue"
+    },
+    {
+      "id": "c1",
+      "type": "backend",
+      "label": "消费者 1",
+      "sublabel": "worker"
+    },
+    {
+      "id": "c2",
+      "type": "backend",
+      "label": "消费者 2",
+      "sublabel": "worker"
+    },
+    {
+      "id": "c3",
+      "type": "backend",
+      "label": "消费者 3",
+      "sublabel": "worker"
+    },
+    {
+      "id": "work",
+      "type": "external",
+      "label": "业务处理",
+      "sublabel": "耗时任务"
+    }
+  ],
+  "segments": [
+    {
+      "from": 156,
+      "to": 275,
+      "label": "生产与消费"
+    },
+    {
+      "from": 275,
+      "to": 395,
+      "label": "确认完成"
+    },
+    {
+      "from": 395,
+      "to": 544,
+      "label": "逐个唤醒退出"
+    }
+  ],
+  "messages": [
+    {
+      "id": "p1",
+      "from": "producer",
+      "to": "queue",
+      "y": 170,
+      "label": "put(job-1)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "p2",
+      "from": "producer",
+      "to": "queue",
+      "y": 200,
+      "label": "put(job-2)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "g1",
+      "from": "c1",
+      "to": "queue",
+      "y": 230,
+      "label": "get()",
+      "variant": "default"
+    },
+    {
+      "id": "g2",
+      "from": "c2",
+      "to": "queue",
+      "y": 260,
+      "label": "get()",
+      "variant": "default"
+    },
+    {
+      "id": "w1",
+      "from": "c1",
+      "to": "work",
+      "y": 290,
+      "label": "处理 job-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "d1",
+      "from": "c1",
+      "to": "queue",
+      "y": 320,
+      "label": "task_done()",
+      "variant": "return"
+    },
+    {
+      "id": "w2",
+      "from": "c2",
+      "to": "work",
+      "y": 350,
+      "label": "处理 job-2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "d2",
+      "from": "c2",
+      "to": "queue",
+      "y": 380,
+      "label": "task_done()",
+      "variant": "return"
+    },
+    {
+      "id": "join",
+      "from": "producer",
+      "to": "queue",
+      "y": 410,
+      "label": "join() 等全部完成",
+      "variant": "return"
+    },
+    {
+      "id": "s1",
+      "from": "producer",
+      "to": "queue",
+      "y": 440,
+      "label": "put(SENTINEL)",
+      "variant": "dashed"
+    },
+    {
+      "id": "s2",
+      "from": "producer",
+      "to": "queue",
+      "y": 470,
+      "label": "put(SENTINEL)",
+      "variant": "dashed"
+    },
+    {
+      "id": "s3",
+      "from": "producer",
+      "to": "queue",
+      "y": 500,
+      "label": "put(SENTINEL)",
+      "variant": "dashed"
+    },
+    {
+      "id": "e1",
+      "from": "c1",
+      "to": "queue",
+      "y": 530,
+      "label": "取到哨兵，退出",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "producer",
+      "from": 162,
+      "to": 208,
+      "type": "backend"
+    },
+    {
+      "participant": "queue",
+      "from": 162,
+      "to": 268,
+      "type": "messagebus"
+    },
+    {
+      "participant": "c1",
+      "from": 192,
+      "to": 328,
+      "type": "backend"
+    },
+    {
+      "participant": "c2",
+      "from": 222,
+      "to": 388,
+      "type": "backend"
+    },
+    {
+      "participant": "c3",
+      "from": 252,
+      "to": 418,
+      "type": "backend"
+    },
+    {
+      "participant": "work",
+      "from": 282,
+      "to": 358,
+      "type": "external"
+    },
+    {
+      "participant": "producer",
+      "from": 372,
+      "to": 508,
+      "type": "backend"
+    },
+    {
+      "participant": "queue",
+      "from": 402,
+      "to": 538,
+      "type": "messagebus"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "队列自带的三个保证",
+      "items": [
+        "内部加锁，作者不写锁",
+        "满时阻塞生产者",
+        "空时阻塞消费者"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "哨兵是结束信号",
+      "items": [
+        "每个消费者各投一个哨兵",
+        "哨兵数量等于消费者数量",
+        "投少了会让消费者永久阻塞"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "常见坑",
+      "items": [
+        "忘了 task_done 会让 join 挂死",
+        "daemon 线程退出会丢任务",
+        "强制终止会留下不一致状态"
+      ]
+    }
+  ]
+}

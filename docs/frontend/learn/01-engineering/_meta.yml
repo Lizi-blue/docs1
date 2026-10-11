@@ -1,0 +1,9 @@
+name: "工程化基础"
+order: 1
+icon: "🧰"
+description: "入口方式、依赖管理、构建工具与目录约定"
+prerequisites: []
+path:
+  - from: "01-single-html-entry"
+    to: "04-project-structure"
+    label: "手写页面 → 工程化项目"

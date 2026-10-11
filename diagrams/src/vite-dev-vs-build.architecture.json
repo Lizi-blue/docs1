@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "开发态按需编译与生产态打包",
+    "output": "docs/public/diagrams/vite-dev-vs-build.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "browser", "type": "frontend", "label": "浏览器", "sublabel": "原生 ESM", "pos": [40, 200], "size": [140, 60] },
+    { "id": "dev", "type": "backend", "label": "Vite dev server", "sublabel": ":5173", "pos": [250, 200], "size": [160, 60] },
+    { "id": "esbuild", "type": "cloud", "label": "esbuild", "sublabel": "依赖预构建", "pos": [480, 100], "size": [150, 60] },
+    { "id": "transform", "type": "backend", "label": "按需编译", "sublabel": "只编请求到的模块", "pos": [480, 200], "size": [170, 60] },
+    { "id": "hmr", "type": "messagebus", "label": "HMR 通道", "sublabel": "WebSocket", "pos": [480, 300], "size": [150, 60] },
+    { "id": "rollup", "type": "backend", "label": "Rollup", "sublabel": "生产打包", "pos": [250, 420], "size": [150, 60] },
+    { "id": "dist", "type": "database", "label": "dist", "sublabel": "哈希文件名", "pos": [480, 420], "size": [150, 60] },
+    { "id": "srv", "type": "cloud", "label": "静态服务器", "sublabel": "回落到 index.html", "pos": [700, 420], "size": [180, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "开发态：不打包，请求什么编什么", "wraps": ["browser", "dev", "esbuild", "transform", "hmr"] },
+    { "kind": "security-group", "label": "生产态：全量打包与优化", "wraps": ["rollup", "dist", "srv"] }
+  ],
+  "connections": [
+    { "id": "browser-dev", "from": "browser", "to": "dev", "label": "请求模块", "variant": "emphasis" },
+    { "id": "dev-esbuild", "from": "dev", "to": "esbuild", "label": "预构建依赖", "variant": "dashed" },
+    { "id": "dev-transform", "from": "dev", "to": "transform", "label": "编译单个模块" },
+    { "id": "transform-browser", "from": "transform", "to": "browser", "label": "返回 ESM", "variant": "default" },
+    { "id": "hmr-browser", "from": "hmr", "to": "browser", "label": "推送更新", "variant": "dashed" },
+    { "id": "src-rollup", "from": "transform", "to": "rollup", "label": "同一份源码", "variant": "emphasis" },
+    { "id": "rollup-dist", "from": "rollup", "to": "dist", "label": "bundle + 压缩" },
+    { "id": "dist-srv", "from": "dist", "to": "srv", "label": "托管" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "开发态为什么快",
+      "items": [
+        "不先打包整个应用",
+        "浏览器按需请求模块",
+        "依赖用 esbuild 预构建一次"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "热更新改了谁",
+      "items": [
+        "只重新编译受影响模块",
+        "通过 WebSocket 推给浏览器",
+        "替换模块并保留状态"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "生产态为什么换打包器",
+      "items": [
+        "需要代码分割与 tree shaking",
+        "产物要带哈希便于缓存",
+        "Rollup 的插件生态更成熟"
+      ]
+    }
+  ]
+}
