@@ -1,0 +1,19 @@
+# ---- Node / 站点构建产物（文档站引擎）----
+node_modules/
+.pnpm-store/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+.cache/
+*.log
+
+# spec-kit 的 DSH 集成会在仓内生成 .dsh/skills（与 ~/.dsh/skills 全局副本重复）；
+# 单一事实源取全局安装，仓内副本不入库。
+.dsh/
+
+# ---- 通用 ----
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
