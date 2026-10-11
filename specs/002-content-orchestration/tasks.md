@@ -92,7 +92,7 @@ description: "Task list for feature 002-content-orchestration"
 
 - [ ] T023 [P] [US2] 补齐 `docs/backend/learn/01-concurrency/` 4 页（`01-thread-basics.md`、`02-process-basics.md`、`03-queue-pipe.md`、`04-async-io.md`）的四要素：新增 `### 本讲要解决的问题`（`## TL;DR` 之前）、`### 常见误区`（≥2 条列表项）、`### 下一讲衔接`（含下一讲链接），并核对 `### 面试追问链` 为 3–5 条
 - [ ] T024 [P] [US2] 补齐 `docs/frontend/learn/01-engineering/` 4 页（`01-single-html-entry.md`、`02-npm-and-modules.md`、`03-vite-dev-and-build.md`、`04-project-structure.md`）的四要素，要求同上
-- [ ] T025 [US2] 负例夹具：删掉任一页的 `### 常见误区`、并把另一页追问链改成 2 条 `<details>`，断言 `npm run check:content` 报 V16 并给出文件行号与「实际条数」；恢复后归零
+- [ ] T025 [US2] 负例夹具：在 `docs/backend/learn/01-concurrency/01-thread-basics.md` 删掉 `### 常见误区`，在 `docs/backend/learn/01-concurrency/03-queue-pipe.md` 把追问链改成 2 条 `<details>`，断言 `npm run check:content` 报 V16 并给出文件行号与「实际条数」；恢复后归零
 - [ ] T026 [US2] 入口页与页面验收：对 `http://127.0.0.1:4173/backend/learn/` 断言路径分段与每讲层级可见；对 `/backend/learn/concurrency/thread-basics` 断言四要素按顺序渲染（`## TL;DR` 之前是「本讲要解决的问题」）
 - [ ] T027 [US2] 反向链接验收：断言 `/backend/components/safe-queue` 列出依赖的知识点，且 `/backend/learn/concurrency/queue-pipe` 底部列出复用它的组件（复用 001 的 `<RelatedLinks>`）
 
@@ -110,7 +110,7 @@ description: "Task list for feature 002-content-orchestration"
 - [ ] T029 [P] [US3] 编写 `SKILL.md` 第 9 节：优先级声明（宪法 > 内容契约 > 本技能）与变更日志指针
 - [ ] T030 [US3] 编写 `SKILL.md` 第 8 节：自检与门禁命令全集（`npm run check:content`、`npm run check:zh`、`npm run check:orchestration`、`npm run export:skill`、`npm run build`）与各自适用时机
 - [ ] T031 [US3] 三连负例：在 `ledger/orchestration-decisions.tsv` 追加三条 `decision=no-writeback`、`review=-`，断言 `npm run check:orchestration` 报 S3 并提示缺少复核记录；补一条 `review=recheck:valid` 后归零
-- [ ] T032 [US3] 流程演练：模拟一次内容迭代（改一页 + 追加一条台账行 + 按判定回写技能或注明无需回写），确认台账能独立回答「这次迭代为什么没改技能」
+- [ ] T032 [US3] 流程演练：对 `docs/backend/learn/01-concurrency/04-async-io.md` 做一次小改，在 `ledger/orchestration-decisions.tsv` 追加一行并按判定回写 `.dsh/skills/docs-authoring/SKILL.md` 或注明无需回写，确认台账能独立回答「这次迭代为什么没改技能」
 
 **Checkpoint**: 迭代留痕与复核机制可用
 
@@ -124,7 +124,7 @@ description: "Task list for feature 002-content-orchestration"
 
 - [ ] T033 [US4] 实现 `scripts/export-skill.mjs`：抽取 `<!-- export:begin -->` 与 `<!-- export:end -->` 之间的正文，按 `contracts/export-contract.md` §2 归一化（LF、去行尾空白、去首尾空行、末尾补换行），计算 `sha256` 前 16 位，写出带七字段头部的 `build/skill-export/docs-authoring/SKILL.md`
 - [ ] T034 [US4] 接通 S5：`scripts/check-orchestration.mjs` 读导出物头部 `body-sha256-16`，对当前源重新计算并比对；导出物不存在时跳过并打印一行提示
-- [ ] T035 [US4] 指纹负例：手改导出物一个字符后断言 S5 判错并提示「源已变更，请重新导出」；重新执行 `npm run export:skill` 后通过
+- [ ] T035 [US4] 指纹负例：手改 `build/skill-export/docs-authoring/SKILL.md` 一个字符后断言 S5 判错并提示「源已变更，请重新导出」；重新执行 `npm run export:skill` 后通过
 - [ ] T036 [US4] 发布到跨仓：把导出物复制到 `dev/skill` 的 `skills/docs-authoring/SKILL.md`，并在 `dev/skill` 的 `skills/index.tsv` 追加一行（`docs-authoring`、描述、`docs/docs-authoring`），保持与既有行同格式
 - [ ] T037 [US4] 跨仓可用性验证：在 `dev/skill` 检出目录内按技能判据完成一次「新增知识点」的编排决策（不打开本仓契约），确认判据自足、指针可回溯
 
@@ -140,7 +140,7 @@ description: "Task list for feature 002-content-orchestration"
 
 - [ ] T038 [US5] 编写 `SKILL.md` 第 6 节：写作规则检查（命令、阈值、基线、`--disable` 流程）、交互图解（图型选择表：architecture/sequence/dataflow/lifecycle/workflow + 图注要求 + 放置规则）、云架构静态图边界；每类 ≥3 条反例与降级路径
 - [ ] T039 [US5] 与 001 契约对齐：核对技能图型表与 `specs/001-docs-engine/contracts/engine-contract.md`、`content-contract.md` §4 的图解要求一致（图注、自包含、位置），不一致处以契约为准并改技能
-- [ ] T040 [US5] 与门禁对齐：核对第 6 节的写作规则说明与实际命令一致（`npm run check:zh`、基线文件路径、`--disable` 用法），断言技能里出现的每条命令都能在仓内跑通
+- [ ] T040 [US5] 与门禁对齐：核对 `.dsh/skills/docs-authoring/SKILL.md` 第 6 节的写作规则说明与实际命令一致（`npm run check:zh`、`scripts/ste-lint-zh.baseline` 路径、`--disable` 用法），断言技能里出现的每条命令都能在仓内跑通
 - [ ] T041 [US5] 降级演练：在无 Archify 的环境下按技能的降级路径手写一个自包含 SVG/HTML 图解并嵌入一页，跑 `npm run check:content` 通过，并把降级原因写入 `ledger/orchestration-decisions.tsv` 的 `reason`
 
 **Checkpoint**: 工具误用有判据可挡
@@ -151,7 +151,7 @@ description: "Task list for feature 002-content-orchestration"
 
 **Purpose**: 收口、证据与一致性
 
-- [ ] T042 门禁全绿：依次执行 `npm run check:content`、`npm run check:zh`、`npm run check:orchestration`、`npm run build`，四者退出码均为 0
+- [ ] T042 门禁全绿：按 `package.json` 依次执行 `npm run check:content`、`npm run check:zh`、`npm run check:orchestration`、`npm run build`，四者退出码均为 0
 - [ ] T043 按 [quickstart.md](./quickstart.md) 跑完 S0–S8，把每条的命令、输出摘要与结论追加到 `specs/002-content-orchestration/checklists/local-baseline.md`
 - [ ] T044 [P] 一致性回归：核对 `.dsh/skills/docs-authoring/SKILL.md`、`specs/001-docs-engine/contracts/content-contract.md`、宪法 VIII 三者无冲突、无重复取值（S1 为零复制提供机械证据）
 - [ ] T045 [P] 清理：删除全部临时夹具与 `build/skill-export/`，确认导出物未入库（`git status` 干净），并确认台账、技能、CHANGELOG 三个文件都已跟踪
