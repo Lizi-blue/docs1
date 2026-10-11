@@ -4,7 +4,7 @@
 #   docker build -t docs-1-docs .
 #   docker run --rm -p 8080:80 docs-1-docs      # http://127.0.0.1:8080/
 #
-# 阶段一依次跑四条门禁：内容契约、受控中文、组件自测、响应式布局。任一失败即构建失败。
+# 阶段一依次跑六条门禁：内容契约、受控中文、组件自测、门禁自测、零配置扩展、响应式布局。
 # 阶段二只留静态产物与 Caddyfile：不含 node_modules、源码与图解源 JSON。
 
 FROM node:22-alpine AS build
@@ -26,10 +26,14 @@ RUN npm run check:content
 RUN npm run check:zh
 # 门禁三：组件自测（safe-queue 纯标准库用例）。
 RUN python3 -m pytest tests/ -q
+# 门禁四：门禁自测（定向破坏夹具，证明规则真的会红）。
+RUN npm run selftest:gates
+# 门禁五：零配置扩展（新增领域不改引擎与配置）。
+RUN npm run check:extensibility
 # 站点构建，产物在 docs/.vitepress/dist。
 RUN npm run build \
  && test -f docs/.vitepress/dist/index.html
-# 门禁四：响应式布局（视口声明、三档断点、宽内容自滚动、无固定大宽度）。
+# 门禁六：响应式布局（视口声明、四档断点、宽内容自滚动、无固定大宽度）。
 RUN npm run check:responsive
 
 FROM caddy:2-alpine

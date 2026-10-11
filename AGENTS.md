@@ -27,12 +27,14 @@ npm run check:content       # 内容契约 V1–V18
 npm run check:zh            # 受控中文（封装：scripts/lint-zh.mjs）
 npm run check:orchestration # 编排自检 S1–S7（技能与台账）
 npm run test:component      # 组件自测（tests/，源码从组件页提取）
+npm run selftest:gates      # 门禁自测（定向破坏夹具，证明会红）
+npm run check:extensibility # 零配置扩展断言（新增领域不改配置）
 npm run check:responsive    # 响应式布局（需先构建）
 npm run build               # 站点构建
 ```
 
-六条命令退出码都为 0 才算通过。
-CI 在镜像构建阶段跑内容、中文、组件测试、构建与响应式检查，失败即构建失败。
+八条命令退出码都为 0 才算通过。
+CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 
 中文门禁的封装负责四类「代码不算散文」的遮蔽：
 
@@ -63,12 +65,13 @@ CI 在镜像构建阶段跑内容、中文、组件测试、构建与响应式�
 
 ## 5. 响应式布局
 
-改动布局或样式后，跑 `npm run check:responsive`。它守住四件事：
+改动布局或样式后，跑 `npm run check:responsive`。它守住五件事：
 
 - 每个页面有 viewport 声明。
-- 产物样式含手机（≤640px）、平板（641–1024px）与桌面（>1024px）三档断点。
+- 产物样式含小屏（≤480px）、手机（≤640px）、平板（≤1024px）与窄桌面（≤768px）四档断点。
 - 宽内容（Markdown 表格、API 参数表）在窄屏自滚动。
 - 自定义样式不含固定大宽度。
+- 每页恰有一个 viewport 声明。
 
 真实视口体验（375 / 768 / 1280）由人在浏览器里复核，机械门禁只守可判定的部分。
 

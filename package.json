@@ -14,7 +14,9 @@
     "check:orchestration": "node scripts/check-orchestration.mjs",
     "export:skill": "node scripts/export-skill.mjs",
     "test:component": "python3 -m pytest tests/ -q",
-    "check:responsive": "node scripts/check-responsive.mjs"
+    "check:responsive": "node scripts/check-responsive.mjs",
+    "check:extensibility": "node --experimental-strip-types --no-warnings scripts/assert-extensibility.mjs",
+    "selftest:gates": "node scripts/selftest-gates.mjs"
   },
   "devDependencies": {
     "gray-matter": "^4.0.3",
