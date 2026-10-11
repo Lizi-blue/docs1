@@ -1,13 +1,25 @@
-# 静态文档站 Caddyfile —— 只托管 VitePress 构建产物，无后端。
+# docs-1 站点与任务服务 —— Caddy 托管静态产物并反代 /api 到本机任务服务。
 # 容器内 root 指向镜像里的 /usr/share/caddy，Dockerfile 已把 dist 拷进去。
 
 :80 {
 	root * /usr/share/caddy
 
-	# 目录页与 cleanUrls：站点所有页面 URL 都不带 .html。
-	file_server
-	try_files {path} {path}.html {path}/index.html /index.html
+	# 存活与就绪：代理到任务服务的健康端点，服务不可用即不健康。
+	handle /health {
+		uri replace /health /api/health
+		reverse_proxy 127.0.0.1:8787
+	}
 
-	# 健康检查：K8s 探针用，直接返回 200，不依赖任何后端。
-	respond /health 200
+	# 任务服务：同源反代。flush_interval -1 关闭缓冲，SSE 才能逐行到达浏览器。
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8787 {
+			flush_interval -1
+		}
+	}
+
+	# 其余请求走静态站：目录页与 cleanUrls，页面 URL 都不带 .html。
+	handle {
+		try_files {path} {path}.html {path}/index.html /index.html
+		file_server
+	}
 }

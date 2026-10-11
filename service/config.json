@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "allowlist": {
+    "cp": { "desc": "复制文件或目录", "example": "cp -r /tmp/a /tmp/b" },
+    "ls": { "desc": "列出目录内容", "example": "ls -la" },
+    "echo": { "desc": "输出一行文本", "example": "echo hello" },
+    "sleep": { "desc": "等待若干秒", "example": "sleep 5" },
+    "sha256sum": { "desc": "计算文件校验和", "example": "sha256sum big.bin" },
+    "mkdir": { "desc": "创建目录", "example": "mkdir -p data/raw" },
+    "dd": { "desc": "按块复制或生成数据", "example": "dd if=/dev/zero of=big.bin bs=1M count=64" },
+    "head": { "desc": "查看文件头部", "example": "head -n 20 app.log" },
+    "wc": { "desc": "统计行数与字节数", "example": "wc -l app.log" }
+  },
+  "limits": {
+    "max_concurrency": 4,
+    "timeout_max_s": 300,
+    "output_max_bytes": 1048576,
+    "keep": 50,
+    "args_max": 32,
+    "arg_len_max": 256
+  },
+  "env_allowlist": ["LC_ALL", "LANG", "TZ"],
+  "workspace": "/var/lib/docs1-tasks"
+}

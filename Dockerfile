@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 #
-# 文档站镜像：多阶段构建（VitePress 构建 → Caddy 托管静态文件）
+# 文档站 + 任务服务镜像：多阶段构建（VitePress 构建 → Caddy 静态站 + Python 任务服务）
 #   docker build -t docs-1-docs .
-#   docker run --rm -p 8080:80 docs-1-docs      # http://127.0.0.1:8080/
+#   docker run --rm -p 8080:80 docs-1-docs      # http://127.0.0.1:8080/ 与 /api/*
 #
 # 阶段一依次跑六条门禁：内容契约、受控中文、组件自测、门禁自测、零配置扩展、响应式布局。
 # 阶段二只留静态产物与 Caddyfile：不含 node_modules、源码与图解源 JSON。
@@ -40,10 +40,19 @@ RUN npm run check:nav
 
 FROM caddy:2-alpine
 
+# 运行阶段只多一个 Python 解释器：任务服务只用标准库，不装任何依赖。
+RUN apk add --no-cache python3
+
+WORKDIR /repo
 COPY --from=build /repo/docs/.vitepress/dist /usr/share/caddy
+COPY service /repo/service
 COPY Caddyfile /etc/caddy/Caddyfile
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
-# 存活与就绪都打 /health，由 Caddy 直接返回 200。
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+# 存活与就绪都打 /health，由 Caddy 反代到任务服务的 /api/health。
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD wget -q -O /dev/null http://127.0.0.1/health || exit 1
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
