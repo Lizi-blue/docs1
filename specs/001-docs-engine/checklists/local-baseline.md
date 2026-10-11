@@ -245,3 +245,27 @@ PASS。跨领域类型进入页面模型、依赖汇聚按两个领域分组、�
 | 真实打 `vX.Y.Z` tag | 任务明确要求不实际打 tag | 发布时按 FR-028 证据链观察 Run |
 | 回滚在真实集群演练 | 需集群访问与已部署版本 | 首次部署后按 deploy 契约 §8 执行 |
 | tag release 的命名空间 | `ci.yaml` 未传 `release_namespace`，默认落 `production` | 待 Lead 决定是否钉成 `docs` |
+
+## S1–S10 剧本执行记录（2026-10-11 收口轮）
+
+| 场景 | 命令 | 实际结果 | 结论 |
+|---|---|---|---|
+| S1 构建与预览 | `npm run build` + `npx vitepress preview docs --port 4173` | build complete（24 页）；12 条路由 200（含 `/backend/learn/concurrency/thread-basics`、`/backend/components/safe-queue`、7 张图解） | PASS |
+| S2 内容契约门禁 | `npm run check:content` | 错误 0 项 / 警告 0 项（V1–V18 全过） | PASS |
+| S3 受控中文门禁 | `npm run check:zh` | 硬违规 0 处（baseline 0），13 条建议类提示 | PASS |
+| S4 零配置扩展 | `npm run check:extensibility` | E1–E10 全过：新领域进模型、URL 去前缀、子主题四层、组件进模型、链接容错、引擎与配置指纹未变 | PASS |
+| S5 图解可重建 | `ARCHIFY_DIR=.tools/archify bash scripts/gen-diagrams.sh` | exit 0，7 张图重建；与提交版逐字节一致（`git diff` 无变化） | PASS |
+| S6 组件按生产级交付 | `npm run test:component` | 2 passed / 3 skipped（跳过原因：本沙箱禁 `sem_open`，CI 镜像内真实执行） | PASS |
+| S7 双入口与双向链接 | 线上 DOM 断言 | `/backend/` 两张入口卡；`/backend/learn/` 知识域卡 + 4 段路径；组件页列出依赖知识点、知识点页列出复用组件 | PASS |
+| S8 千页预算 | `node scripts/check-budget.mjs --pages 1000` | 解析 0.21s/60s、构建 33.97s/180s、导航 1.24MB/5MB、静态资源 11.40MB/20MB、单图 0.73MB/1.5MB，五项 PASS | PASS |
+| S9 CI 与部署 | 推送后 Run #4377 | 全绿（build + deploy）；镜像 tag `c94c52f` = main 短 SHA；`/health` 200；域名实测 9 条路由 200 | PASS |
+| S10 跨领域类型契约 | 临时 `docs/cross-domain/<fixture>.md` | 进入模型、依赖汇聚渲染、双栏切分与组件页一致；夹具已删除 | PASS |
+
+### 收口轮修复的缺陷
+
+| 缺陷 | 影响 | 处置 |
+|---|---|---|
+| 入口页重复渲染索引 | 6 个入口页各出现两份索引，观感与滚动都异常 | Layout 依 `frontmatter.entry` 渲染；正文禁止 `<EntryIndex>`；V11 改为断言「正文不得出现」；契约同步 |
+| `checkDiagrams` / `checkEntryPages` 拼相对路径 | `--root` 传绝对路径时脚本异常 | 统一把已解析的绝对 docs 传给各检查函数 |
+| 站点首页豁免写死 `docs/index.md` | 非默认扫描根的正例被误判 V2 | 改为「扫描根下的 index.md」 |
+| V15/V17 按固定段数解析领域 | 任意扫描根下领域定位错误 | 改为按 `learn` 段定位 |

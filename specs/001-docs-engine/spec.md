@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-11
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "新建 docs-1 仓，域名 docs1.minilab.uzibird.cn；实现声明式文档引擎：按规则在 docs/ 目录放 Markdown 与 _meta.yml，引擎自动解析为可导航文档网站（渐进式学习 + 组件查询两类场景，领域内容可扩展）；本次用 Python 多线程/多进程知识域做目录划分与内容示例效果验证，含 1 个组件页；参照 ci 仓与 python-vue 仓接入 CI 流水线并部署；写作遵循受控中文规则，图解用 Archify，质量检查用 ste-lint-zh。"
 
