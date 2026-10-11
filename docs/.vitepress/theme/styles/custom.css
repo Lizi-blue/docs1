@@ -1,4 +1,10 @@
-/* docs-1 主题样式：只补充 VitePress 默认主题没有的部分（卡片、徽标、API 表、双栏）。 */
+/* docs-1 主题样式：只补充 VitePress 默认主题没有的部分（卡片、徽标、API 表、双栏）。
+ *
+ * 响应式分档（FR-046 / FR-047 / SC-017）：
+ *   手机   ≤640px      单栏、紧凑间距、表格与代码在自身容器内滚动
+ *   平板   641–1024px  卡片两列、组件页双栏收窄
+ *   桌面   >1024px     组件页双栏 + 右侧引用栏吸顶
+ */
 
 /* ---- 通用徽标 ---- */
 .badge {
@@ -27,7 +33,10 @@
 
 /* ---- 进度条 ---- */
 .progress-bar { margin: 4px 0 12px; }
-.progress-text { display: flex; justify-content: space-between; font-size: 13px; color: var(--vp-c-text-2); }
+.progress-text {
+  display: flex; flex-wrap: wrap; gap: 4px 12px;
+  justify-content: space-between; font-size: 13px; color: var(--vp-c-text-2);
+}
 .progress-label { font-weight: 600; }
 .progress-track { height: 6px; margin-top: 6px; border-radius: 999px; background: var(--vp-c-bg-soft); overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 999px; background: var(--vp-c-brand-1); transition: width 0.3s ease; }
@@ -47,20 +56,21 @@
   border: 1px solid var(--vp-c-divider); border-radius: 8px; background: var(--vp-c-bg-soft);
 }
 .install-label { font-size: 12px; color: var(--vp-c-text-3); margin-bottom: 6px; }
-.install-row { display: flex; align-items: center; gap: 8px; }
-.install-command { flex: 1; overflow-x: auto; font-size: 13px; }
+.install-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.install-command { flex: 1 1 200px; min-width: 0; overflow-x: auto; font-size: 13px; }
 .install-copy {
-  padding: 4px 10px; border: 1px solid var(--vp-c-divider); border-radius: 6px;
+  min-height: 32px; padding: 4px 12px; border: 1px solid var(--vp-c-divider); border-radius: 6px;
   background: var(--vp-c-bg); color: var(--vp-c-text-1); cursor: pointer; font-size: 12px;
 }
 .install-copy:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-brand-1); }
 
 /* ---- API 手册 ---- */
 .api-item { margin: 20px 0 26px; }
-.api-name { display: flex; align-items: center; gap: 8px; }
+.api-name { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .api-signature { font-size: 13px; }
-.api-params { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
-.api-params th, .api-params td { border: 1px solid var(--vp-c-divider); padding: 6px 10px; text-align: left; }
+/* 参数表在窄屏横向滚动，不撑破正文 */
+.api-params { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+.api-params th, .api-params td { border: 1px solid var(--vp-c-divider); padding: 6px 10px; text-align: left; white-space: nowrap; }
 .api-params th { background: var(--vp-c-bg-soft); }
 .api-facts { margin: 8px 0; padding-left: 18px; font-size: 14px; }
 .api-example summary { cursor: pointer; color: var(--vp-c-brand-1); font-size: 13px; }
@@ -68,18 +78,22 @@
 
 /* ---- 代码标签页 ---- */
 .code-tabs { margin: 16px 0; border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden; }
-.code-tabs-header { display: flex; background: var(--vp-c-bg-soft); }
-.code-tab { padding: 6px 14px; border: none; background: transparent; color: var(--vp-c-text-2); cursor: pointer; font-size: 13px; }
+.code-tabs-header { display: flex; flex-wrap: wrap; background: var(--vp-c-bg-soft); }
+.code-tab { min-height: 32px; padding: 6px 14px; border: none; background: transparent; color: var(--vp-c-text-2); cursor: pointer; font-size: 13px; }
 .code-tab.active { color: var(--vp-c-brand-1); box-shadow: inset 0 -2px 0 var(--vp-c-brand-1); }
 .code-tabs-body { margin: 0; padding: 14px; overflow-x: auto; font-size: 13px; }
 
 /* ---- 图解外框 ---- */
 .diagram-frame { margin: 18px 0; border: 1px solid var(--vp-c-divider); border-radius: 10px; overflow: hidden; }
 .diagram-frame figcaption {
-  display: flex; justify-content: space-between; padding: 8px 12px;
-  background: var(--vp-c-bg-soft); font-size: 13px; color: var(--vp-c-text-2);
+  display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between;
+  padding: 8px 12px; background: var(--vp-c-bg-soft); font-size: 13px; color: var(--vp-c-text-2);
 }
-.diagram-frame iframe { width: 100%; border: 0; display: block; background: var(--vp-c-bg); }
+/* 高度取「组件声明值」与「视口 70%」的较小者，避免手机上占满整屏 */
+.diagram-frame iframe {
+  width: 100%; height: min(var(--diagram-height, 520px), 70vh); min-height: 320px;
+  border: 0; display: block; background: var(--vp-c-bg);
+}
 
 /* ---- 组件页双栏（由 markdown 插件自动分段） ---- */
 .cmp-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 28px; align-items: start; }
@@ -87,14 +101,10 @@
   position: sticky; top: calc(var(--vp-nav-height) + 16px);
   padding-left: 18px; border-left: 1px solid var(--vp-c-divider);
 }
-@media (max-width: 1100px) {
-  .cmp-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-  .cmp-aside { position: static; padding-left: 0; border-left: none; }
-}
 
 /* ---- 入口页 ---- */
 .entry-index { margin: 8px 0 24px; }
-.entry-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.entry-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
 .entry-card {
   display: block; padding: 18px; border: 1px solid var(--vp-c-divider); border-radius: 12px;
   background: var(--vp-c-bg-soft); text-decoration: none !important;
@@ -107,7 +117,7 @@
 
 .kd-list { display: grid; gap: 16px; }
 .kd-card { padding: 16px 18px; border: 1px solid var(--vp-c-divider); border-radius: 12px; }
-.kd-header { display: flex; align-items: center; gap: 8px; }
+.kd-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .kd-icon { font-size: 18px; }
 .kd-name { font-size: 16px; font-weight: 700; }
 .kd-count { margin-left: auto; font-size: 12px; color: var(--vp-c-text-3); }
@@ -115,7 +125,7 @@
 .kd-path { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
 .kd-path-step { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--vp-c-bg-soft); color: var(--vp-c-text-2); }
 .kd-pages { margin: 10px 0 0; padding-left: 0; list-style: none; }
-.kd-pages li { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; font-size: 14px; }
+.kd-pages li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; padding: 4px 0; font-size: 14px; }
 .kd-index {
   display: inline-flex; justify-content: center; width: 20px; height: 20px; border-radius: 50%;
   background: var(--vp-c-bg-soft); color: var(--vp-c-text-3); font-size: 12px;
@@ -126,7 +136,7 @@
 .cmp-list { display: grid; gap: 14px; }
 .cmp-card { display: block; padding: 16px 18px; border: 1px solid var(--vp-c-divider); border-radius: 12px; text-decoration: none !important; }
 .cmp-card:hover { border-color: var(--vp-c-brand-1); }
-.cmp-card-head { display: flex; align-items: center; gap: 8px; }
+.cmp-card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .cmp-card-title { font-size: 16px; font-weight: 700; }
 .cmp-card-desc { margin-top: 6px; font-size: 13px; color: var(--vp-c-text-2); }
 .cmp-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -135,8 +145,8 @@
 /* ---- 标签索引 ---- */
 .tag-index { margin-top: 24px; }
 .tag-index-title { font-size: 16px; }
-.tag-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--vp-c-divider); font-size: 13px; }
-.tag-name { min-width: 120px; color: var(--vp-c-text-2); }
+.tag-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; padding: 5px 0; border-bottom: 1px dashed var(--vp-c-divider); font-size: 13px; }
+.tag-name { flex: 0 0 auto; min-width: 96px; color: var(--vp-c-text-2); }
 .tag-item { color: var(--vp-c-brand-1); }
 
 /* ---- 底部关联 ---- */
@@ -150,6 +160,52 @@
 /* ---- 跨领域依赖汇聚 ---- */
 .dep-aggregate { margin: 12px 0; padding: 12px; border: 1px dashed var(--vp-c-divider); border-radius: 8px; }
 .dep-title { font-size: 13px; color: var(--vp-c-text-2); margin-bottom: 8px; }
-.dep-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0; font-size: 13px; }
-.dep-domain { min-width: 80px; color: var(--vp-c-text-3); }
+.dep-group { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin: 4px 0; font-size: 13px; }
+.dep-domain { flex: 0 0 auto; min-width: 64px; color: var(--vp-c-text-3); }
 .dep-chip { padding: 2px 8px; border-radius: 999px; background: var(--vp-c-bg-soft); }
+
+/* ================= 响应式：平板与手机 ================= */
+
+/* 平板与窄桌面：组件页收窄右栏；再窄就堆叠 */
+@media (max-width: 1024px) {
+  .cmp-grid { grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
+}
+@media (max-width: 900px) {
+  .cmp-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .cmp-aside { position: static; padding-left: 0; border-left: none; }
+}
+
+/* 平板：入口卡片两列，间距收紧 */
+@media (max-width: 1024px) {
+  .entry-cards { gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .kd-card, .cmp-card, .entry-card { padding: 14px 16px; }
+}
+
+/* 手机：单列、紧凑、宽内容自滚动 */
+@media (max-width: 640px) {
+  .entry-cards { grid-template-columns: 1fr; gap: 10px; }
+  .entry-card { padding: 14px; }
+  .entry-card-title { font-size: 16px; }
+  .kd-card, .cmp-card { padding: 12px 14px; }
+  .kd-count { margin-left: 0; flex-basis: 100%; }
+  .kd-page-desc { flex-basis: 100%; }
+  .progress-text { font-size: 12px; }
+  .tag-name { min-width: 0; flex-basis: 100%; font-weight: 600; }
+  .dep-domain { min-width: 0; flex-basis: 100%; }
+  .related-links { margin-top: 24px; }
+  .api-item { margin: 16px 0 20px; }
+  .api-params { font-size: 12px; }
+  .api-params th, .api-params td { padding: 5px 8px; }
+  .diagram-frame iframe { min-height: 260px; }
+}
+
+/* 正文里的 Markdown 表格在窄屏自滚动，避免整页横向滚动 */
+@media (max-width: 768px) {
+  .vp-doc table { display: block; width: 100%; overflow-x: auto; }
+  .vp-doc img, .vp-doc iframe { max-width: 100%; }
+}
+
+/* 长单词与长路径不撑破容器 */
+.vp-doc { overflow-wrap: break-word; }
+.vp-doc a { overflow-wrap: anywhere; }
+.vp-doc :not(pre) > code { white-space: break-spaces; }

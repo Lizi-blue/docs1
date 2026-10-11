@@ -4,7 +4,7 @@
 #   docker build -t docs-1-docs .
 #   docker run --rm -p 8080:80 docs-1-docs      # http://127.0.0.1:8080/
 #
-# 阶段一依次跑三条门禁：内容契约、受控中文、组件自测。任一失败即构建失败。
+# 阶段一依次跑四条门禁：内容契约、受控中文、组件自测、响应式布局。任一失败即构建失败。
 # 阶段二只留静态产物与 Caddyfile：不含 node_modules、源码与图解源 JSON。
 
 FROM node:22-alpine AS build
@@ -29,6 +29,8 @@ RUN python3 -m pytest tests/ -q
 # 站点构建，产物在 docs/.vitepress/dist。
 RUN npm run build \
  && test -f docs/.vitepress/dist/index.html
+# 门禁四：响应式布局（视口声明、三档断点、宽内容自滚动、无固定大宽度）。
+RUN npm run check:responsive
 
 FROM caddy:2-alpine
 

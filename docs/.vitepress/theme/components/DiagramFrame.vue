@@ -12,6 +12,6 @@ withDefaults(defineProps<{ src: string; title?: string; height?: number }>(), { 
       <span>{{ title }}</span>
       <a :href="src" target="_blank" rel="noopener">在新窗口打开</a>
     </figcaption>
-    <iframe :src="src" :title="title ?? '交互图解'" :style="{ height: `${height}px` }" loading="lazy" />
+    <iframe :src="src" :title="title ?? '交互图解'" :style="{ '--diagram-height': `${height}px` }" loading="lazy" />
   </figure>
 </template>
