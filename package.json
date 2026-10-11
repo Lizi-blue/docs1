@@ -8,14 +8,19 @@
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",
     "preview": "vitepress preview docs --port 4173 --host 0.0.0.0",
-    "check:content": "node scripts/check-content.mjs",
+    "check:content": "node --experimental-strip-types --no-warnings scripts/check-content.mjs",
     "check:zh": "python3 scripts/ste-lint-zh.py docs",
-    "new": "node scripts/new-content.mjs"
+    "new": "node scripts/new-content.mjs",
+    "check:orchestration": "node scripts/check-orchestration.mjs",
+    "export:skill": "node scripts/export-skill.mjs"
   },
   "devDependencies": {
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0",
     "vitepress": "1.6.4",
     "vue": "^3.5.13"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

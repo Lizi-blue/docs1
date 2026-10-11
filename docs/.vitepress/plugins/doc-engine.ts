@@ -19,7 +19,8 @@ import path from 'node:path'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
 import type { Plugin } from 'vite'
-import { isIndexSegment, normalizeLink, parseSegment, urlFromSegments } from '../shared/links'
+// 显式带扩展名：Node 侧（scripts/check-content.mjs）也要直接加载本文件。
+import { isIndexSegment, normalizeLink, parseSegment, urlFromSegments } from '../shared/links.ts'
 
 export type PageType = 'knowledge' | 'component' | 'cross-component' | 'landing'
 

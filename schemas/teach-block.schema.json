@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs1.minilab.uzibird.cn/schemas/teach-block.schema.json",
+  "title": "知识域编排登记块（_meta.yml 的 teach 键）",
+  "description": "设计源在 specs/002-content-orchestration/contracts/schemas/teach-block.schema.json（本文件是运行时副本，改动必须同步）。登记与被描述的内容同处。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["audience", "prerequisites", "outcomes", "path", "lessons"],
+  "properties": {
+    "audience": { "type": "string", "minLength": 10, "maxLength": 80 },
+    "prerequisites": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1, "maxLength": 60 },
+      "uniqueItems": true
+    },
+    "outcomes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": { "type": "string", "minLength": 10, "maxLength": 80 },
+      "uniqueItems": true
+    },
+    "path": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1, "maxLength": 60 }
+        }
+      }
+    },
+    "lessons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "goal"],
+        "properties": {
+          "slug": { "type": "string", "minLength": 1 },
+          "goal": { "type": "string", "minLength": 10, "maxLength": 60 }
+        }
+      }
+    }
+  }
+}

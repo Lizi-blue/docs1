@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs1.minilab.uzibird.cn/schemas/dir-meta.schema.json",
+  "title": "目录级 _meta.yml",
+  "description": "领域、知识域、入口目录的元数据。设计源在 specs/001-docs-engine/contracts/（本文件是运行时副本，改动必须同步）。未知字段判错。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "icon": { "type": "string", "maxLength": 8 },
+    "order": { "type": "integer", "minimum": 0, "maximum": 999 },
+    "description": { "type": "string", "maxLength": 120 },
+    "entry_type": { "enum": ["root", "domain"] },
+    "prerequisites": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "path": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pathStep" }
+    },
+    "teach": {
+      "description": "编排登记块。知识域目录必填，其它目录不得出现。",
+      "$ref": "teach-block.schema.json"
+    }
+  },
+  "$defs": {
+    "pathStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 60 }
+      }
+    }
+  }
+}

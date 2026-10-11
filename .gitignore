@@ -6,9 +6,9 @@ docs/.vitepress/cache/
 .cache/
 *.log
 
-# spec-kit 的 DSH 集成会在仓内生成 .dsh/skills（与 ~/.dsh/skills 全局副本重复）；
-# 单一事实源取全局安装，仓内副本不入库。
-.dsh/
+# spec-kit 的 DSH 集成会在仓内生成技能副本（与 ~/.dsh/skills 全局副本重复）。
+# 只忽略这些第三方副本；自研技能 .dsh/skills/docs-authoring/ 必须入库。
+.dsh/skills/speckit-*
 
 # ---- 通用 ----
 .DS_Store
@@ -17,3 +17,12 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# Archify 交付回执（本地生成，不入库）
+docs/public/diagrams/*.delivery*.json
+
+# Archify 检出（本地工具，不入库）
+.tools/
+
+# 技能导出物（跨仓发布产物，不入库）
+build/

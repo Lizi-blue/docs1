@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs1.minilab.uzibird.cn/schemas/page-frontmatter.schema.json",
+  "title": "页面 frontmatter",
+  "description": "设计源在 specs/001-docs-engine/contracts/schemas/page-frontmatter.schema.json（本文件是运行时副本，改动必须同步）。按 type 分四种形态。",
+  "$defs": {
+    "linkList": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 120
+    }
+  },
+  "oneOf": [
+    {
+      "title": "knowledge",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "type",
+        "domain",
+        "knowledge_domain"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/title"
+        },
+        "type": {
+          "const": "knowledge"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knowledge_domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "level": {
+          "enum": [
+            "basic",
+            "intermediate",
+            "advanced"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "uniqueItems": true
+        },
+        "description": {
+          "$ref": "#/$defs/description"
+        },
+        "source_module": {
+          "type": "string",
+          "minLength": 1
+        },
+        "api_methods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "prerequisites": {
+          "$ref": "#/$defs/linkList"
+        },
+        "related_knowledge": {
+          "$ref": "#/$defs/linkList"
+        },
+        "related_components": {
+          "$ref": "#/$defs/linkList"
+        }
+      }
+    },
+    {
+      "title": "component",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "type",
+        "domain",
+        "component_type",
+        "install_command",
+        "tags_index"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/title"
+        },
+        "type": {
+          "const": "component"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "component_type": {
+          "enum": [
+            "library",
+            "framework",
+            "pattern",
+            "tool"
+          ]
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "install_command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "depends_on_knowledge": {
+          "$ref": "#/$defs/linkList"
+        },
+        "depends_on_components": {
+          "$ref": "#/$defs/linkList"
+        },
+        "related_components": {
+          "$ref": "#/$defs/linkList"
+        },
+        "tags_index": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "uniqueItems": true
+        },
+        "reusability": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/description"
+        }
+      }
+    },
+    {
+      "title": "cross-component",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "type",
+        "domain",
+        "depends_on",
+        "install_command",
+        "tags_index"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/title"
+        },
+        "type": {
+          "const": "cross-component"
+        },
+        "domain": {
+          "const": "cross-domain"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "depends_on": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/linkList"
+          }
+        },
+        "depends_on_components": {
+          "$ref": "#/$defs/linkList"
+        },
+        "install_command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tags_index": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "uniqueItems": true
+        },
+        "reusability": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/description"
+        }
+      }
+    },
+    {
+      "title": "landing",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "type",
+        "domain",
+        "entry"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/title"
+        },
+        "type": {
+          "const": "landing"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry": {
+          "enum": [
+            "domain",
+            "learn",
+            "components"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/description"
+        }
+      }
+    }
+  ]
+}
