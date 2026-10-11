@@ -15,6 +15,19 @@ import types
 
 import pytest
 
+# 顶层函数：spawn / forkserver 启动方式下必须可 pickle（CI 实测 Python 3.14 默认 forkserver）
+def square(value: int) -> int:
+    return value * value
+
+
+def identity(value: int) -> int:
+    return value
+
+
+def boom(value: int) -> int:
+    raise RuntimeError(f"boom-{value}")
+
+
 PAGE = pathlib.Path(__file__).resolve().parents[1] / "docs" / "backend" / "components" / "01-safe-queue.md"
 
 
@@ -59,7 +72,7 @@ def load_component() -> types.ModuleType:
 @NEEDS_MP
 def test_normal_path_returns_results() -> None:
     safe_queue = load_component()
-    with safe_queue.SafeQueue(lambda value: value * value, workers=2) as queue:
+    with safe_queue.SafeQueue(square, workers=2) as queue:
         queue.submit(range(10))
         results = queue.drain(10, timeout=30)
     assert len(results) == 10
@@ -85,7 +98,7 @@ def test_child_exception_is_returned_not_lost() -> None:
 @NEEDS_MP
 def test_sentinel_count_matches_workers() -> None:
     safe_queue = load_component()
-    with safe_queue.SafeQueue(lambda value: value, workers=3) as queue:
+    with safe_queue.SafeQueue(identity, workers=3) as queue:
         queue.submit([1, 2, 3])
         results = queue.drain(3, timeout=30)
     assert len(results) == 3
@@ -95,4 +108,12 @@ def test_sentinel_count_matches_workers() -> None:
 def test_workers_must_be_positive() -> None:
     safe_queue = load_component()
     with pytest.raises(ValueError):
-        safe_queue.SafeQueue(lambda value: value, workers=0)
+        safe_queue.SafeQueue(identity, workers=0)
+
+
+def test_worker_functions_are_picklable() -> None:
+    """spawn / forkserver 下 target 必须可 pickle，这条断言不依赖进程间原语。"""
+    import pickle
+
+    for func in (square, identity, boom):
+        assert pickle.loads(pickle.dumps(func)) is func

@@ -116,6 +116,8 @@ class SafeQueue:
 - 哨兵按 worker 数量逐个投递。少投一个就有一个 worker 永久阻塞。
 - 子进程异常不允许逃逸。worker 捕获后包成结果对象回传。
 - `__exit__` 只做关闭，不做等待结果。调用方自己决定收多少条。
+- 启动方式为 spawn 或 forkserver 时，任务函数必须定义在模块顶层。函数与参数都要可 pickle。
+  Python 3.14 起 Linux 默认改用 forkserver，lambda 与局部函数会直接报 PicklingError。
 
 ## 使用文档
 
