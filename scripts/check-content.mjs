@@ -37,6 +37,7 @@ import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
 import { buildDocTree } from '../docs/.vitepress/plugins/doc-engine.ts'
+import { parseSegment } from '../docs/.vitepress/shared/links.ts'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -191,6 +192,8 @@ function checkMetas(metas) {
 
 function checkFrontmatter(page, tree) {
   const file = rel(page.file)
+  // 站点首页用 layout: home，不属于任何领域，豁免类型约束
+  if (file === 'docs/index.md') return
   const data = page.data
   const type = data.type
   if (!type) {
@@ -407,9 +410,12 @@ function checkTeachBlocks(metas, tree) {
         fail('V15', rel(file), 0, `lessons.goal 长度不合规：${lesson.slug}`, 'goal 保持 10–60 字')
       }
     }
-    const knowledgeDomain = rel(file).split('/').slice(-3, -1).join('/')
+    // 目录形如 docs/<domain>/learn/<NN-knowledge-domain>/_meta.yml
+    const parts = rel(file).split('/')
+    const domainSlug = parseSegment(parts[1]).slug
+    const kdSlug = parseSegment(parts[3]).slug
     const pages = tree.pages.filter(
-      (page) => page.type === 'knowledge' && `${page.domain}/learn/${page.knowledgeDomain}` === knowledgeDomain,
+      (page) => page.type === 'knowledge' && page.domain === domainSlug && page.knowledgeDomain === kdSlug,
     )
     const declared = new Set(teach.lessons.map((lesson) => normalizeSlug(lesson.slug)))
     const actual = new Set(pages.map((page) => page.slug))
