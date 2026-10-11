@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "并发卡死的三步定位",
+    "output": "docs/public/diagrams/debug-triage.html",
+    "locale": "zh-CN",
+    "viewBox": [1080, 700],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "svc", "type": "backend", "label": "服务进程", "sublabel": "疑似卡死" },
+    { "id": "ops", "type": "external", "label": "排查者", "sublabel": "开发者或值守" },
+    { "id": "fh", "type": "security", "label": "faulthandler", "sublabel": "定时抓栈" },
+    { "id": "stacks", "type": "database", "label": "线程栈集合", "sublabel": "调用链快照" },
+    { "id": "metric", "type": "cloud", "label": "指标与日志", "sublabel": "队列长度与耗时" }
+  ],
+  "segments": [
+    { "from": 156, "to": 296, "label": "第一步：先确认卡在哪" },
+    { "from": 296, "to": 436, "label": "第二步：抓栈并对锁" },
+    { "from": 436, "to": 574, "label": "第三步：改代码并回归" }
+  ],
+  "messages": [
+    { "id": "report", "from": "ops", "to": "svc", "y": 170, "label": "接口长时间不返回", "variant": "default" },
+    { "id": "check-metric", "from": "ops", "to": "metric", "y": 200, "label": "看队列长度与等待耗时", "variant": "emphasis" },
+    { "id": "distinguish", "from": "metric", "to": "ops", "y": 230, "label": "区分慢与卡死", "variant": "return" },
+    { "id": "enable", "from": "ops", "to": "fh", "y": 270, "label": "开启定时抓栈", "variant": "emphasis" },
+    { "id": "dump", "from": "fh", "to": "svc", "y": 300, "label": "dump_traceback_later", "variant": "security" },
+    { "id": "collect", "from": "svc", "to": "stacks", "y": 330, "label": "输出全部线程调用栈", "variant": "default" },
+    { "id": "read", "from": "ops", "to": "stacks", "y": 370, "label": "读栈找等待点", "variant": "emphasis" },
+    { "id": "pair", "from": "stacks", "to": "ops", "y": 400, "label": "两线程互相等待同一对锁", "variant": "return" },
+    { "id": "locate", "from": "ops", "to": "metric", "y": 470, "label": "定位共享状态与临界区", "variant": "default" },
+    { "id": "fix", "from": "ops", "to": "svc", "y": 500, "label": "统一加锁顺序或换队列", "variant": "emphasis" },
+    { "id": "again", "from": "fh", "to": "stacks", "y": 540, "label": "回归时再抓一次确认", "variant": "default" }
+  ],
+  "activations": [
+    { "participant": "svc", "from": 165, "to": 340, "type": "backend" },
+    { "participant": "ops", "from": 165, "to": 245, "type": "external" },
+    { "participant": "metric", "from": 195, "to": 240, "type": "cloud" },
+    { "participant": "fh", "from": 265, "to": 545, "type": "security" },
+    { "participant": "stacks", "from": 325, "to": 545, "type": "database" },
+    { "participant": "ops", "from": 365, "to": 410, "type": "external" },
+    { "participant": "svc", "from": 495, "to": 510, "type": "backend" }
+  ],
+  "cards": [
+    {
+      "dot": "orange",
+      "title": "先分清慢与死",
+      "items": [
+        "队列长度持续上涨多为消费不足",
+        "所有线程都在等待多为死锁",
+        "先看指标再抓栈，顺序不要颠倒"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "抓栈最省事的手段",
+      "items": [
+        "faulthandler 定时抓栈，无需重启",
+        "信号方式抓栈适合线上临时启用",
+        "拿到栈才能判断是谁握着锁"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "常见根因",
+      "items": [
+        "两把锁加锁顺序不一致",
+        "同步调用阻塞事件循环",
+        "信号量许可泄漏导致永久等待"
+      ]
+    }
+  ]
+}
