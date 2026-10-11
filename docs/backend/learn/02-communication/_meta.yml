@@ -1,0 +1,32 @@
+name: "跨线程与跨进程通信"
+order: 2
+icon: "🔀"
+description: "队列、共享状态、信号与套接字的通信体系"
+teach:
+  audience: "有多线程与多进程基础、准备中高级后端面试的开发者"
+  prerequisites:
+    - "能写生产者与消费者循环"
+    - "了解锁与条件变量的基本用法"
+    - "能用命令行运行多进程脚本"
+  outcomes:
+    - "能按数据体积与进程边界选择传递方式"
+    - "能写出带背压与哨兵的可靠消费者循环"
+    - "能用信号量、事件与屏障协调多进程节奏"
+    - "能让进程组响应信号并优雅退出"
+    - "能设计长度前缀协议并处理粘包"
+  path:
+    - from: "01-queue-and-pipe"
+      to: "02-shared-state"
+      label: "传递与共享"
+    - from: "03-semaphore-and-signal"
+      to: "04-socket-and-streams"
+      label: "协调与网络"
+  lessons:
+    - slug: "01-queue-and-pipe"
+      goal: "讲清队列与管道的阻塞语义与退出约定"
+    - slug: "02-shared-state"
+      goal: "讲清共享内存的零拷贝与生命周期代价"
+    - slug: "03-semaphore-and-signal"
+      goal: "讲清信号量的通信语义与信号退出流程"
+    - slug: "04-socket-and-streams"
+      goal: "讲清多路复用、流接口与粘包处理"

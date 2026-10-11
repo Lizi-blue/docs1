@@ -1,0 +1,16 @@
+name: "数据库"
+icon: "🗄️"
+order: 4
+description: "SQL 与索引、事务与隔离级别、连接池与慢查询定位"
+teach:
+  audience: "有 Python 基础、准备后端面试的开发者"
+  prerequisites:
+    - "能写出基本的 SQL 查询"
+    - "了解关系模型与主键"
+  outcomes:
+    - "能解释 B+ 树索引与最左前缀"
+    - "能按隔离级别判断并发读写的结果"
+    - "能定位慢查询并给出改写方案"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

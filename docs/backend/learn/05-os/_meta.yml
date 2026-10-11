@@ -1,0 +1,15 @@
+name: "操作系统"
+icon: "🧠"
+order: 5
+description: "进程与内存、文件与 I/O 模型、Linux 常用排查手段"
+teach:
+  audience: "有 Python 基础、准备后端面试的开发者"
+  prerequisites:
+    - "了解进程、线程与内存的基本概念"
+  outcomes:
+    - "能解释虚拟内存与页表的作用"
+    - "能区分阻塞、非阻塞与多路复用 I/O"
+    - "能用 top 与 strace 定位资源问题"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

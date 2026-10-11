@@ -1,0 +1,16 @@
+name: "前端框架"
+icon: "🧱"
+order: 2
+description: "组件模型、响应式原理、状态管理与路由"
+teach:
+  audience: "掌握 HTML 与 JavaScript、准备前端面试的开发者"
+  prerequisites:
+    - "能用原生 JavaScript 操作 DOM"
+    - "了解模块与构建工具的基本用法"
+  outcomes:
+    - "能解释响应式更新的依赖收集过程"
+    - "能按场景选择组件间状态传递方式"
+    - "能说明路由与渲染模式的关键差别"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

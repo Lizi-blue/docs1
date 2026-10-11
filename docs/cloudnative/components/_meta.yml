@@ -1,0 +1,4 @@
+name: "组件查询"
+icon: "🧩"
+order: 2
+description: "可复用清单与脚本：依赖、源码与引用方式"

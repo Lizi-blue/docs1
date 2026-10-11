@@ -1,0 +1,16 @@
+name: "编排与调度"
+icon: "🧭"
+order: 2
+description: "Pod 与控制器、调度与探针、滚动发布与回滚"
+teach:
+  audience: "有 Linux 基础、准备云原生面试的开发者"
+  prerequisites:
+    - "了解容器与镜像的基本用法"
+    - "能读懂 YAML 清单"
+  outcomes:
+    - "能按工作负载类型选择控制器"
+    - "能解释探针与就绪门控的作用"
+    - "能给出滚动发布失败后的回滚步骤"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

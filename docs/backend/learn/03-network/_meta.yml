@@ -1,0 +1,16 @@
+name: "网络编程"
+icon: "🌐"
+order: 3
+description: "TCP 与 HTTP、socket 编程、协议分层与抓包定位"
+teach:
+  audience: "有 Python 基础、准备后端面试的开发者"
+  prerequisites:
+    - "能读写 Python 函数与类"
+    - "了解进程与线程的基本概念"
+  outcomes:
+    - "能按协议分层定位网络问题"
+    - "能写出可复用的 socket 客户端与服务器"
+    - "能解释 TCP 与 HTTP 的关键差异"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

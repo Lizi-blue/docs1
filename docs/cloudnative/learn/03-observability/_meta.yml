@@ -1,0 +1,15 @@
+name: "可观测性"
+icon: "📈"
+order: 3
+description: "指标与日志、链路追踪、告警分级与容量水位"
+teach:
+  audience: "有 Linux 基础、准备云原生面试的开发者"
+  prerequisites:
+    - "了解 HTTP 服务与日志的基本用法"
+  outcomes:
+    - "能按信号类型选择指标或日志"
+    - "能解释一次请求的追踪链路"
+    - "能按水位设定告警阈值"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

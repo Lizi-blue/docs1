@@ -1,0 +1,16 @@
+name: "容器基础"
+icon: "📦"
+order: 1
+description: "镜像与分层、容器运行时、网络与存储挂载"
+teach:
+  audience: "有 Linux 基础、准备云原生面试的开发者"
+  prerequisites:
+    - "会使用常见 Linux 命令"
+    - "了解进程与命名空间的基本概念"
+  outcomes:
+    - "能解释镜像分层与联合文件系统"
+    - "能说明容器与虚拟机的隔离差别"
+    - "能按场景选择网络与存储挂载方式"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []
