@@ -30,6 +30,13 @@ export interface PathStep {
   label?: string
 }
 
+export interface TeachBlock {
+  audience?: string
+  outcomes?: string[]
+  lessons?: { slug: string; goal: string }[]
+  path?: PathStep[]
+}
+
 export interface DirMeta {
   name?: string
   icon?: string
@@ -38,6 +45,8 @@ export interface DirMeta {
   entry_type?: string
   prerequisites?: string[]
   path?: PathStep[]
+  /** 编排登记块：知识域的学习路径与教学目标写在这里（见 002 的 data-model.md E2） */
+  teach?: TeachBlock
 }
 
 export interface PageNode {
@@ -79,6 +88,8 @@ export interface KnowledgeDomainNode {
   description?: string
   prerequisites: string[]
   path: PathStep[]
+  /** 教学登记：目标读者、学完能做什么、每讲教学目标 */
+  teach?: TeachBlock
   url: string
   pages: PageNode[]
   subtopics: { slug: string; name: string; icon: string; order: number; pages: PageNode[] }[]
@@ -306,8 +317,10 @@ function buildDomain(docsRoot: string, dirName: string, warnings: string[]): Dom
       icon: kdCtx.icon,
       order: kdName.order,
       description: kdMeta.description,
-      prerequisites: kdMeta.prerequisites || [],
-      path: (kdMeta.path as PathStep[]) || [],
+      prerequisites: kdMeta.teach?.prerequisites ?? kdMeta.prerequisites ?? [],
+      // 兼容两种写法：新内容写 teach.path，旧内容写顶层 path
+      path: (kdMeta.teach?.path ?? kdMeta.path ?? []) as PathStep[],
+      teach: kdMeta.teach,
       url: kdCtx.url,
       pages: sortPages(pages),
       subtopics: subtopics.sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug)),
