@@ -17,8 +17,15 @@ export function cmpSplit(md: MarkdownIt): void {
       const token = tokens[index]
       if (token.type !== 'heading_open' || token.tag !== 'h2') continue
       const inline = tokens[index + 1]
-      const text = (inline?.children ?? []).map((child) => child.content).join('').trim()
-      if (SPLIT_TITLES.includes(text)) {
+      // VitePress 的标题插件会追加锚点与零宽空格，先归一化再比较
+      const text = (inline?.children ?? [])
+        .map((child) => child.content)
+        .join('')
+        .replace(/&ZeroWidthSpace;/g, '')
+        .replace(/[\u200b\u200c\u200d\ufeff]/g, '')
+        .replace(/^#+\s*/, '')
+        .trim()
+      if (SPLIT_TITLES.some((title) => text === title || text.startsWith(`${title}：`))) {
         splitIndex = index
         break
       }
