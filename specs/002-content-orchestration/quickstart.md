@@ -3,6 +3,16 @@
 验收剧本。每条给出前置、命令与期望结果；设计细节见 [plan.md](./plan.md)、
 [data-model.md](./data-model.md) 与 [contracts/](./contracts/skill-contract.md)。
 
+## 计时口径
+
+本节的用时按下列口径记录。执行者全程一人，不中途换手。
+
+- 计时器用 `date +%s` 打点。记录起止时刻与秒数。
+- SC-001 起点是打开 `.dsh/skills/docs-authoring/SKILL.md` 的瞬间。
+- SC-001 终点是知识点页 `npm run check:content` 退出码为 0 的瞬间。
+- SC-006 起点同上。终点是知识域含首讲通过门禁的瞬间。
+- 夹具一律建在临时路径。验证后删除。不留残余文件。
+
 ## S0 前置
 
 ```bash

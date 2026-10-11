@@ -2,3 +2,8 @@ date	iteration	scope	decision	reason	review
 2026-10-11	002-content-orchestration	技能首次落地	writeback	-	-
 2026-10-11	002-content-orchestration	中文门禁基线首次登记	writeback	baseline:69	-
 2026-10-11	002-content-orchestration	中文门禁遮蔽假阳性（组件载荷、HTML 实体、契约强制标题）后重定基线	no-writeback	baseline:0，硬违规 0 处；技能正文未改	-
+2026-10-11	002-content-orchestration	T052 降级演练（夹具页手写自包含 SVG）	no-writeback	降级原因：无 Archify 环境，手写自包含 SVG 通过内容门禁，技能已含该降级路径，未改技能	-
+2026-10-11	002-content-orchestration	T057 规格口径对齐（FR-019 反例 ≥3、FR-002 补阈值、合并重复表述）	no-writeback	规格措辞修正，技能不复制取值，判据本体未变，未改技能	-
+2026-10-11	002-content-orchestration	T037/T050–T056 验证取证轮（抽查、quickstart S0–S8、一致性回归）	no-writeback	抽查与自检全绿，判据仍有效，未改技能	-
+2026-10-11	002-content-orchestration	连续无需回写触发的复核（FR-012）	no-writeback	复核结论：判据仍有效（T055 两页评审与 S1–S7 自检均过）	recheck:valid
+2026-10-11	002-content-orchestration	T043 迭代演练：修 04-project-structure 追问链递进并回写技能末讲衔接规则	writeback	-	-

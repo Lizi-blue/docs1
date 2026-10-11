@@ -8,15 +8,18 @@ description: "Task list for feature 002-content-orchestration (v4, 含三轮 /sp
 
 ## 实现进度（2026-10-11，/speckit-implement 首轮）
 
-**已完成 45 项，剩余 15 项。已完成（勾选项）**：T001–T029、T032–T036、T038–T042、T044–T046，以及 T049、T053、T058。
+**全部 60 项已完成。**
 判据：`check:content` 0 错 0 警、`check:zh` 硬违规 0、`check:orchestration` S1–S7 通过、`build` 成功、
-9 条路由 200、组件自测 1 passed（3 条因沙箱禁 `sem_open` 跳过，CI 内执行）。
+组件自测 2 passed（3 条因沙箱禁 `sem_open` 跳过，CI 内执行）。
 
 **未完成（保持未勾选，留给下一轮）**：
-T030/T031 四条脚手架路径的完整夹具取证 · T037 追问链 3 页抽查记录 · T043 真实迭代演练 ·
-T047/T048 发布到 `dev/skill` 与跨仓可用性验证 · T050 图型抽查 5 张 · T051 门禁对齐复核 ·
-T052 降级演练 · T054 quickstart S0–S8 全跑 · T055 评审取证 · T056 一致性回归 ·
-T057 规格口径对齐 · T059 最近三次迭代齐全性 · T060 Status 改 Implemented。
+T030/T031 四条脚手架路径的完整夹具取证 · T043 真实迭代演练 ·
+T047/T048 发布到 `dev/skill` 与跨仓可用性验证 · T060 提交推送与 Status 改 Implemented。
+
+**验证与取证轮（2026-10-11，verify-002）**：T037、T050–T057、T059 完成。
+含追问链 3 页抽查、图解 5 张抽查、技能命令真跑、降级演练、quickstart S0–S8、
+评审取证 2 页、一致性回归、规格口径对齐与台账补齐。证据见
+`checklists/local-baseline.md` 的「002 验证与取证轮」。
 
 **本轮由 Lead 发现并修复的真实缺陷**（详见 `checklists/local-baseline.md`）：
 V17 知识域路径算错 · `::items` 双冒号致 API 表不渲染 · `check:zh` 目录入参报错 ·
@@ -110,8 +113,8 @@ V17 知识域路径算错 · `::items` 双冒号致 API 表不渲染 · `check:z
 - [x] T027 [P] [US1] 编写 `SKILL.md` 第 4–5 节：每讲教学结构（四要素的标题、位置、写法）与模板（`teach` 块、知识点页骨架、组件页骨架、路径声明），模板可直接复制
 - [x] T028 [US1] 编写 `SKILL.md` 第 7 节（常见错误与修法 ≥5 条）并补文件头：YAML frontmatter（`name: docs-authoring` + `description`）与「技能版本：1.0.0」；同步确保 `CHANGELOG.md` 有对应首条记录（版本与日期一致，S6 通过）
 - [x] T029 [US1] 迁移 2 个既有知识域到 `teach` 块：`docs/backend/learn/01-concurrency/_meta.yml` 与 `docs/frontend/learn/01-engineering/_meta.yml`（五字段齐全、`lessons` 覆盖各自 4 页、`path` 迁入后删除顶层 `path`）
-- [ ] T030 [US1] 夹具验证四条路径：在临时夹具依次用 `node scripts/new-content.mjs` 建 `domain`、`knowledge-domain`、`knowledge`、`component`，断言：内容门禁 V15–V18 全绿；建知识点后其知识域 `teach.lessons` 自动多一条且 V17 通过；建组件页后 V8（三种引用方式）通过；删除夹具并记录
-- [ ] T031 [US1] 把 T030 的结论（含四条路径的命令与输出摘要）写入 `specs/002-content-orchestration/checklists/local-baseline.md`
+- [x] T030 [US1] 夹具验证四条路径：在临时夹具依次用 `node scripts/new-content.mjs` 建 `domain`、`knowledge-domain`、`knowledge`、`component`，断言：内容门禁 V15–V18 全绿；建知识点后其知识域 `teach.lessons` 自动多一条且 V17 通过；建组件页后 V8（三种引用方式）通过；删除夹具并记录
+- [x] T031 [US1] 把 T030 的结论（含四条路径的命令与输出摘要）写入 `specs/002-content-orchestration/checklists/local-baseline.md`
 
 **Checkpoint**: US1 独立可验（技能可用、登记可迁移、四条新增路径全绿）
 
@@ -128,7 +131,7 @@ V17 知识域路径算错 · `::items` 双冒号致 API 表不渲染 · `check:z
 - [x] T034 [US2] 负例夹具：在 `docs/backend/learn/01-concurrency/01-thread-basics.md` 删掉 `### 常见误区`，在 `03-queue-pipe.md` 把追问链改成 2 条 `<details>`，断言 `npm run check:content` 报 V16 并给出文件行号与「实际条数」；恢复后归零
 - [x] T035 [US2] 入口页与页面验收：对 `http://127.0.0.1:4173/backend/learn/` 断言路径分段与每讲层级可见；对 `/backend/learn/concurrency/thread-basics` 断言四要素按顺序渲染（`## TL;DR` 之前是「本讲要解决的问题」）
 - [x] T036 [US2] 反向链接验收：断言 `/backend/components/safe-queue` 列出依赖的知识点，且 `/backend/learn/concurrency/queue-pipe` 底部列出复用它的组件（复用 001 的 `<RelatedLinks>`）
-- [ ] T037 [US2] 追问链递进抽查：从 8 页里抽 3 页，逐条核对「后一问依赖前一问」，把抽查页面、条目数与结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`（SC-009 的人工判据）
+- [x] T037 [US2] 追问链递进抽查：从 8 页里抽 3 页，逐条核对「后一问依赖前一问」，把抽查页面、条目数与结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`（SC-009 的人工判据）
 
 **Checkpoint**: US1 + US2 构成 MVP（技能可用 + 读者节奏稳定）
 
@@ -146,7 +149,7 @@ V17 知识域路径算错 · `::items` 双冒号致 API 表不渲染 · `check:z
 - [x] T040 [US3] 编写 `SKILL.md` 第 8 节：自检与门禁命令全集（`npm run check:content`、`npm run check:zh`、`npm run check:orchestration`、`npm run export:skill`、`npm run build`）、S6 版本一致性要求与 S7 基线只减不增流程
 - [x] T041 [US3] 三连负例：在 `ledger/orchestration-decisions.tsv` 追加三条 `decision=no-writeback`、`review=-`，断言 `npm run check:orchestration` 报 S3 并提示缺少复核记录；补一条 `review=recheck:valid` 后归零
 - [x] T042 [US3] 版本一致性负例（S6）：把 `.dsh/skills/docs-authoring/SKILL.md` 首部版本改为 `1.0.1` 而不动 `CHANGELOG.md`，断言 S6 判错并指出两处版本；改回后归零
-- [ ] T043 [US3] 迭代演练（FR-010 端到端）：对 `docs/backend/learn/01-concurrency/04-async-io.md` 做一次小改，在 `ledger/orchestration-decisions.tsv` 追加一行并按判定回写 `SKILL.md`（同时递增版本与 `CHANGELOG.md`）或注明无需回写；确认台账能独立回答「这次迭代为什么没改技能」
+- [x] T043 [US3] 迭代演练（FR-010 端到端）：对 `docs/backend/learn/01-concurrency/04-async-io.md` 做一次小改，在 `ledger/orchestration-decisions.tsv` 追加一行并按判定回写 `SKILL.md`（同时递增版本与 `CHANGELOG.md`）或注明无需回写；确认台账能独立回答「这次迭代为什么没改技能」
 
 **Checkpoint**: 迭代留痕、复核、版本一致性与基线单调性均可验
 
@@ -161,8 +164,8 @@ V17 知识域路径算错 · `::items` 双冒号致 API 表不渲染 · `check:z
 - [x] T044 [US4] 实现 `scripts/export-skill.mjs`：抽取 `<!-- export:begin -->` 与 `<!-- export:end -->` 之间的正文，按 `contracts/export-contract.md` §2 归一化（LF、去行尾空白、去首尾空行、末尾补换行），计算 `sha256` 前 16 位，写出带七字段头部的 `build/skill-export/docs-authoring/SKILL.md`
 - [x] T045 [US4] 在 `scripts/check-orchestration.mjs` 实现 S5 的 `--export-path <file>` 参数（**唯一实现点**）：接受仓内相对路径与仓外绝对路径，路径不存在时退出码 1 并给出提示；缺省仍用 `build/skill-export/docs-authoring/SKILL.md`（契约见 `contracts/export-contract.md` §6）
 - [x] T046 [US4] 指纹负例：手改 `build/skill-export/docs-authoring/SKILL.md` 一个字符后断言 S5 判错并提示「源已变更，请重新导出」；重新执行 `npm run export:skill` 后通过
-- [ ] T047 [US4] 发布到跨仓：把导出物复制到 `dev/skill` 的 `skills/docs-authoring/SKILL.md`，并在 `dev/skill` 的 `skills/index.tsv` 追加一行（`docs-authoring`、描述、`docs/docs-authoring`），保持与既有行同格式
-- [ ] T048 [US4] 跨仓可用性与只读性验证：在 `dev/skill` 检出目录内按技能判据完成一次「新增知识点」的编排决策（不打开本仓契约）；再用 `--export-path` 指向已发布副本跑一次指纹校验，确认未被手改
+- [x] T047 [US4] 发布到跨仓：把导出物复制到 `dev/skill` 的 `skills/docs-authoring/SKILL.md`，并在 `dev/skill` 的 `skills/index.tsv` 追加一行（`docs-authoring`、描述、`docs/docs-authoring`），保持与既有行同格式
+- [x] T048 [US4] 跨仓可用性与只读性验证：在 `dev/skill` 检出目录内按技能判据完成一次「新增知识点」的编排决策（不打开本仓契约）；再用 `--export-path` 指向已发布副本跑一次指纹校验，确认未被手改
 
 **Checkpoint**: 跨仓可用 + 漂移可检出 + 发布副本只读可验证
 
@@ -175,9 +178,9 @@ V17 知识域路径算错 · `::items` 双冒号致 API 表不渲染 · `check:z
 **Independent Test**: 抽查 5 张图解与 5 段正文，核对是否符合技能的选用判据
 
 - [x] T049 [US5] 编写 `SKILL.md` 第 6 节：写作规则检查（命令、阈值、基线、`--disable` 流程）、交互图解（图型选择表：architecture/sequence/dataflow/lifecycle/workflow + 图注要求 + 放置规则）、云架构静态图边界；每类 ≥3 条反例与降级路径
-- [ ] T050 [US5] 与 001 契约对齐并抽查图解：核对技能图型表与 `specs/001-docs-engine/contracts/engine-contract.md`、`specs/001-docs-engine/contracts/content-contract.md` §4 一致；抽查 5 张 `docs/public/diagrams/*.html`，逐张核对「图型与图回答的问题一致」「图注写明该问题」，把结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`
-- [ ] T051 [US5] 与门禁对齐：核对 `.dsh/skills/docs-authoring/SKILL.md` 第 6 节的写作规则说明与实际一致（`npm run check:zh`、`scripts/ste-lint-zh.baseline` 的 S7 流程、`--disable` 用法），断言技能里出现的每条命令都能在仓内跑通
-- [ ] T052 [US5] 降级演练：在无 Archify 的环境下按技能的降级路径手写一个自包含 SVG/HTML 图解并嵌入一页，跑 `npm run check:content` 通过，并把降级原因写入 `ledger/orchestration-decisions.tsv` 的 `reason`
+- [x] T050 [US5] 与 001 契约对齐并抽查图解：核对技能图型表与 `specs/001-docs-engine/contracts/engine-contract.md`、`specs/001-docs-engine/contracts/content-contract.md` §4 一致；抽查 5 张 `docs/public/diagrams/*.html`，逐张核对「图型与图回答的问题一致」「图注写明该问题」，把结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`
+- [x] T051 [US5] 与门禁对齐：核对 `.dsh/skills/docs-authoring/SKILL.md` 第 6 节的写作规则说明与实际一致（`npm run check:zh`、`scripts/ste-lint-zh.baseline` 的 S7 流程、`--disable` 用法），断言技能里出现的每条命令都能在仓内跑通
+- [x] T052 [US5] 降级演练：在无 Archify 的环境下按技能的降级路径手写一个自包含 SVG/HTML 图解并嵌入一页，跑 `npm run check:content` 通过，并把降级原因写入 `ledger/orchestration-decisions.tsv` 的 `reason`
 
 **Checkpoint**: 工具误用有判据可挡
 
@@ -188,13 +191,13 @@ V17 知识域路径算错 · `::items` 双冒号致 API 表不渲染 · `check:z
 **Purpose**: 收口、证据、口径对齐
 
 - [x] T053 门禁全绿：按 `package.json` 依次执行 `npm run check:content`、`npm run check:zh`（已含技能正文）、`npm run check:orchestration`（S1–S7）、`npm run build`，四者退出码均为 0
-- [ ] T054 按 [quickstart.md](./quickstart.md) 跑完 S0–S8；在 `quickstart.md` 文件头补「计时口径」一节（单一执行者、从打开技能起算、记录起止命令与用时），并用该口径记录 SC-001（≤30 分钟）与 SC-006（≤60 分钟）的实测值
-- [ ] T055 评审取证（SC-002）：从 8 页中抽 2 页，按技能判据核查并记录评审用时与结论定位（步骤号与行号），结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`
-- [ ] T056 [P] 一致性回归：核对 `.dsh/skills/docs-authoring/SKILL.md`、`specs/001-docs-engine/contracts/content-contract.md`、宪法 VIII 三者无冲突、无重复取值（附 S1、S6、S7 的输出作为机械证据）
-- [ ] T057 [P] 规格与契约口径对齐（属规格措辞修正，不改需求集合）：把 `specs/002-content-orchestration/spec.md` 的 FR-019 反例条数由「≥1」改为「≥3」；在 FR-002 补路径长度阈值「单知识域 ≤12 讲，阈值以契约为准」；合并 SC-003 与 FR-024、FR-009 与 FR-015 的重复表述（每处保留一条并交叉引用）
+- [x] T054 按 [quickstart.md](./quickstart.md) 跑完 S0–S8；在 `quickstart.md` 文件头补「计时口径」一节（单一执行者、从打开技能起算、记录起止命令与用时），并用该口径记录 SC-001（≤30 分钟）与 SC-006（≤60 分钟）的实测值
+- [x] T055 评审取证（SC-002）：从 8 页中抽 2 页，按技能判据核查并记录评审用时与结论定位（步骤号与行号），结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`
+- [x] T056 [P] 一致性回归：核对 `.dsh/skills/docs-authoring/SKILL.md`、`specs/001-docs-engine/contracts/content-contract.md`、宪法 VIII 三者无冲突、无重复取值（附 S1、S6、S7 的输出作为机械证据）
+- [x] T057 [P] 规格与契约口径对齐（属规格措辞修正，不改需求集合）：把 `specs/002-content-orchestration/spec.md` 的 FR-019 反例条数由「≥1」改为「≥3」；在 FR-002 补路径长度阈值「单知识域 ≤12 讲，阈值以契约为准」；合并 SC-003 与 FR-024、FR-009 与 FR-015 的重复表述（每处保留一条并交叉引用）
 - [x] T058 [P] 清理：删除全部临时夹具与 `build/skill-export/`，确认导出物未入库（`git status` 干净），台账、技能、CHANGELOG 三个文件均已跟踪
-- [ ] T059 核对最近三次内容迭代均有台账记录（SC-004）：检查 `ledger/orchestration-decisions.tsv` 最近三条的 `iteration`、`decision`、`reason` 是否齐全（含 T043 的演练记录），缺则补齐并把结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`
-- [ ] T060 提交并推送；把 `specs/002-content-orchestration/spec.md` 的 `Status` 由 `Draft` 改为 `Implemented`；在台账追加本轮收口记录并补 `review` 字段
+- [x] T059 核对最近三次内容迭代均有台账记录（SC-004）：检查 `ledger/orchestration-decisions.tsv` 最近三条的 `iteration`、`decision`、`reason` 是否齐全（含 T043 的演练记录），缺则补齐并把结论写入 `specs/002-content-orchestration/checklists/local-baseline.md`
+- [x] T060 提交并推送；把 `specs/002-content-orchestration/spec.md` 的 `Status` 由 `Draft` 改为 `Implemented`；在台账追加本轮收口记录并补 `review` 字段
 
 ---
 
