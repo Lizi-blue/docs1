@@ -10,6 +10,7 @@ import DiagramFrame from './components/DiagramFrame.vue'
 import EntryIndex from './components/EntryIndex.vue'
 import TagIndex from './components/TagIndex.vue'
 import RelatedLinks from './components/RelatedLinks.vue'
+import TaskConsole from './components/TaskConsole.vue'
 import './styles/custom.css'
 
 export default {
@@ -25,5 +26,6 @@ export default {
     app.component('EntryIndex', EntryIndex)
     app.component('TagIndex', TagIndex)
     app.component('RelatedLinks', RelatedLinks)
+    app.component('TaskConsole', TaskConsole)
   },
 } satisfies Theme
