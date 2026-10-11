@@ -7,7 +7,7 @@
 
 ```bash
 npm run check:content        # 内容门禁（含本特性新增的 V15–V18）
-npm run check:orchestration  # 独立自检（S1–S5，技能与台账）
+npm run check:orchestration  # 独立自检（S1–S7，技能与台账）
 ```
 
 | 项 | 内容门禁 | 独立自检 |
@@ -39,6 +39,18 @@ npm run check:orchestration  # 独立自检（S1–S5，技能与台账）
 | S3 | 台账格式与连续三次规则 | 表头逐字一致、列数一致、`decision` 与 `review` 取值合法；连续三条 `no-writeback` 后无 `recheck:*` 即判错 | 行号 + 缺失的复核记录说明 |
 | S4 | 指针可达 | 技能内所有指向仓内文件的链接/路径均存在 | 列出失效指针 |
 | S5 | 导出指纹一致 | 导出物存在时，其 `body-sha256-16` 等于当前源导出区的指纹；不存在则跳过并提示 | 提示「源已变更，请重新导出」 |
+| S6 | 技能版本与变更日志一致 | `.dsh/skills/docs-authoring/SKILL.md` 首部版本号 MUST 等于同目录 `CHANGELOG.md` 最新条目的版本，且最新条目日期 MUST 不早于正文最后修改日期 | 指出两处版本号与两处日期，提示「改技能请同时递增版本与补条目」 |
+| S7 | 中文门禁基线只减不增 | 从台账 `reason` 列取最近一条 `baseline:<N>`，与 `scripts/ste-lint-zh.baseline` 的当前值比对；当前值更大即判错。改动基线 MUST 在 `reason` 写 `baseline:<N>` | 打印两次数值，提示「补复核记录，或把基线回落到 `<N>`」 |
+
+**S1 边界**：判定对象是内容契约的取值型片段（页面 frontmatter 字段名、阈值数、目录树结构块）。
+`skill-contract.md` §5 强制要求「可直接复制」的模板代码块不参与判定，判据本体中的 `≤12 讲`、
+`3–5 条`、`≥2 条` 同样保留。
+
+**S4 边界**：判定对象是以 `specs/`、`docs/`、`.specify/`、`.dsh/` 开头的完整仓内相对路径
+与 Markdown 链接。含 `<` 或 `*` 的占位路径、目录约定名与字段名不参与判定。
+
+**S6/S7 边界**：两者只读，MUST NOT 改写技能正文、变更日志或基线文件。基线文件不存在时，
+S7 判错并提示「先建立 `scripts/ste-lint-zh.baseline`」。
 
 ## 4. 夹具负例（实现时必须能红）
 

@@ -1,0 +1,4 @@
+date	iteration	scope	decision	reason	review
+2026-10-11	002-content-orchestration	技能首次落地	writeback	-	-
+2026-10-11	002-content-orchestration	中文门禁基线首次登记	writeback	baseline:69	-
+2026-10-11	002-content-orchestration	中文门禁遮蔽假阳性（组件载荷、HTML 实体、契约强制标题）后重定基线	no-writeback	baseline:0，硬违规 0 处；技能正文未改	-

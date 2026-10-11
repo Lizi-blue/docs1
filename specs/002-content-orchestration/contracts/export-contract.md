@@ -10,7 +10,7 @@
 | 源文件 | `.dsh/skills/docs-authoring/SKILL.md` |
 | 导出区 | `<!-- export:begin -->` 与 `<!-- export:end -->` 之间的正文（含九个章节） |
 | 锚点约束 | 两个锚点 MUST 成对出现，`begin` 在 `end` 之前，且各自独占一行 |
-| 锚点之外 | frontmatter 与版本行 MUST 在导出区内，保证导出物可被 Agent 直接加载 |
+| 锚点之外 | frontmatter 与版本行由导出脚本从源文件头部**原样带出**，放在导出物头部注释之后；它们不计入指纹，指纹只覆盖锚点之间的正文 |
 
 ## 2. 归一化（指纹计算前）
 
@@ -64,6 +64,22 @@ do-not-edit: 本文件由 scripts/export-skill.mjs 生成，手改会被自检�
 不一致 → 判错，提示「源已变更，请重新导出」
 导出物不存在 → 跳过 S5（本地未导出属正常状态），并打印一行提示
 ```
+
+### 6.1 `--export-path <file>`
+
+| 项 | 约定 |
+|---|---|
+| 实现点 | `scripts/check-orchestration.mjs`（S5 的路径参数，唯一实现点） |
+| 用法 | `npm run check:orchestration -- --export-path <file>` |
+| 缺省值 | `build/skill-export/docs-authoring/SKILL.md` |
+| 仓内相对路径 | 以仓库根为基准解析，MUST 落在仓内 |
+| 仓外绝对路径 | 允许（用于校验已发布到 `dev/skill` 的副本） |
+| 目标存在 | 读头部 `body-sha256-16`，按 §6 的比对流程执行 |
+| 目标不存在（显式传入） | 退出码 `1`，提示 `❌ 导出物不存在：<file> → 修法：先运行 npm run export:skill` |
+| 目标不存在（用缺省值） | 跳过 S5 并打印一行提示，退出码按其它规则项决定 |
+| 参数缺值 | 退出码 `1`，打印用法提示 |
+
+**边界**：仓外绝对路径只读。脚本 MUST NOT 写入、移动或改写目标文件。
 
 ## 7. 禁止项
 
