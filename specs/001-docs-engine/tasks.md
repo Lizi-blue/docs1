@@ -299,3 +299,7 @@ Task: "新建 deploy/{deployment,service,ingress}.yaml"
 - [x] T050 通信知识域 4 讲：队列与管道、共享状态、信号量与会话信号、套接字与流（task-9 完成，4 路由 200）
 - [x] T051 其他领域仅目录结构：后端 03-network/04-database/05-os/06-system-design、前端 02-framework/03-browser、新领域 cloudnative（3 个 outline 域）
 - [x] T052 导航层级与接口覆盖落地：顶栏与侧边栏四层、入口层级与「待补」、模块接口清单、V20/V22、check:nav（N1–N5）、技能 1.2.0
+## 特性 003 落地（2026-10-12）
+
+- [x] T053 任务服务与前端控制台：`service/`（下发/取消/监控/SSE）、`TaskConsole.vue` 与组件页、
+  Caddy `/api` 反代、入口脚本同管两进程；用例 46 passed；经域名实测 `cp` 任务实时输出。
