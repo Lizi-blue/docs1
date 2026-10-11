@@ -10,6 +10,10 @@ docs/.vitepress/cache/
 # 只忽略这些第三方副本；自研技能 .dsh/skills/docs-authoring/ 必须入库。
 .dsh/skills/speckit-*
 
+# Python 缓存（组件自测产生）
+__pycache__/
+*.pyc
+
 # ---- 通用 ----
 .DS_Store
 Thumbs.db
