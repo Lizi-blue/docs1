@@ -27,9 +27,11 @@ mkdir -p "$ROOT/docs/public/diagrams"
 for src in "$ROOT"/diagrams/src/*.json; do
   [ -e "$src" ] || { echo "diagrams/src 下没有源文件"; exit 1; }
   name="$(basename "$src" .json)"
+  # 输出路径以 IR 的 meta.output 为准，避免文件名与产物名漂移
   type="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["diagram_type"])' "$src")"
-  out="$ROOT/docs/public/diagrams/$name.html"
-  echo "==> $name ($type)"
+  rel_out="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["meta"]["output"])' "$src")"
+  out="$ROOT/$rel_out"
+  echo "==> $name ($type) -> $rel_out"
   node "$CLI" deliver "$type" "$src" "$out" --quality showcase --json
 done
 echo "完成：$ROOT/docs/public/diagrams"

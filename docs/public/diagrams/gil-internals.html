@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="archify 3.0.1">
   <meta name="archify-reader-contract" content="declared-wide-v1">
-  <title>生产者消费者握手与哨兵</title>
+  <title>GIL 的持有、强制释放与再竞争</title>
   <script>
     // Resolve the theme before first paint so light-preference users don't
     // see a dark flash. The toolbar script below re-applies with UI state.
@@ -4978,7 +4978,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
            data-preset-badge-blueprint="蓝图 / 修订 01"
            data-preset-badge-editorial="编辑风格 / 现场笔记">
         <div class="pulse-dot"></div>
-        <h1>生产者消费者握手与哨兵</h1>
+        <h1>GIL 的持有、强制释放与再竞争</h1>
       </div>
     </div>
 
@@ -4987,8 +4987,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="read"
          data-preset-badge-editorial-plate="ARCHIFY / 图版 04">
-      <svg viewBox="0 0 1080 660" data-sequence-column-fit="spread" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
-        <title id="archify-diagram-title">生产者消费者握手与哨兵</title>
+      <svg viewBox="0 0 1080 780" data-sequence-column-fit="spread" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
+        <title id="archify-diagram-title">GIL 的持有、强制释放与再竞争</title>
         <desc id="archify-diagram-description">由 Archify 生成的时序图。</desc>
         <!-- Definitions -->
         <defs>
@@ -5013,246 +5013,242 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Time Segments -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" data-composition-frame-id="0" x="48" y="156" width="984" height="119" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" data-composition-frame-id="0" x="48" y="156" width="984" height="150" rx="10" class="c-lane" stroke-width="1"/>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" data-composition-frame-id="1" x="48" y="275" width="984" height="120" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" data-composition-frame-id="1" x="48" y="306" width="984" height="150" rx="10" class="c-lane" stroke-width="1"/>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" data-composition-frame-id="2" x="48" y="395" width="984" height="149" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" data-composition-frame-id="2" x="48" y="456" width="984" height="210" rx="10" class="c-lane" stroke-width="1"/>
 
         <!-- Lifelines -->
-        <path d="M 129.5 142 L 129.5 564" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
-        <path d="M 298.1 142 L 298.1 564" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
-        <path d="M 466.7 142 L 466.7 564" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
-        <path d="M 635.3 142 L 635.3 564" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
-        <path d="M 803.9 142 L 803.9 564" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
-        <path d="M 972.5 142 L 972.5 564" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
+        <path d="M 145.5 142 L 145.5 684" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
+        <path d="M 348.25 142 L 348.25 684" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
+        <path d="M 551 142 L 551 684" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
+        <path d="M 753.75 142 L 753.75 684" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
+        <path d="M 956.5 142 L 956.5 684" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
 
         <!-- Activations -->
-        <rect x="124.5" y="162" width="10" height="46" rx="3" class="c-mask"/>
-        <rect x="124.5" y="162" width="10" height="46" rx="3" class="c-backend" stroke-width="1"/>
-        <rect x="293.1" y="162" width="10" height="106" rx="3" class="c-mask"/>
-        <rect x="293.1" y="162" width="10" height="106" rx="3" class="c-messagebus" stroke-width="1"/>
-        <rect x="461.7" y="192" width="10" height="136" rx="3" class="c-mask"/>
-        <rect x="461.7" y="192" width="10" height="136" rx="3" class="c-backend" stroke-width="1"/>
-        <rect x="630.3" y="222" width="10" height="166" rx="3" class="c-mask"/>
-        <rect x="630.3" y="222" width="10" height="166" rx="3" class="c-backend" stroke-width="1"/>
-        <rect x="798.9" y="252" width="10" height="166" rx="3" class="c-mask"/>
-        <rect x="798.9" y="252" width="10" height="166" rx="3" class="c-backend" stroke-width="1"/>
-        <rect x="967.5" y="282" width="10" height="76" rx="3" class="c-mask"/>
-        <rect x="967.5" y="282" width="10" height="76" rx="3" class="c-external" stroke-width="1"/>
-        <rect x="124.5" y="372" width="10" height="136" rx="3" class="c-mask"/>
-        <rect x="124.5" y="372" width="10" height="136" rx="3" class="c-backend" stroke-width="1"/>
-        <rect x="293.1" y="402" width="10" height="136" rx="3" class="c-mask"/>
-        <rect x="293.1" y="402" width="10" height="136" rx="3" class="c-messagebus" stroke-width="1"/>
+        <rect x="140.5" y="165" width="10" height="135" rx="3" class="c-mask"/>
+        <rect x="140.5" y="165" width="10" height="135" rx="3" class="c-backend" stroke-width="1"/>
+        <rect x="546" y="168" width="10" height="132" rx="3" class="c-mask"/>
+        <rect x="546" y="168" width="10" height="132" rx="3" class="c-messagebus" stroke-width="1"/>
+        <rect x="748.75" y="225" width="10" height="43" rx="3" class="c-mask"/>
+        <rect x="748.75" y="225" width="10" height="43" rx="3" class="c-cloud" stroke-width="1"/>
+        <rect x="343.25" y="315" width="10" height="105" rx="3" class="c-mask"/>
+        <rect x="343.25" y="315" width="10" height="105" rx="3" class="c-backend" stroke-width="1"/>
+        <rect x="546" y="318" width="10" height="100" rx="3" class="c-mask"/>
+        <rect x="546" y="318" width="10" height="100" rx="3" class="c-messagebus" stroke-width="1"/>
+        <rect x="951.5" y="375" width="10" height="190" rx="3" class="c-mask"/>
+        <rect x="951.5" y="375" width="10" height="190" rx="3" class="c-external" stroke-width="1"/>
+        <rect x="140.5" y="465" width="10" height="45" rx="3" class="c-mask"/>
+        <rect x="140.5" y="465" width="10" height="45" rx="3" class="c-backend" stroke-width="1"/>
+        <rect x="546" y="468" width="10" height="172" rx="3" class="c-mask"/>
+        <rect x="546" y="468" width="10" height="172" rx="3" class="c-messagebus" stroke-width="1"/>
 
         <!-- Messages -->
-        <g data-edge-from="producer" data-edge-to="queue" data-edge-label="put(job-1)" data-edge-key="0" data-edge-id="p1">
-          <path data-composition-edge-from="producer" data-composition-edge-to="queue" data-composition-edge-id="p1" data-composition-points="136.5,170;291.1,170" d="M 136.5 170 L 291.1 170" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <g data-edge-from="t1" data-edge-to="gil" data-edge-label="acquire()" data-edge-key="0" data-edge-id="a-acquire">
+          <path data-composition-edge-from="t1" data-composition-edge-to="gil" data-composition-edge-id="a-acquire" data-composition-points="152.5,170;544,170" d="M 152.5 170 L 544 170" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <g data-detail="context">
-          <rect x="174.8" y="150" width="78" height="18" rx="3" class="c-mask"/>
-          <text x="213.8" y="160" class="t-edge-emphasis" font-size="11" text-anchor="middle">put(job-1)</text>
+          <rect x="312.55" y="150" width="71.4" height="18" rx="3" class="c-mask"/>
+          <text x="348.25" y="160" class="t-edge-emphasis" font-size="11" text-anchor="middle">acquire()</text>
         </g>
         </g>
 
-        <g data-edge-from="producer" data-edge-to="queue" data-edge-label="put(job-2)" data-edge-key="1" data-edge-id="p2">
-          <path data-composition-edge-from="producer" data-composition-edge-to="queue" data-composition-edge-id="p2" data-composition-points="136.5,200;291.1,200" d="M 136.5 200 L 291.1 200" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <g data-edge-from="gil" data-edge-to="t1" data-edge-label="持有并执行字节码" data-edge-key="1" data-edge-id="a-run">
+          <path data-composition-edge-from="gil" data-composition-edge-to="t1" data-composition-edge-id="a-run" data-composition-points="544,200;152.5,200" d="M 544 200 L 152.5 200" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
         <g data-detail="context">
-          <rect x="174.8" y="180" width="78" height="18" rx="3" class="c-mask"/>
-          <text x="213.8" y="190" class="t-edge-emphasis" font-size="11" text-anchor="middle">put(job-2)</text>
+          <rect x="289.45" y="180" width="117.6" height="18" rx="3" class="c-mask"/>
+          <text x="348.25" y="190" class="t-muted" font-size="11" text-anchor="middle">持有并执行字节码</text>
         </g>
         </g>
 
-        <g data-edge-from="c1" data-edge-to="queue" data-edge-label="get()" data-edge-key="2" data-edge-id="g1">
-          <path data-composition-edge-from="c1" data-composition-edge-to="queue" data-composition-edge-id="g1" data-composition-points="459.7,230;305.1,230" d="M 459.7 230 L 305.1 230" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <g data-edge-from="t1" data-edge-to="counter" data-edge-label="每个字节码边界递减计数" data-edge-key="2" data-edge-id="a-tick">
+          <path data-composition-edge-from="t1" data-composition-edge-to="counter" data-composition-edge-id="a-tick" data-composition-points="152.5,230;746.75,230" d="M 152.5 230 L 746.75 230" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <g data-detail="context">
-          <rect x="359.9" y="210" width="45" height="18" rx="3" class="c-mask"/>
-          <text x="382.4" y="220" class="t-muted" font-size="11" text-anchor="middle">get()</text>
+          <rect x="371.025" y="210" width="157.2" height="18" rx="3" class="c-mask"/>
+          <text x="449.625" y="220" class="t-muted" font-size="11" text-anchor="middle">每个字节码边界递减计数</text>
         </g>
         </g>
 
-        <g data-edge-from="c2" data-edge-to="queue" data-edge-label="get()" data-edge-key="3" data-edge-id="g2">
-          <path data-composition-edge-from="c2" data-composition-edge-to="queue" data-composition-edge-id="g2" data-composition-points="628.3,260;305.1,260" d="M 628.3 260 L 305.1 260" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <g data-edge-from="counter" data-edge-to="gil" data-edge-label="计数归零，请求让出" data-edge-key="3" data-edge-id="a-expire">
+          <path data-composition-edge-from="counter" data-composition-edge-to="gil" data-composition-edge-id="a-expire" data-composition-points="746.75,260;558,260" d="M 746.75 260 L 558 260" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <g data-detail="context">
-          <rect x="444.2" y="240" width="45" height="18" rx="3" class="c-mask"/>
-          <text x="466.7" y="250" class="t-muted" font-size="11" text-anchor="middle">get()</text>
+          <rect x="586.975" y="240" width="130.8" height="18" rx="3" class="c-mask"/>
+          <text x="652.375" y="250" class="t-edge-emphasis" font-size="11" text-anchor="middle">计数归零，请求让出</text>
         </g>
         </g>
 
-        <g data-edge-from="c1" data-edge-to="work" data-edge-label="处理 job-1" data-edge-key="4" data-edge-id="w1">
-          <path data-composition-edge-from="c1" data-composition-edge-to="work" data-composition-edge-id="w1" data-composition-points="473.7,290;965.5,290" d="M 473.7 290 L 965.5 290" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <g data-edge-from="t1" data-edge-to="gil" data-edge-label="release() 并唤醒等待者" data-edge-key="4" data-edge-id="a-yield">
+          <path data-composition-edge-from="t1" data-composition-edge-to="gil" data-composition-edge-id="a-yield" data-composition-points="152.5,290;544,290" d="M 152.5 290 L 544 290" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
         <g data-detail="context">
-          <rect x="680.6" y="270" width="78" height="18" rx="3" class="c-mask"/>
-          <text x="719.6" y="280" class="t-edge-emphasis" font-size="11" text-anchor="middle">处理 job-1</text>
+          <rect x="269.65" y="270" width="157.2" height="18" rx="3" class="c-mask"/>
+          <text x="348.25" y="280" class="t-edge-dashed" font-size="11" text-anchor="middle">release() 并唤醒等待者</text>
         </g>
         </g>
 
-        <g data-edge-from="c1" data-edge-to="queue" data-edge-label="task_done()" data-edge-key="5" data-edge-id="d1">
-          <path data-composition-edge-from="c1" data-composition-edge-to="queue" data-composition-edge-id="d1" data-composition-points="459.7,320;305.1,320" d="M 459.7 320 L 305.1 320" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
+        <g data-edge-from="t2" data-edge-to="gil" data-edge-label="acquire() 成功" data-edge-key="5" data-edge-id="b-acquire">
+          <path data-composition-edge-from="t2" data-composition-edge-to="gil" data-composition-edge-id="b-acquire" data-composition-points="355.25,320;544,320" d="M 355.25 320 L 544 320" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <g data-detail="context">
-          <rect x="340.09999999999997" y="300" width="84.6" height="18" rx="3" class="c-mask"/>
-          <text x="382.4" y="310" class="t-muted" font-size="11" text-anchor="middle">task_done()</text>
+          <rect x="397.425" y="300" width="104.39999999999999" height="18" rx="3" class="c-mask"/>
+          <text x="449.625" y="310" class="t-edge-emphasis" font-size="11" text-anchor="middle">acquire() 成功</text>
         </g>
         </g>
 
-        <g data-edge-from="c2" data-edge-to="work" data-edge-label="处理 job-2" data-edge-key="6" data-edge-id="w2">
-          <path data-composition-edge-from="c2" data-composition-edge-to="work" data-composition-edge-id="w2" data-composition-points="642.3,350;965.5,350" d="M 642.3 350 L 965.5 350" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <g data-edge-from="gil" data-edge-to="t2" data-edge-label="持有并执行字节码" data-edge-key="6" data-edge-id="b-run">
+          <path data-composition-edge-from="gil" data-composition-edge-to="t2" data-composition-edge-id="b-run" data-composition-points="544,350;355.25,350" d="M 544 350 L 355.25 350" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
         <g data-detail="context">
-          <rect x="764.9" y="330" width="78" height="18" rx="3" class="c-mask"/>
-          <text x="803.9" y="340" class="t-edge-emphasis" font-size="11" text-anchor="middle">处理 job-2</text>
+          <rect x="390.825" y="330" width="117.6" height="18" rx="3" class="c-mask"/>
+          <text x="449.625" y="340" class="t-muted" font-size="11" text-anchor="middle">持有并执行字节码</text>
         </g>
         </g>
 
-        <g data-edge-from="c2" data-edge-to="queue" data-edge-label="task_done()" data-edge-key="7" data-edge-id="d2">
-          <path data-composition-edge-from="c2" data-composition-edge-to="queue" data-composition-edge-id="d2" data-composition-points="628.3,380;305.1,380" d="M 628.3 380 L 305.1 380" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
+        <g data-edge-from="t2" data-edge-to="io" data-edge-label="read() 阻塞前释放 GIL" data-edge-key="7" data-edge-id="b-io">
+          <path data-composition-edge-from="t2" data-composition-edge-to="io" data-composition-edge-id="b-io" data-composition-points="355.25,380;949.5,380" d="M 355.25 380 L 949.5 380" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <g data-detail="context">
-          <rect x="424.4" y="360" width="84.6" height="18" rx="3" class="c-mask"/>
-          <text x="466.7" y="370" class="t-muted" font-size="11" text-anchor="middle">task_done()</text>
+          <rect x="577.075" y="360" width="150.6" height="18" rx="3" class="c-mask"/>
+          <text x="652.375" y="370" class="t-muted" font-size="11" text-anchor="middle">read() 阻塞前释放 GIL</text>
         </g>
         </g>
 
-        <g data-edge-from="producer" data-edge-to="queue" data-edge-label="join() 等全部完成" data-edge-key="8" data-edge-id="join">
-          <path data-composition-edge-from="producer" data-composition-edge-to="queue" data-composition-edge-id="join" data-composition-points="136.5,410;291.1,410" d="M 136.5 410 L 291.1 410" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
+        <g data-edge-from="t2" data-edge-to="gil" data-edge-label="release()" data-edge-key="8" data-edge-id="b-release">
+          <path data-composition-edge-from="t2" data-composition-edge-to="gil" data-composition-edge-id="b-release" data-composition-points="355.25,410;544,410" d="M 355.25 410 L 544 410" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
         <g data-detail="context">
-          <rect x="151.70000000000002" y="390" width="124.19999999999999" height="18" rx="3" class="c-mask"/>
-          <text x="213.8" y="400" class="t-muted" font-size="11" text-anchor="middle">join() 等全部完成</text>
+          <rect x="413.925" y="390" width="71.4" height="18" rx="3" class="c-mask"/>
+          <text x="449.625" y="400" class="t-edge-dashed" font-size="11" text-anchor="middle">release()</text>
         </g>
         </g>
 
-        <g data-edge-from="producer" data-edge-to="queue" data-edge-label="put(SENTINEL)" data-edge-key="9" data-edge-id="s1">
-          <path data-composition-edge-from="producer" data-composition-edge-to="queue" data-composition-edge-id="s1" data-composition-points="136.5,440;291.1,440" d="M 136.5 440 L 291.1 440" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <g data-edge-from="t1" data-edge-to="gil" data-edge-label="acquire() 再竞争" data-edge-key="9" data-edge-id="a-reacquire">
+          <path data-composition-edge-from="t1" data-composition-edge-to="gil" data-composition-edge-id="a-reacquire" data-composition-points="152.5,470;544,470" d="M 152.5 470 L 544 470" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <g data-detail="context">
-          <rect x="164.9" y="420" width="97.8" height="18" rx="3" class="c-mask"/>
-          <text x="213.8" y="430" class="t-edge-dashed" font-size="11" text-anchor="middle">put(SENTINEL)</text>
+          <rect x="289.45" y="450" width="117.6" height="18" rx="3" class="c-mask"/>
+          <text x="348.25" y="460" class="t-edge-emphasis" font-size="11" text-anchor="middle">acquire() 再竞争</text>
         </g>
         </g>
 
-        <g data-edge-from="producer" data-edge-to="queue" data-edge-label="put(SENTINEL)" data-edge-key="10" data-edge-id="s2">
-          <path data-composition-edge-from="producer" data-composition-edge-to="queue" data-composition-edge-id="s2" data-composition-points="136.5,470;291.1,470" d="M 136.5 470 L 291.1 470" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <g data-edge-from="gil" data-edge-to="t1" data-edge-label="继续执行" data-edge-key="10" data-edge-id="a-run2">
+          <path data-composition-edge-from="gil" data-composition-edge-to="t1" data-composition-edge-id="a-run2" data-composition-points="544,500;152.5,500" d="M 544 500 L 152.5 500" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
         <g data-detail="context">
-          <rect x="164.9" y="450" width="97.8" height="18" rx="3" class="c-mask"/>
-          <text x="213.8" y="460" class="t-edge-dashed" font-size="11" text-anchor="middle">put(SENTINEL)</text>
+          <rect x="315.85" y="480" width="64.8" height="18" rx="3" class="c-mask"/>
+          <text x="348.25" y="490" class="t-muted" font-size="11" text-anchor="middle">继续执行</text>
         </g>
         </g>
 
-        <g data-edge-from="producer" data-edge-to="queue" data-edge-label="put(SENTINEL)" data-edge-key="11" data-edge-id="s3">
-          <path data-composition-edge-from="producer" data-composition-edge-to="queue" data-composition-edge-id="s3" data-composition-points="136.5,500;291.1,500" d="M 136.5 500 L 291.1 500" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <g data-edge-from="io" data-edge-to="t2" data-edge-label="数据就绪" data-edge-key="11" data-edge-id="io-ready">
+          <path data-composition-edge-from="io" data-composition-edge-to="t2" data-composition-edge-id="io-ready" data-composition-points="949.5,560;355.25,560" d="M 949.5 560 L 355.25 560" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
         <g data-detail="context">
-          <rect x="164.9" y="480" width="97.8" height="18" rx="3" class="c-mask"/>
-          <text x="213.8" y="490" class="t-edge-dashed" font-size="11" text-anchor="middle">put(SENTINEL)</text>
+          <rect x="619.975" y="540" width="64.8" height="18" rx="3" class="c-mask"/>
+          <text x="652.375" y="550" class="t-muted" font-size="11" text-anchor="middle">数据就绪</text>
         </g>
         </g>
 
-        <g data-edge-from="c1" data-edge-to="queue" data-edge-label="取到哨兵，退出" data-edge-key="12" data-edge-id="e1">
-          <path data-composition-edge-from="c1" data-composition-edge-to="queue" data-composition-edge-id="e1" data-composition-points="459.7,530;305.1,530" d="M 459.7 530 L 305.1 530" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
+        <g data-edge-from="t2" data-edge-to="gil" data-edge-label="acquire() 加入队列" data-edge-key="12" data-edge-id="b-reacquire">
+          <path data-composition-edge-from="t2" data-composition-edge-to="gil" data-composition-edge-id="b-reacquire" data-composition-points="355.25,590;544,590" d="M 355.25 590 L 544 590" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <g data-detail="context">
-          <rect x="330.2" y="510" width="104.39999999999999" height="18" rx="3" class="c-mask"/>
-          <text x="382.4" y="520" class="t-muted" font-size="11" text-anchor="middle">取到哨兵，退出</text>
+          <rect x="384.225" y="570" width="130.8" height="18" rx="3" class="c-mask"/>
+          <text x="449.625" y="580" class="t-edge-emphasis" font-size="11" text-anchor="middle">acquire() 加入队列</text>
+        </g>
+        </g>
+
+        <g data-edge-from="gil" data-edge-to="t1" data-edge-label="持有者完成临界区后移交" data-edge-key="13" data-edge-id="fair">
+          <path data-composition-edge-from="gil" data-composition-edge-to="t1" data-composition-edge-id="fair" data-composition-points="544,630;152.5,630" d="M 544 630 L 152.5 630" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <g data-detail="context">
+          <rect x="269.65" y="610" width="157.2" height="18" rx="3" class="c-mask"/>
+          <text x="348.25" y="620" class="t-muted" font-size="11" text-anchor="middle">持有者完成临界区后移交</text>
         </g>
         </g>
 
         <!-- Segment Labels -->
         <g data-graph-role="segment-label" data-segment-id="0">
-          <rect x="56" y="134" width="66" height="18" rx="3" class="c-mask"/>
-          <text x="62" y="147" class="t-dim" font-size="9" font-weight="600">生产与消费</text>
+          <rect x="56" y="134" width="107.60000000000001" height="18" rx="3" class="c-mask"/>
+          <text x="62" y="147" class="t-dim" font-size="9" font-weight="600">正常执行与到期让出</text>
         </g>
         <g data-graph-role="segment-label" data-segment-id="1">
-          <rect x="56" y="253" width="55.6" height="18" rx="3" class="c-mask"/>
-          <text x="62" y="266" class="t-dim" font-size="9" font-weight="600">确认完成</text>
+          <rect x="56" y="284" width="76.4" height="18" rx="3" class="c-mask"/>
+          <text x="62" y="297" class="t-dim" font-size="9" font-weight="600">I/O 主动释放</text>
         </g>
         <g data-graph-role="segment-label" data-segment-id="2">
-          <rect x="56" y="373" width="76.4" height="18" rx="3" class="c-mask"/>
-          <text x="62" y="386" class="t-dim" font-size="9" font-weight="600">逐个唤醒退出</text>
+          <rect x="56" y="434" width="76.4" height="18" rx="3" class="c-mask"/>
+          <text x="62" y="447" class="t-dim" font-size="9" font-weight="600">再竞争与回收</text>
         </g>
 
         <!-- Participants -->
-        <g id="node-producer" data-node-id="producer" data-node-label="生产者" tabindex="0" role="button" aria-label="聚焦生产者，投递任务, 时序参与者" aria-pressed="false" data-node-kind="backend" data-node-sublabel="投递任务" data-node-context="时序参与者">
-          <title>生产者 · 投递任务 · 时序参与者</title>
-          <rect x="62" y="72" width="135" height="60" rx="6" class="c-mask"/>
-          <rect x="62" y="72" width="135" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
+        <g id="node-t1" data-node-id="t1" data-node-label="线程 A" tabindex="0" role="button" aria-label="聚焦线程 A，CPU 密集, 时序参与者" aria-pressed="false" data-node-kind="backend" data-node-sublabel="CPU 密集" data-node-context="时序参与者">
+          <title>线程 A · CPU 密集 · 时序参与者</title>
+          <rect x="62" y="72" width="167" height="60" rx="6" class="c-mask"/>
+          <rect x="62" y="72" width="167" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(68 78) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="129.5" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">生产者</text>
-          <text data-detail="context" x="129.5" y="122" class="t-muted" font-size="7" text-anchor="middle">投递任务</text>
+          <text data-node-label="" data-detail-anchor="" x="145.5" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">线程 A</text>
+          <text data-detail="context" x="145.5" y="122" class="t-muted" font-size="7" text-anchor="middle">CPU 密集</text>
         </g>
 
-        <g id="node-queue" data-node-id="queue" data-node-label="队列" tabindex="0" role="button" aria-label="聚焦队列，queue.Queue, 时序参与者" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="queue.Queue" data-node-context="时序参与者">
-          <title>队列 · queue.Queue · 时序参与者</title>
-          <rect x="230.60000000000002" y="72" width="135" height="60" rx="6" class="c-mask"/>
-          <rect x="230.60000000000002" y="72" width="135" height="60" rx="6" class="c-messagebus" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(236.60000000000002 78) scale(0.6875)">
+        <g id="node-t2" data-node-id="t2" data-node-label="线程 B" tabindex="0" role="button" aria-label="聚焦线程 B，CPU 密集, 时序参与者" aria-pressed="false" data-node-kind="backend" data-node-sublabel="CPU 密集" data-node-context="时序参与者">
+          <title>线程 B · CPU 密集 · 时序参与者</title>
+          <rect x="264.75" y="72" width="167" height="60" rx="6" class="c-mask"/>
+          <rect x="264.75" y="72" width="167" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(270.75 78) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="348.25" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">线程 B</text>
+          <text data-detail="context" x="348.25" y="122" class="t-muted" font-size="7" text-anchor="middle">CPU 密集</text>
+        </g>
+
+        <g id="node-gil" data-node-id="gil" data-node-label="GIL" tabindex="0" role="button" aria-label="聚焦GIL，全局锁, 时序参与者" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="全局锁" data-node-context="时序参与者">
+          <title>GIL · 全局锁 · 时序参与者</title>
+          <rect x="467.5" y="72" width="167" height="60" rx="6" class="c-mask"/>
+          <rect x="467.5" y="72" width="167" height="60" rx="6" class="c-messagebus" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(473.5 78) scale(0.6875)">
             <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>
             <circle cx="5" cy="4.5" r="1" class="sigil-fill"/>
             <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
             <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="298.1" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">队列</text>
-          <text data-detail="context" x="298.1" y="122" class="t-muted" font-size="7" text-anchor="middle">queue.Queue</text>
+          <text data-node-label="" data-detail-anchor="" x="551" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">GIL</text>
+          <text data-detail="context" x="551" y="122" class="t-muted" font-size="7" text-anchor="middle">全局锁</text>
         </g>
 
-        <g id="node-c1" data-node-id="c1" data-node-label="消费者 1" tabindex="0" role="button" aria-label="聚焦消费者 1，worker, 时序参与者" aria-pressed="false" data-node-kind="backend" data-node-sublabel="worker" data-node-context="时序参与者">
-          <title>消费者 1 · worker · 时序参与者</title>
-          <rect x="399.2" y="72" width="135" height="60" rx="6" class="c-mask"/>
-          <rect x="399.2" y="72" width="135" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(405.2 78) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+        <g id="node-counter" data-node-id="counter" data-node-label="切换计数器" tabindex="0" role="button" aria-label="聚焦切换计数器，每 5 毫秒检查, 时序参与者" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="每 5 毫秒检查" data-node-context="时序参与者">
+          <title>切换计数器 · 每 5 毫秒检查 · 时序参与者</title>
+          <rect x="670.25" y="72" width="167" height="60" rx="6" class="c-mask"/>
+          <rect x="670.25" y="72" width="167" height="60" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(676.25 78) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="466.7" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">消费者 1</text>
-          <text data-detail="context" x="466.7" y="122" class="t-muted" font-size="7" text-anchor="middle">worker</text>
+          <text data-node-label="" data-detail-anchor="" x="753.75" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">切换计数器</text>
+          <text data-detail="context" x="753.75" y="122" class="t-muted" font-size="7" text-anchor="middle">每 5 毫秒检查</text>
         </g>
 
-        <g id="node-c2" data-node-id="c2" data-node-label="消费者 2" tabindex="0" role="button" aria-label="聚焦消费者 2，worker, 时序参与者" aria-pressed="false" data-node-kind="backend" data-node-sublabel="worker" data-node-context="时序参与者">
-          <title>消费者 2 · worker · 时序参与者</title>
-          <rect x="567.8" y="72" width="135" height="60" rx="6" class="c-mask"/>
-          <rect x="567.8" y="72" width="135" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(573.8 78) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="635.3" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">消费者 2</text>
-          <text data-detail="context" x="635.3" y="122" class="t-muted" font-size="7" text-anchor="middle">worker</text>
-        </g>
-
-        <g id="node-c3" data-node-id="c3" data-node-label="消费者 3" tabindex="0" role="button" aria-label="聚焦消费者 3，worker, 时序参与者" aria-pressed="false" data-node-kind="backend" data-node-sublabel="worker" data-node-context="时序参与者">
-          <title>消费者 3 · worker · 时序参与者</title>
-          <rect x="736.4" y="72" width="135" height="60" rx="6" class="c-mask"/>
-          <rect x="736.4" y="72" width="135" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(742.4 78) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="803.9" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">消费者 3</text>
-          <text data-detail="context" x="803.9" y="122" class="t-muted" font-size="7" text-anchor="middle">worker</text>
-        </g>
-
-        <g id="node-work" data-node-id="work" data-node-label="业务处理" tabindex="0" role="button" aria-label="聚焦业务处理，耗时任务, 时序参与者" aria-pressed="false" data-node-kind="external" data-node-sublabel="耗时任务" data-node-context="时序参与者">
-          <title>业务处理 · 耗时任务 · 时序参与者</title>
-          <rect x="905" y="72" width="135" height="60" rx="6" class="c-mask"/>
-          <rect x="905" y="72" width="135" height="60" rx="6" class="c-external" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(911 78) scale(0.6875)">
+        <g id="node-io" data-node-id="io" data-node-label="I/O 调用" tabindex="0" role="button" aria-label="聚焦I/O 调用，socket / file, 时序参与者" aria-pressed="false" data-node-kind="external" data-node-sublabel="socket / file" data-node-context="时序参与者">
+          <title>I/O 调用 · socket / file · 时序参与者</title>
+          <rect x="873" y="72" width="167" height="60" rx="6" class="c-mask"/>
+          <rect x="873" y="72" width="167" height="60" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(879 78) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="972.5" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">业务处理</text>
-          <text data-detail="context" x="972.5" y="122" class="t-muted" font-size="7" text-anchor="middle">耗时任务</text>
+          <text data-node-label="" data-detail-anchor="" x="956.5" y="108" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">I/O 调用</text>
+          <text data-detail="context" x="956.5" y="122" class="t-muted" font-size="7" text-anchor="middle">socket / file</text>
         </g>
 
         <!-- Legend -->
         <g data-legend="">
-          <text x="40" y="586" class="t-primary" font-size="12" font-weight="650">图例</text>
-          <g data-legend-semantic-kind="emphasis" data-legend-x="40" data-legend-baseline="606" data-legend-width="93">
-            <path d="M 40 603 L 74 603" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-            <text x="83" y="606" class="t-muted" font-size="10" font-weight="500">主路径请求</text>
+          <text x="40" y="706" class="t-primary" font-size="12" font-weight="650">图例</text>
+          <g data-legend-semantic-kind="emphasis" data-legend-x="40" data-legend-baseline="726" data-legend-width="93">
+            <path d="M 40 723 L 74 723" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+            <text x="83" y="726" class="t-muted" font-size="10" font-weight="500">主路径请求</text>
           </g>
-          <g data-legend-semantic-kind="return" data-legend-x="155" data-legend-baseline="606" data-legend-width="63">
-            <path d="M 155 603 L 189 603" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
-            <text x="198" y="606" class="t-muted" font-size="10" font-weight="500">返回</text>
+          <g data-legend-semantic-kind="return" data-legend-x="155" data-legend-baseline="726" data-legend-width="63">
+            <path d="M 155 723 L 189 723" class="a-default" stroke-width="1.4" stroke-dasharray="3,5" marker-end="url(#arrowhead)"/>
+            <text x="198" y="726" class="t-muted" font-size="10" font-weight="500">返回</text>
           </g>
-          <g data-legend-semantic-kind="dashed" data-legend-x="240" data-legend-baseline="606" data-legend-width="83">
-            <path d="M 240 603 L 274 603" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
-            <text x="283" y="606" class="t-muted" font-size="10" font-weight="500">异步追踪</text>
+          <g data-legend-semantic-kind="dashed" data-legend-x="240" data-legend-baseline="726" data-legend-width="83">
+            <path d="M 240 723 L 274 723" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+            <text x="283" y="726" class="t-muted" font-size="10" font-weight="500">异步追踪</text>
           </g>
-          <g data-legend-semantic-kind="default" data-legend-x="345" data-legend-baseline="606" data-legend-width="83">
-            <path d="M 345 603 L 379 603" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-            <text x="388" y="606" class="t-muted" font-size="10" font-weight="500">普通消息</text>
+          <g data-legend-semantic-kind="default" data-legend-x="345" data-legend-baseline="726" data-legend-width="83">
+            <path d="M 345 723 L 379 723" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+            <text x="388" y="726" class="t-muted" font-size="10" font-weight="500">普通消息</text>
           </g>
         </g>
       </svg>
@@ -5433,37 +5429,37 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     <div class="cards">
       <div class="card">
         <div class="card-header">
-          <div class="card-dot emerald"></div>
-          <h3>队列自带的三个保证</h3>
+          <div class="card-dot orange"></div>
+          <h3>谁让出、什么时候让出</h3>
         </div>
         <ul>
-          <li>内部加锁，作者不写锁</li>
-          <li>满时阻塞生产者</li>
-          <li>空时阻塞消费者</li>
+          <li>计数到期：解释器主动请求让出</li>
+          <li>阻塞式 I/O：调用前释放，返回后再抢</li>
+          <li>长时间 C 扩展：不返回解释器就不让出</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot orange"></div>
-          <h3>哨兵是结束信号</h3>
+          <div class="card-dot emerald"></div>
+          <h3>为什么 CPU 密集任务不变快</h3>
         </div>
         <ul>
-          <li>每个消费者各投一个哨兵</li>
-          <li>哨兵数量等于消费者数量</li>
-          <li>投少了会让消费者永久阻塞</li>
+          <li>同一时刻只有一个线程执行字节码</li>
+          <li>多线程只增加切换与竞争成本</li>
+          <li>要并行只能换进程或原生扩展</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot rose"></div>
-          <h3>常见坑</h3>
+          <h3>工程结论</h3>
         </div>
         <ul>
-          <li>忘了 task_done 会让 join 挂死</li>
-          <li>daemon 线程退出会丢任务</li>
-          <li>强制终止会留下不一致状态</li>
+          <li>I/O 密集：线程仍能重叠等待</li>
+          <li>CPU 密集：先测再选进程池</li>
+          <li>切换间隔可调，但不建议线上乱调</li>
         </ul>
       </div>
     </div>

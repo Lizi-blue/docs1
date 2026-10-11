@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "GIL 的持有、强制释放与再竞争",
+    "output": "docs/public/diagrams/gil-internals.html",
+    "locale": "zh-CN",
+    "viewBox": [1080, 780],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "t1", "type": "backend", "label": "线程 A", "sublabel": "CPU 密集" },
+    { "id": "t2", "type": "backend", "label": "线程 B", "sublabel": "CPU 密集" },
+    { "id": "gil", "type": "messagebus", "label": "GIL", "sublabel": "全局锁" },
+    { "id": "counter", "type": "cloud", "label": "切换计数器", "sublabel": "每 5 毫秒检查" },
+    { "id": "io", "type": "external", "label": "I/O 调用", "sublabel": "socket / file" }
+  ],
+  "segments": [
+    { "from": 156, "to": 306, "label": "正常执行与到期让出" },
+    { "from": 306, "to": 456, "label": "I/O 主动释放" },
+    { "from": 456, "to": 666, "label": "再竞争与回收" }
+  ],
+  "messages": [
+    { "id": "a-acquire", "from": "t1", "to": "gil", "y": 170, "label": "acquire()", "variant": "emphasis" },
+    { "id": "a-run", "from": "gil", "to": "t1", "y": 200, "label": "持有并执行字节码", "variant": "return" },
+    { "id": "a-tick", "from": "t1", "to": "counter", "y": 230, "label": "每个字节码边界递减计数", "variant": "default" },
+    { "id": "a-expire", "from": "counter", "to": "gil", "y": 260, "label": "计数归零，请求让出", "variant": "emphasis" },
+    { "id": "a-yield", "from": "t1", "to": "gil", "y": 290, "label": "release() 并唤醒等待者", "variant": "dashed" },
+    { "id": "b-acquire", "from": "t2", "to": "gil", "y": 320, "label": "acquire() 成功", "variant": "emphasis" },
+    { "id": "b-run", "from": "gil", "to": "t2", "y": 350, "label": "持有并执行字节码", "variant": "return" },
+    { "id": "b-io", "from": "t2", "to": "io", "y": 380, "label": "read() 阻塞前释放 GIL", "variant": "default" },
+    { "id": "b-release", "from": "t2", "to": "gil", "y": 410, "label": "release()", "variant": "dashed" },
+    { "id": "a-reacquire", "from": "t1", "to": "gil", "y": 470, "label": "acquire() 再竞争", "variant": "emphasis" },
+    { "id": "a-run2", "from": "gil", "to": "t1", "y": 500, "label": "继续执行", "variant": "return" },
+    { "id": "io-ready", "from": "io", "to": "t2", "y": 560, "label": "数据就绪", "variant": "return" },
+    { "id": "b-reacquire", "from": "t2", "to": "gil", "y": 590, "label": "acquire() 加入队列", "variant": "emphasis" },
+    { "id": "fair", "from": "gil", "to": "t1", "y": 630, "label": "持有者完成临界区后移交", "variant": "default" }
+  ],
+  "activations": [
+    { "participant": "t1", "from": 165, "to": 300, "type": "backend" },
+    { "participant": "gil", "from": 168, "to": 300, "type": "messagebus" },
+    { "participant": "counter", "from": 225, "to": 268, "type": "cloud" },
+    { "participant": "t2", "from": 315, "to": 420, "type": "backend" },
+    { "participant": "gil", "from": 318, "to": 418, "type": "messagebus" },
+    { "participant": "io", "from": 375, "to": 565, "type": "external" },
+    { "participant": "t1", "from": 465, "to": 510, "type": "backend" },
+    { "participant": "gil", "from": 468, "to": 640, "type": "messagebus" }
+  ],
+  "cards": [
+    {
+      "dot": "orange",
+      "title": "谁让出、什么时候让出",
+      "items": [
+        "计数到期：解释器主动请求让出",
+        "阻塞式 I/O：调用前释放，返回后再抢",
+        "长时间 C 扩展：不返回解释器就不让出"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "为什么 CPU 密集任务不变快",
+      "items": [
+        "同一时刻只有一个线程执行字节码",
+        "多线程只增加切换与竞争成本",
+        "要并行只能换进程或原生扩展"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "工程结论",
+      "items": [
+        "I/O 密集：线程仍能重叠等待",
+        "CPU 密集：先测再选进程池",
+        "切换间隔可调，但不建议线上乱调"
+      ]
+    }
+  ]
+}

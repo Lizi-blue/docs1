@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "执行器里一个任务的生命周期",
+    "output": "docs/public/diagrams/executor-lifecycle.html",
+    "locale": "zh-CN",
+    "viewBox": [1080, 800],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "caller", "type": "backend", "label": "调用方", "sublabel": "主线程" },
+    { "id": "exec", "type": "backend", "label": "Executor", "sublabel": "线程池或进程池" },
+    { "id": "queue", "type": "messagebus", "label": "工作队列", "sublabel": "有界或无界" },
+    { "id": "worker", "type": "backend", "label": "Worker", "sublabel": "复用执行单元" },
+    { "id": "future", "type": "security", "label": "Future", "sublabel": "状态与结果" }
+  ],
+  "segments": [
+    { "from": 156, "to": 326, "label": "提交与排队" },
+    { "from": 326, "to": 506, "label": "执行与回填" },
+    { "from": 506, "to": 696, "label": "取值、超时与取消" }
+  ],
+  "messages": [
+    { "id": "submit", "from": "caller", "to": "exec", "y": 170, "label": "submit(fn, args)", "variant": "emphasis" },
+    { "id": "mk-future", "from": "exec", "to": "future", "y": 200, "label": "创建 Future（pending）", "variant": "default" },
+    { "id": "enqueue", "from": "exec", "to": "queue", "y": 230, "label": "入队等待", "variant": "default" },
+    { "id": "back", "from": "exec", "to": "caller", "y": 260, "label": "立即返回 Future", "variant": "return" },
+    { "id": "dequeue", "from": "worker", "to": "queue", "y": 336, "label": "取任务", "variant": "default" },
+    { "id": "running", "from": "worker", "to": "future", "y": 366, "label": "标记 running", "variant": "default" },
+    { "id": "run", "from": "worker", "to": "future", "y": 396, "label": "执行函数并占用该 worker", "variant": "emphasis" },
+    { "id": "fill", "from": "worker", "to": "future", "y": 430, "label": "写入结果或异常", "variant": "return" },
+    { "id": "result", "from": "caller", "to": "future", "y": 520, "label": "result() 阻塞取值", "variant": "emphasis" },
+    { "id": "timeout", "from": "caller", "to": "future", "y": 550, "label": "result(timeout=1) 抛超时", "variant": "dashed" },
+    { "id": "cancel", "from": "caller", "to": "future", "y": 580, "label": "cancel() 仅未启动有效", "variant": "security" },
+    { "id": "as-completed", "from": "caller", "to": "exec", "y": 630, "label": "as_completed 谁先完成先处理", "variant": "default" },
+    { "id": "shutdown", "from": "caller", "to": "exec", "y": 670, "label": "shutdown(wait=True) 回收", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "caller", "from": 165, "to": 270, "type": "backend" },
+    { "participant": "exec", "from": 168, "to": 268, "type": "backend" },
+    { "participant": "queue", "from": 225, "to": 345, "type": "messagebus" },
+    { "participant": "future", "from": 195, "to": 440, "type": "security" },
+    { "participant": "worker", "from": 330, "to": 445, "type": "backend" },
+    { "participant": "caller", "from": 515, "to": 585, "type": "backend" },
+    { "participant": "future", "from": 515, "to": 590, "type": "security" },
+    { "participant": "exec", "from": 625, "to": 680, "type": "backend" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "三个状态与一次数据流",
+      "items": [
+        "pending 到 running 再到 finished",
+        "结果只写一次，读多次",
+        "异常被 Future 捕获，取值时才抛"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "超时与取消的边界",
+      "items": [
+        "超时只是调用方放弃等待",
+        "线程或进程里的任务仍在跑",
+        "cancel 只对未启动的任务有效"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "池大小的取法",
+      "items": [
+        "CPU 密集：接近核数",
+        "I/O 密集：可高于核数",
+        "有界队列加合理拒绝策略"
+      ]
+    }
+  ]
+}

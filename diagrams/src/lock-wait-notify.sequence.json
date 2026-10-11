@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "条件变量与信号量的等待通知",
+    "output": "docs/public/diagrams/lock-wait-notify.html",
+    "locale": "zh-CN",
+    "viewBox": [1080, 720],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "consumer", "type": "backend", "label": "消费者", "sublabel": "等待条件" },
+    { "id": "producer", "type": "backend", "label": "生产者", "sublabel": "改变条件" },
+    { "id": "cond", "type": "messagebus", "label": "Condition", "sublabel": "锁加等待队列" },
+    { "id": "sem", "type": "security", "label": "Semaphore", "sublabel": "许可计数" },
+    { "id": "bucket", "type": "database", "label": "有界缓冲区", "sublabel": "共享状态" }
+  ],
+  "segments": [
+    { "from": 156, "to": 296, "label": "等待：释放锁后阻塞" },
+    { "from": 296, "to": 456, "label": "通知：改状态再唤醒" },
+    { "from": 456, "to": 594, "label": "限流：许可的获取与归还" }
+  ],
+  "messages": [
+    { "id": "c-lock", "from": "consumer", "to": "cond", "y": 170, "label": "with cond: 拿锁", "variant": "emphasis" },
+    { "id": "c-check", "from": "consumer", "to": "bucket", "y": 200, "label": "while 队列为空", "variant": "default" },
+    { "id": "c-wait", "from": "consumer", "to": "cond", "y": 230, "label": "wait() 释放锁并阻塞", "variant": "emphasis" },
+    { "id": "p-lock", "from": "producer", "to": "cond", "y": 270, "label": "with cond: 拿锁", "variant": "emphasis" },
+    { "id": "p-put", "from": "producer", "to": "bucket", "y": 300, "label": "放入一个元素", "variant": "default" },
+    { "id": "p-notify", "from": "producer", "to": "cond", "y": 330, "label": "notify()", "variant": "emphasis" },
+    { "id": "p-release", "from": "producer", "to": "cond", "y": 360, "label": "退出 with 释放锁", "variant": "dashed" },
+    { "id": "c-wake", "from": "cond", "to": "consumer", "y": 400, "label": "被唤醒并重新拿锁", "variant": "return" },
+    { "id": "c-consume", "from": "consumer", "to": "bucket", "y": 430, "label": "取走一个元素", "variant": "default" },
+    { "id": "sem-acquire", "from": "producer", "to": "sem", "y": 480, "label": "acquire() 取许可", "variant": "security" },
+    { "id": "sem-block", "from": "sem", "to": "producer", "y": 510, "label": "许可耗尽时阻塞", "variant": "dashed" },
+    { "id": "sem-release", "from": "consumer", "to": "sem", "y": 580, "label": "release() 归还许可", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "consumer", "from": 165, "to": 245, "type": "backend" },
+    { "participant": "cond", "from": 168, "to": 250, "type": "messagebus" },
+    { "participant": "producer", "from": 265, "to": 375, "type": "backend" },
+    { "participant": "bucket", "from": 195, "to": 440, "type": "database" },
+    { "participant": "cond", "from": 265, "to": 370, "type": "messagebus" },
+    { "participant": "consumer", "from": 395, "to": 445, "type": "backend" },
+    { "participant": "sem", "from": 475, "to": 590, "type": "security" }
+  ],
+  "cards": [
+    {
+      "dot": "orange",
+      "title": "为什么要 while 而不是 if",
+      "items": [
+        "被唤醒不等于条件成立",
+        "其他线程可能先抢到锁并取走元素",
+        "醒来后必须重新判断条件"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Condition 与 Semaphore 的分工",
+      "items": [
+        "Condition 表达状态变化与唤醒",
+        "Semaphore 表达并发配额",
+        "两者都要与业务状态分开看"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "常见错误",
+      "items": [
+        "在未持有锁时调用 wait()",
+        "忘记 notify 导致消费者永久等待",
+        "用 sleep 轮询代替通知"
+      ]
+    }
+  ]
+}
