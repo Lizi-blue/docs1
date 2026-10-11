@@ -51,6 +51,11 @@ Vite 是前端构建工具，开发态负责按需编译与热更新，生产态
 | 生产构建 | 同一套打包器 | 换 Rollup 做优化 |
 | 大项目体验 | 启动时间随规模增长 | 启动时间基本恒定 |
 
+### 官方依据与版本差异
+
+- [Vite 指南](https://vitejs.dev/guide/) — Vite 5.0 与 6.0 的行为差异。
+- [Vite 构建](https://vitejs.dev/guide/build.html) — Vite 5.0 与 6.0 的生产构建与基础路径。
+
 ## API 手册：Vite
 
 <ApiTable :items='[{"name": "vite dev", "rank": "必会", "signature": "vite [--host] [--port]", "params": [{"name": "--host", "type": "flag", "default": "关闭", "desc": "监听所有网卡，便于容器访问"}, {"name": "--port", "type": "number", "default": "5173", "desc": "监听端口"}], "returns": "开发服务器进程", "methods": ["vite — 启动开发服务器", "vite build — 生产构建", "vite preview — 预览构建产物"], "effect": "按需编译源码并推送热更新", "scenario": "本地开发", "example": "npx vite --host\nnpx vite build\nnpx vite preview", "exampleLang": "bash"}, {"name": "vite.config.js", "rank": "必会", "signature": "defineConfig({ plugins, resolve, server, build, base })", "params": [{"name": "plugins", "type": "array", "default": "[]", "desc": "插件列表"}, {"name": "base", "type": "string", "default": "&#39;/&#39;", "desc": "部署子路径前缀"}, {"name": "server.proxy", "type": "object", "default": "{}", "desc": "开发代理规则"}, {"name": "build.outDir", "type": "string", "default": "dist", "desc": "构建输出目录"}], "returns": "配置对象", "methods": ["defineConfig() — 带类型提示的配置导出"], "effect": "声明构建行为，插件可深度介入管线", "scenario": "任何 Vite 项目", "example": "import { defineConfig } from \"vite\"\nimport vue from \"@vitejs/plugin-vue\"\n\nexport default defineConfig({\n  plugins: [vue()],\n  server: { proxy: { \"/api\": \"http://127.0.0.1:8000\" } }\n})", "exampleLang": "javascript"}, {"name": "import.meta.env", "rank": "常用", "signature": "import.meta.env.VITE_*", "params": [{"name": "MODE", "type": "string", "default": "development", "desc": "当前模式"}, {"name": "PROD", "type": "bool", "default": "false", "desc": "是否生产构建"}], "returns": "环境变量对象", "methods": ["import.meta.env.VITE_KEY — 读取自定义变量"], "effect": "让同一份代码在开发与生产走不同配置", "scenario": "接口地址、开关与埋点配置", "example": "const base = import.meta.env.VITE_API_BASE ?? \"/api\"\nconsole.log(base)", "exampleLang": "javascript"}]' />

@@ -50,6 +50,11 @@ related_components: []
 | 资源引用 | 相对路径硬编码 | 构建器重写并加哈希 |
 | 团队协作 | 易冲突 | 目录与模块划分清晰 |
 
+### 官方依据与版本差异
+
+- [MDN JavaScript 模块](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) — ES2015 起提供模块语法。
+- [MDN script type 属性](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/script/type) — 自 ES2015 规范起提供模块语法。
+
 ## API 手册：浏览器原生入口
 
 <ApiTable :items='[{"name": "document.querySelector", "rank": "必会", "signature": "querySelector(selectors)", "params": [{"name": "selectors", "type": "string", "default": "必填", "desc": "CSS 选择器"}], "returns": "首个匹配元素或 null", "methods": ["addEventListener(type, handler) — 绑定事件", "textContent — 读写文本"], "effect": "按选择器取到元素，再挂事件或改内容", "scenario": "脚本直接操作页面结构", "example": "&lt;button id=&#39;go&#39;&gt;走&lt;/button&gt;\n&lt;script&gt;\n  document.querySelector(&#39;#go&#39;).addEventListener(&#39;click&#39;, () =&gt; {\n    console.log(&#39;clicked&#39;)\n  })\n&lt;/script&gt;", "exampleLang": "html"}, {"name": "window.onload", "rank": "常用", "signature": "window.onload = handler", "params": [], "returns": "无", "methods": ["DOMContentLoaded — DOM 就绪即触发"], "effect": "等资源加载完成再执行脚本", "scenario": "脚本需要操作完整 DOM", "example": "window.addEventListener(&#39;DOMContentLoaded&#39;, () =&gt; {\n  console.log(&#39;dom ready&#39;)\n})", "exampleLang": "javascript"}]' />

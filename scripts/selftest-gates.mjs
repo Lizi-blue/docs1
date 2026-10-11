@@ -57,6 +57,11 @@ related_components: []
 |---|---|
 | 夹具 | 是 |
 
+### 官方依据与版本差异
+
+- [threading 官方文档](https://docs.python.org/3/library/threading.html) — 3.8 及以后适用。
+- [PEP 703](https://peps.python.org/pep-0703/) — 3.13 起实验性提供。
+
 ## API 手册：fixture
 
 <ApiTable :items='[{"name": "fixture.call", "rank": "必会", "params": [{"name": "a", "type": "int", "default": "1", "desc": "夹具"}], "returns": "无", "effect": "夹具", "scenario": "夹具", "example": "fixture.call(1)"}]' />
@@ -212,6 +217,7 @@ teach:
   if (options.breakLink) page = page.replace('related_knowledge: []', 'related_knowledge: ["/zz/learn/kd/not-exist"]')
   if (options.breakPayload) page = page.replace('"name": "fixture.call"', '"name": fixture.call')
   if (options.breakDiagram) page = page.replace('/diagrams/fixture.html', '/diagrams/not-exist.html')
+  if (options.breakOfficialSources) page = page.replace('### 官方依据与版本差异', '### 参考资料')
   write(root, 'zz/learn/01-kd/01-page.md', page)
 
   let component = COMPONENT
@@ -255,6 +261,7 @@ const CASES = [
   { id: 'G6', label: 'V13：结构化载荷不可解析', options: { breakPayload: true }, expectCode: 'V13' },
   { id: 'G7', label: 'V15：知识域缺 teach 块', options: { breakTeach: true }, expectCode: 'V15' },
   { id: 'G8', label: 'V16：缺教学要素', options: { breakElement: true }, expectCode: 'V16' },
+  { id: 'G9', label: 'V19：缺官方依据与版本差异', options: { breakOfficialSources: true }, expectCode: 'V19' },
 ]
 
 function main() {

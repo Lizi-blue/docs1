@@ -53,6 +53,12 @@ GIL 是 CPython 解释器里的一把全局互斥锁，保护解释器内部状�
 | 长时 C 扩展计算 | 不返回解释器就不让出 | 无，其他线程饿死 |
 | 调用时会释放的 C 扩展 | 扩展内部主动释放 | 有，接近并行 |
 
+### 官方依据与版本差异
+
+- [sys.getswitchinterval](https://docs.python.org/3/library/sys.html#sys.getswitchinterval) — 默认 5 毫秒，自 3.2 起提供。
+- [PEP 703 自由线程](https://peps.python.org/pep-0703/) — 3.13 起实验性，3.14 继续演进。
+- [C 层的 GIL 说明](https://docs.python.org/3/c-api/init.html#thread-state-and-the-global-interpreter-lock) — 3.12 与 3.13 文档描述同一实现。
+
 ## API 手册：sys 与解释器状态
 
 <ApiTable :items='[{"name": "sys.getswitchinterval", "rank": "必会", "signature": "getswitchinterval()", "params": [], "returns": "浮点秒数", "methods": ["getswitchinterval() — 读取当前切换间隔"], "effect": "读到解释器请求让出的时间片长度", "scenario": "排查线程被饿死或切换过密", "example": "import sys\nprint(sys.getswitchinterval())", "exampleLang": "python"}, {"name": "sys.setswitchinterval", "rank": "进阶", "signature": "setswitchinterval(interval)", "params": [{"name": "interval", "type": "float", "default": "0.005", "desc": "时间片秒数"}], "returns": "无", "methods": ["setswitchinterval(float) — 设置时间片"], "effect": "改变线程请求让出的频率", "scenario": "延迟敏感的线程任务，需要更细的切换粒度", "example": "import sys\nsys.setswitchinterval(0.001)", "exampleLang": "python"}, {"name": "sys._is_gil_enabled", "rank": "进阶", "signature": "_is_gil_enabled()", "params": [], "returns": "布尔值", "methods": ["_is_gil_enabled() — 查询 GIL 是否启用"], "effect": "判断当前解释器是否启用了 GIL", "scenario": "在自由线程构建上做兼容判断", "example": "import sys\nprint(sys._is_gil_enabled())", "exampleLang": "python"}, {"name": "threading.get_native_id", "rank": "常用", "signature": "get_native_id()", "params": [], "returns": "整数线程号", "methods": ["get_native_id() — 取内核线程号", "threading.get_ident() — 取解释器内标识"], "effect": "把日志里的线程与操作系统线程对上", "scenario": "定位争用与上下文切换来源", "example": "import threading\nprint(threading.get_native_id())", "exampleLang": "python"}, {"name": "sys.setswitchinterval 与监控", "rank": "了解", "signature": "sys.monitoring", "params": [{"name": "tool_id", "type": "int", "default": "必填", "desc": "监控工具编号"}], "returns": "监控对象", "methods": ["use_tool_id() — 注册工具", "set_events() — 订阅事件"], "effect": "在字节码层观测执行与切换", "scenario": "分析 GIL 争用与热点函数", "example": "import sys\nmon = sys.monitoring\nprint(mon.use_tool_id(2, \"probe\"))", "exampleLang": "python"}]' />

@@ -56,6 +56,12 @@ related_components:
 | 内存持续上涨 | 队列积压 | 无界队列无背压 |
 | 事件循环告警 | 慢回调日志 | 同步调用阻塞循环 |
 
+### 官方依据与版本差异
+
+- [faulthandler 官方文档](https://docs.python.org/3/library/faulthandler.html) — 3.3 起提供。
+- [asyncio 调试模式](https://docs.python.org/3/library/asyncio-dev.html#debug-mode) — 3.7 起可在 run 上开启慢回调告警。
+- [cProfile 官方文档](https://docs.python.org/3/library/profile.html) — 3.12 起实现改为 _lsprof。
+
 ## API 手册：定位工具
 
 <ApiTable :items='[{"name": "faulthandler.dump_traceback", "rank": "必会", "signature": "dump_traceback(file=sys.stderr, all_threads=True)", "params": [{"name": "all_threads", "type": "bool", "default": "True", "desc": "是否打印所有线程"}], "returns": "无", "methods": ["dump_traceback() — 立即抓一次", "dump_traceback_later() — 定时抓"], "effect": "在卡死瞬间打印全部调用栈", "scenario": "线上疑似死锁", "example": "import faulthandler\n\nfaulthandler.dump_traceback()", "exampleLang": "python"}, {"name": "threading.enumerate", "rank": "必会", "signature": "enumerate()", "params": [], "returns": "线程对象列表", "methods": ["enumerate() — 列出存活线程", "thread.name — 线程名", "thread.is_alive() — 是否存活"], "effect": "把线程数与名字对到业务角色", "scenario": "确认线程是否泄漏", "example": "import threading\n\nprint([t.name for t in threading.enumerate()])", "exampleLang": "python"}, {"name": "asyncio.loop.set_debug", "rank": "常用", "signature": "set_debug(enabled)", "params": [{"name": "enabled", "type": "bool", "default": "必填", "desc": "是否开启调试"}], "returns": "无", "methods": ["set_debug(True) — 打开慢回调告警", "get_debug() — 查询状态"], "effect": "让阻塞事件循环的回调暴露出来", "scenario": "异步服务响应变慢", "example": "import asyncio\n\nasync def main():\n    asyncio.get_running_loop().set_debug(True)\n    await asyncio.sleep(0)\n\nasyncio.run(main())", "exampleLang": "python"}, {"name": "cProfile.Profile", "rank": "常用", "signature": "Profile()", "params": [], "returns": "剖析对象", "methods": ["enable() 与 disable() — 开始与结束采样", "print_stats(sort=\"cumulative\") — 输出热点"], "effect": "给出函数级耗时与调用次数", "scenario": "定位 CPU 热点", "example": "import cProfile\n\nprof = cProfile.Profile()\nprof.enable()\nsum(i * i for i in range(100000))\nprof.disable()\nprof.print_stats(sort=\"cumulative\")", "exampleLang": "python"}, {"name": "queue.Queue.qsize", "rank": "常用", "signature": "qsize()", "params": [], "returns": "当前元素个数", "methods": ["qsize() — 读取积压量", "empty() 与 full() — 状态判断", "join() — 等消费完"], "effect": "把背压从感觉变成数字", "scenario": "判断生产是否快于消费", "example": "import queue\n\nq = queue.Queue(maxsize=10)\nq.put(1)\nprint(q.qsize())", "exampleLang": "python"}]' />

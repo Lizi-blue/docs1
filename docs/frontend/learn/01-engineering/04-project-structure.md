@@ -52,6 +52,11 @@ related_components: []
 | node_modules/ | 依赖 | 否，只取被引用的部分 |
 | dist/ | 构建输出 | 就是部署内容 |
 
+### 官方依据与版本差异
+
+- [Vite 静态资源](https://vitejs.dev/guide/assets.html) — Vite 5.0 与 6.0 的 public 目录与 base 关系。
+- [Node exports 字段](https://nodejs.org/api/packages.html#exports) — Node 12.7 起支持子路径导出字段。
+
 ## API 手册：构建与部署接口
 
 <ApiTable :items='[{"name": "npm run build", "rank": "必会", "signature": "npm run build", "params": [], "returns": "dist 目录", "methods": ["vite build", "vite build --mode production"], "effect": "产出可直接托管的静态文件", "scenario": "发布前的构建步骤", "example": "npm ci\nnpm run build\nls dist", "exampleLang": "bash"}, {"name": "public/", "rank": "常用", "signature": "public/&lt;file&gt;", "params": [{"name": "file", "type": "file", "default": "必填", "desc": "原样拷贝的文件"}], "returns": "无", "methods": ["引用时省略 public 前缀"], "effect": "放不需要构建处理的文件，例如图标与 robots.txt", "scenario": "favicon、跨域校验文件", "example": "public/favicon.svg  -&gt;  产物 /favicon.svg", "exampleLang": "text"}, {"name": ".env 与 VITE_ 前缀", "rank": "常用", "signature": ".env.[mode]", "params": [{"name": "mode", "type": "string", "default": "development", "desc": "构建模式名"}], "returns": "注入 import.meta.env", "methods": [".env.development — 开发默认", ".env.production — 生产默认"], "effect": "同一份代码按环境取不同值", "scenario": "接口地址与功能开关", "example": "# .env.production\nVITE_API_BASE=https://api.example.com", "exampleLang": "bash"}]' />

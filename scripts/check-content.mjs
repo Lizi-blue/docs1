@@ -26,6 +26,7 @@
  *   V12 tags_index 非空且为小写短标签
  *   V13 结构化载荷可解析
  *   V14 枚举字段取值合法
+ *   V19 知识点页有官方依据与版本差异（≥2 条官方链接，每条带版本标注）
  *   V15 知识域 teach 块字段齐全且类型正确
  *   V16 四教学要素标题存在，追问链条目 3–5 条
  *   V17 teach.lessons 与知识点页双向完整
@@ -85,6 +86,13 @@ const TEACHING_ELEMENTS = [
 ]
 
 const SKIP_DIRS = new Set(['.vitepress', 'public', 'node_modules', '.git', 'diagrams'])
+
+// 官方文档域名白名单：只认一手来源，博客与聚合站不算
+const OFFICIAL_DOC_HOSTS = [
+  'docs.python.org', 'peps.python.org', 'developer.mozilla.org', 'nodejs.org', 'npmjs.com',
+  'docs.npmjs.com', 'tc39.es', 'ecma-international.org', 'vitejs.dev', 'vite.dev',
+  'rollupjs.org', 'esbuild.github.io', 'vitepress.dev', 'vuejs.org',
+]
 
 const errors = []
 const warnings = []
@@ -465,6 +473,30 @@ function checkPayloads(pages) {
 
 /* ------------------------------------------------------------------ 主流程 */
 
+
+function checkOfficialSources(docs, pages) {
+  for (const page of pages) {
+    if (page.type !== 'knowledge') continue
+    const file = rel(page.file)
+    const content = fs.readFileSync(path.join(docs, page.file), 'utf8')
+    const matched = /^###\s*官方依据与版本差异\s*$([\s\S]*?)(?=^##\s|^###\s|\Z)/m.exec(content)
+    if (!matched) {
+      fail('V19', file, 1, '缺少「官方依据与版本差异」小节', '在 ## 关键对比 之后补 ### 官方依据与版本差异')
+      continue
+    }
+    const body = matched[1]
+    const items = body.split('\n').filter((line) => /^\s*[-*]\s+\S/.test(line))
+    const official = items.filter((line) => OFFICIAL_DOC_HOSTS.some((host) => line.includes(host)))
+    const versioned = official.filter((line) => /3\.\d+|PEP\s*\d+|ES\d{4}|v?\d+\.\d+/.test(line))
+    if (official.length < 2) {
+      fail('V19', file, 1, `官方链接不足：${official.length} 条`, `至少给两条官方文档链接（${OFFICIAL_DOC_HOSTS.slice(0, 4).join(' / ')} …）`)
+    }
+    if (versioned.length < official.length) {
+      fail('V19', file, 1, `有 ${official.length - versioned.length} 条官方依据未标版本`, '每条补适用版本区间或版本差异')
+    }
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const rootIndex = args.indexOf('--root')
@@ -484,6 +516,7 @@ function main() {
   for (const page of pages) checkFrontmatter(page, tree, docs)
   checkDiagrams(docs, tree)
   checkEntryPages(docs, tree)
+  checkOfficialSources(docs, tree.pages)
   checkTeachBlocks(metas, tree)
   checkPayloads(pages)
 
