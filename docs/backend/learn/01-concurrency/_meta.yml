@@ -13,7 +13,7 @@ teach:
     - "能用锁、条件变量与信号量组织线程协作"
     - "能用执行器编排任务并处理超时与异常"
     - "能按数据体积选择跨进程传递方式"
-    - "能用任务组、超时与背压写出可靠的异步流程"
+    - "能定位并发卡死并写出可靠的异步流程"
   path:
     - from: "01-thread-basics"
       to: "03-queue-pipe"
@@ -24,6 +24,9 @@ teach:
     - from: "07-executor-pools"
       to: "09-async-advanced"
       label: "工程化并发"
+    - from: "10-subprocess-signals"
+      to: "12-asyncio-thread-bridge"
+      label: "系统集成与定位"
   lessons:
     - slug: "01-thread-basics"
       goal: "讲清线程创建、锁与 GIL 的关系"
@@ -43,3 +46,9 @@ teach:
       goal: "讲清共享内存的零拷贝与同步代价"
     - slug: "09-async-advanced"
       goal: "讲清任务组、超时与背压的写法"
+    - slug: "10-subprocess-signals"
+      goal: "讲清命令树超时清理与信号处理"
+    - slug: "11-concurrency-debugging"
+      goal: "讲清用栈与指标定位并发问题"
+    - slug: "12-asyncio-thread-bridge"
+      goal: "讲清线程与事件循环的安全交接"

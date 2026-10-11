@@ -175,7 +175,7 @@ python3 async_advanced_demo.py
 
 ### 下一讲衔接
 
-本域九讲讲完。回到[并发编程入口](/backend/learn/)可复习整条路径。
+异步进阶讲完。接着读[子进程与信号](/backend/learn/concurrency/subprocess-signals)，看怎么安全拉起外部命令。
 
 ### 关联组件
 
