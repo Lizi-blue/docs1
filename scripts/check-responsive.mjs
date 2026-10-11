@@ -60,14 +60,15 @@ function main() {
   // 1 视口声明
   const missingViewport = htmlFiles.filter((file) => {
     const html = fs.readFileSync(file, 'utf8')
-    return !/<meta[^>]+name="viewport"[^>]+width=device-width/i.test(html)
+    const count = (html.match(/<meta[^>]+name="viewport"/gi) ?? []).length
+    return count !== 1 || !/<meta[^>]+name="viewport"[^>]+width=device-width/i.test(html)
   })
   record('R1', missingViewport.length === 0,
-    `viewport meta：${htmlFiles.length - missingViewport.length}/${htmlFiles.length} 个页面具备`,
+    `viewport meta：${htmlFiles.length - missingViewport.length}/${htmlFiles.length} 个页面恰有一个且含 width=device-width`,
     '在 config 的 head 里补 viewport meta（VitePress 默认已带，检查是否被覆盖）')
 
   // 2 三档断点
-  const breakpoints = ['640px', '768px', '1024px']
+  const breakpoints = ['480px', '640px', '768px', '1024px']
   const missingBreakpoints = breakpoints.filter((bp) => !css.includes(`max-width: ${bp}`) && !css.includes(`max-width:${bp}`))
   record('R2', missingBreakpoints.length === 0,
     `断点：${breakpoints.length - missingBreakpoints.length}/${breakpoints.length} 档存在（缺 ${missingBreakpoints.join(' ') || '无'}）`,
