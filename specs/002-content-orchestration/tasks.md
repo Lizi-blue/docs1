@@ -8,7 +8,7 @@ description: "Task list for feature 002-content-orchestration (v4, 含三轮 /sp
 
 ## 实现进度（2026-10-11，/speckit-implement 首轮）
 
-**已完成（勾选项）**：T001–T029、T032–T036、T038–T042、T044–T046，以及 T049、T053、T058。
+**已完成 45 项，剩余 15 项。已完成（勾选项）**：T001–T029、T032–T036、T038–T042、T044–T046，以及 T049、T053、T058。
 判据：`check:content` 0 错 0 警、`check:zh` 硬违规 0、`check:orchestration` S1–S7 通过、`build` 成功、
 9 条路由 200、组件自测 1 passed（3 条因沙箱禁 `sem_open` 跳过，CI 内执行）。
 
