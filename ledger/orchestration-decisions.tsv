@@ -9,3 +9,4 @@ date	iteration	scope	decision	reason	review
 2026-10-11	002-content-orchestration	T043 迭代演练：修 04-project-structure 追问链递进并回写技能末讲衔接规则	writeback	-	-
 2026-10-12	002-content-orchestration	宪法 1.3.0 落地：导航层级与接口覆盖（V20/V22/N1–N5）	writeback	技能升 1.2.0 并补 API 条目细节与未开写域规则	-
 2026-10-12	004-component-hub-console	组件首发仓落地：方向归属、复用四件套、依赖知识索引与体验门禁	writeback	技能补组件编排判据并升 1.4.0	-
+2026-10-12	005-github-pages-deploy	新增 GitHub Pages 发布：base 可注入 + 产物门禁 + 双链路独立	no-writeback	技能未变（仅平台与配置层）；判据见 005 契约	-

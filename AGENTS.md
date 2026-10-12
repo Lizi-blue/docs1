@@ -32,11 +32,12 @@ npm run check:extensibility # 零配置扩展断言（新增领域不改配置�
 npm run check:component     # 组件页契约：方向纯净、知识索引、复用清单
 npm run check:experience    # 体验断言：令牌、状态、焦点、对比度、响应式
 npm run check:responsive    # 响应式布局（需先构建）
+npm run check:pages         # 产物门禁：子路径前缀、内网地址零泄漏、外部资源零引用（需先构建）
 npm run check:nav           # 导航层级 N1–N6（需先构建）
 npm run build               # 站点构建
 ```
 
-十一条命令退出码都为 0 才算通过。
+十二条命令退出码都为 0 才算通过。
 CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 
 中文门禁的封装负责四类「代码不算散文」的遮蔽：
@@ -98,7 +99,16 @@ CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 - 图注要写清这张图回答什么问题。
 - 静态拓扑图用 `mingrammer/diagrams` 的 `.py` 源产出。
 
-## 7. 提交与协作
+## 7. 发布与两端地址
+
+- 内网：`https://docs1.minilab.uzibird.cn`（Gitea 流水线部署到本机 k3s）。基础路径 `/`。
+- 公网：`https://lizi-blue.github.io/docs1/`（GitHub 流水线发布 GitHub Pages）。基础路径 `/docs1/`。
+- 同一份推送驱动两条链路，互不阻塞。链路契约见 `specs/005-github-pages-deploy/contracts/dual-deploy-contract.md`。
+- 基础路径与站点标识由环境变量注入：`DOCS1_BASE`、`DOCS1_SITE_LABEL`（默认值服务内网）。
+- 公网产物必须零内网信息：产物门禁会拦下内网域名与私有地址。
+- 公网没有后端服务：任务控制台组件显示降级提示，正文与图解保持完整。
+
+## 8. 提交与协作
 
 - 提交信息用中文，并带特性编号。
 - 内容改动与引擎改动分开提交。

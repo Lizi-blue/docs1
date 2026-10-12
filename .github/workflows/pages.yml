@@ -1,0 +1,130 @@
+# GitHub 侧流水线：门禁 → 子路径构建 → 产物门禁 → 发布 GitHub Pages。
+#
+# 契约：specs/005-github-pages-deploy/contracts/pages-workflow-contract.md
+# 内网链路（.gitea/workflows/ci.yaml + k3s）不被本文件影响。
+#
+# 首次使用前，请在仓库 Settings → Pages 把 Source 设为 GitHub Actions。
+# 本流水线会尝试自动开启；若失败，日志会指出需要开启的开关。
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 最小权限：读代码、写 Pages、用短期身份发布。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一分支只保留最新一次运行，保证最终发布对应最新提交。
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCS1_BASE: /docs1/
+  DOCS1_SITE_LABEL: docs-1 · GitHub Pages
+
+jobs:
+  build:
+    name: 门禁 + 子路径构建 + 产物门禁
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: 安装站点依赖
+        run: npm ci
+
+      - name: 安装测试框架
+        run: python3 -m pip install pytest || python3 -m pip install --break-system-packages pytest
+
+      - name: 门禁一：内容契约（V1–V23）
+        run: npm run check:content
+
+      - name: 门禁二：受控中文
+        run: npm run check:zh
+
+      - name: 门禁三：编排自检（S1–S7）
+        run: npm run check:orchestration
+
+      - name: 门禁四：组件与服务自测
+        run: npm run test:component
+
+      - name: 门禁五：门禁自测（G0–G17）
+        run: npm run selftest:gates
+
+      - name: 门禁六：零配置扩展
+        run: npm run check:extensibility
+
+      - name: 门禁七：组件页契约（C1–C7）
+        run: npm run check:component
+
+      - name: 门禁八：体验断言（X1–X7）
+        run: npm run check:experience
+
+      - name: 构建站点（公网基础路径）
+        run: npm run build
+
+      - name: 门禁九：响应式布局
+        run: npm run check:responsive
+
+      - name: 门禁十：导航层级（N1–N6）
+        run: npm run check:nav
+
+      - name: 生成公网产物附加件（.nojekyll 与深链兜底页）
+        run: node scripts/pages-extra.mjs --dist docs/.vitepress/dist --base /docs1/
+
+      - name: 门禁十一：产物门禁（发布前最后一道闸门）
+        run: npm run check:pages
+
+      - name: 提示：Pages 未开启时的可操作修法
+        if: failure()
+        run: |
+          echo "::warning::若上一步是 Pages 配置相关失败，请在仓库 Settings → Pages 把 Source 设为 GitHub Actions 后重跑。"
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+        with:
+          # 尝试自动开启 Pages；权限不足时会在本步骤失败，日志同时给出人工修法。
+          enablement: true
+
+      - name: 上传产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    name: 发布到 GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 发布
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: 运行摘要（提交与页面地址）
+        run: |
+          echo "### GitHub Pages 已发布" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 提交：\`${GITHUB_SHA:0:7}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 页面地址：${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY

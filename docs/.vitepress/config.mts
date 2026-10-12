@@ -113,8 +113,19 @@ for (const domain of tree.domains) {
   }
 }
 
+// 基础路径由构建期环境变量注入：内网默认根路径，GitHub Pages 用仓库子路径。
+// 见 specs/005-github-pages-deploy/contracts/base-path-contract.md §1。
+function resolveBase(): string {
+  const raw = process.env.DOCS1_BASE ?? '/'
+  if (!raw.startsWith('/') || !raw.endsWith('/')) {
+    throw new Error(`DOCS1_BASE 必须以 / 开头并以 / 结尾，当前：${raw}`)
+  }
+  return raw
+}
+
 export default defineConfig({
   lang: 'zh-CN',
+  base: resolveBase(),
   title: '技术面试备考文档引擎',
   description: '声明式目录 + 元数据驱动：渐进式学习与组件查询',
   cleanUrls: true,
@@ -178,7 +189,7 @@ export default defineConfig({
     returnToTopLabel: '回到顶部',
     footer: {
       message: '内容为受控中文（asd-ste100-skill-zh 规则），图解由 Archify 生成',
-      copyright: 'docs-1 · docs1.minilab.uzibird.cn',
+      copyright: process.env.DOCS1_SITE_LABEL ?? 'docs-1 · docs1.minilab.uzibird.cn',
     },
   },
 })

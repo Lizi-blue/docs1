@@ -86,7 +86,16 @@ npm run check:responsive    # 响应式（构建后）
 npm run check:nav           # 导航层级 N1–N5（构建后）
 ```
 
-十一条命令退出码都为 0 才算通过。CI 在镜像构建阶段全跑。
+十二条命令退出码都为 0 才算通过。CI 在镜像构建阶段全跑。
+
+## 发布
+
+| 目标 | 地址 | 触发 | 基础路径 |
+|---|---|---|---|
+| 内网 k3s | `https://docs1.minilab.uzibird.cn` | 推送到主分支（Gitea 流水线） | `/` |
+| GitHub Pages | `https://lizi-blue.github.io/docs1/` | 推送到主分支（GitHub 流水线） | `/docs1/` |
+
+两条链路互不阻塞。公网侧无后端服务，任务控制台显示降级提示；产物不得包含内网信息。
 
 ## 4. 交付与验收
 
