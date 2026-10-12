@@ -1,0 +1,23 @@
+{
+  "component": "safe-queue",
+  "contract_version": "1.0.0",
+  "page": "/backend/components/safe-queue",
+  "notes": "进程安全队列组件。源码唯一来源是组件页的代码块，测试在运行时从页面提取后执行。",
+  "sides": {
+    "backend": {
+      "files": [
+        { "path": "docs/backend/components/01-safe-queue.md", "purpose": "组件源码与设计说明的唯一来源", "required": true },
+        { "path": "tests/test_safe_queue.py", "purpose": "从页面提取源码并执行的自测", "required": true }
+      ],
+      "external_deps": [],
+      "adaptation": [
+        { "point": "启动方式", "how": "spawn 与 forkserver 下任务函数必须定义在模块顶层且可 pickle，不能传 lambda 或局部函数" },
+        { "point": "worker 数", "how": "按 CPU 核数与任务粒度调整 SafeQueue(workers=N)" },
+        { "point": "任务规模", "how": "drain 的条数要与 submit 投递数一致，避免结果残留或等待超时" }
+      ],
+      "verify": [
+        { "command": "python3 -m pytest tests/test_safe_queue.py -q", "expect": "全部通过（跨进程用例需要可用信号量）" }
+      ]
+    }
+  }
+}

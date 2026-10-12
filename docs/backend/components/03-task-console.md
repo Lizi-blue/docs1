@@ -1,626 +1,310 @@
 ---
-title: "任务控制台"
+title: "任务控制台 · 后端任务服务"
 type: component
 domain: backend
-component_type: library
+direction: backend
+component_type: framework
 order: 3
-install_command: "npm install vue"
-depends_on_knowledge:
-  - /backend/learn/concurrency/executor-pools
-  - /backend/learn/concurrency/subprocess-signals
-  - /backend/learn/communication/socket-and-streams
+install_command: "无需安装。复制 service/ 目录后运行 python3 -m service.app"
+knowledge_index:
+  - page: /backend/learn/concurrency/executor-pools
+    role: "线程池调度与任务状态迁移的判据来源"
+  - page: /backend/learn/concurrency/subprocess-signals
+    role: "每任务一个子进程，取消按进程组发信号"
+  - page: /backend/learn/concurrency/sync-primitives
+    role: "注册表与输出缓冲的加锁边界"
+  - page: /backend/learn/communication/socket-and-streams
+    role: "SSE 长连接与分片推送的流式语义"
+reuse_manifest: reuse/task-console/manifest.json
+cross_link: /frontend/components/task-console
 related_components:
   - /backend/components/safe-queue
-tags_index: [sse, eventsource, task-queue, subprocess]
+tags_index: [sse, subprocess, thread-pool, task-service]
 reusability: high
-description: "提交白名单命令并订阅 SSE，实时查看任务状态与 stdout"
+description: "Python 标准库任务服务：进程组取消、限额与 SSE 推送"
 ---
 
-# 任务控制台
-
-### 本讲要解决的问题
-
-浏览器怎么拿到长任务的实时输出？断线以后怎么接着看？
-这个组件把提交、取消、状态与输出流收进一块面板。
+# 任务控制台 · 后端任务服务
 
 ## 组件简介
 
-一个 Vue 3 单文件组件：选命令、填参数、提交，任务列表与输出面板同屏。
+后端任务服务：接收下发请求，用线程池调度子进程，把输出推给读方。
 
-它只用浏览器原生的 `fetch` 与 `EventSource`，不引入第三方库。服务不可用时页面照常渲染，只给一条降级提示。任务与输出只保存在内存，服务重启即清空。
+它解决三件事：命令与参数的校验、进程组取消、输出与指标的实时推送。
+
+任务与输出只放在内存。服务重启即清空。
+
+本页只讲服务端实现。浏览器交互见下一节的对端页面。
+
+## 对应另一端
+
+交互、日志面板与错误提示由 [前端任务控制台](/frontend/components/task-console) 承担。
+
+本页的服务端只提供接口与推送。
+
+## 依赖的知识域与知识点
+
+<KnowledgeIndex />
 
 ## 涉及的知识点
 
 | 知识点 | 对应学习页面 | 在本组件中的作用 |
 |---|---|---|
-| 任务排队与状态机 | [执行器与任务编排](/backend/learn/concurrency/executor-pools) | 任务从排队到结束的状态迁移 |
-| 子进程与信号 | [子进程与信号](/backend/learn/concurrency/subprocess-signals) | 取消时按进程组发信号 |
+| 任务编排与线程池 | [任务编排与线程池](/backend/learn/concurrency/executor-pools) | 任务入队、并发名额与状态迁移 |
+| 子进程与信号 | [子进程与信号](/backend/learn/concurrency/subprocess-signals) | 进程组启动与取消信号 |
+| 同步原语与死锁 | [同步原语与死锁](/backend/learn/concurrency/sync-primitives) | 注册表与分片缓冲的加锁边界 |
 | 套接字与流 | [套接字与流](/backend/learn/communication/socket-and-streams) | SSE 长连接与分片推送 |
 
 ## 组合方式图解
 
-下图回答一个问题：一个任务从提交到结束，前端在哪些时刻收到哪类事件。
+下图回答一个问题：一个任务从接单到收尾，服务端在哪些环节落状态与输出。
 
-<DiagramFrame src="/diagrams/executor-lifecycle.html" title="任务从提交到结束的状态流转（Archify 交互图）" :height="520" />
+<DiagramFrame src="/diagrams/executor-lifecycle.html" title="任务从接单到收尾的服务端流转（Archify 交互图）" :height="520" />
 
 ## 核心源码
 
-整段复制到自己的 Vue 3 项目即可。组件不依赖本仓任何私有资源。
+下面四段是服务端的骨架。全文见 `service/` 目录。
 
-```vue
-<script setup lang="ts">
-/**
- * 任务控制台：下发白名单命令，订阅 SSE 看实时输出。
- * 用法：<TaskConsole />
- * 依赖：浏览器原生 fetch 与 EventSource。服务不可用时只提示，不报错。
- *
- * 接口契约见 specs/003-task-dispatch/plan.md：
- *   GET  /api/tasks?limit=          -> { tasks, limits }
- *   POST /api/tasks                 -> 201 Task；400 校验失败；429 并发超限
- *   POST /api/tasks/{id}/cancel     -> 200；409 已结束
- *   GET  /api/tasks/{id}/stream     -> SSE：output / status / end
- */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+提交入口先校验，再占名额。两项都在这一步完成。
 
-type TaskStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'canceled' | 'timeout'
+```python
+def _submit(self) -> None:
+    try:
+        payload = self.server.limits.validate_submit(self._read_json())
+    except ValidationError as error:
+        self._send_error_json(error.status, error.message)
+        return
+    if not self.server.executor.try_acquire_slot():
+        self._send_error_json(429, f"并发已达上限 {self.server.limits.max_concurrency}")
+        return
+    task = Task(payload["command"], payload["args"], payload["cwd"], payload["timeout_s"],
+                payload["env"], self.server.limits.output_max_bytes)
+    self.server.registry.add(task)
+    self.server.executor.submit(task)
+    self._send_json(201, task.summary())
+```
 
-interface TaskMetrics {
-  duration_s?: number
-  cpu_s?: number
-  peak_rss_bytes?: number
-  output_bytes?: number
-}
+子进程自建进程组。取消与超时因此能作用到整组。
 
-interface TaskSummary {
-  id: string
-  command: string
-  args?: string[]
-  status: TaskStatus
-  exit_code?: number | null
-  metrics?: TaskMetrics
-  truncated?: boolean
-}
-
-interface Limits {
-  max_concurrency: number
-  timeout_max_s: number
-  output_max_bytes: number
-  keep: number
-  allowlist: string[]
-}
-
-interface Chunk {
-  seq: number
-  stream: 'stdout' | 'stderr'
-  text: string
-}
-
-const STATUS_TEXT: Record<TaskStatus, string> = {
-  queued: '排队中',
-  running: '运行中',
-  succeeded: '成功',
-  failed: '失败',
-  canceled: '已取消',
-  timeout: '超时',
-}
-
-const online = ref<boolean | null>(null)
-const limits = ref<Limits | null>(null)
-const tasks = ref<TaskSummary[]>([])
-const command = ref('')
-const argsText = ref('')
-const timeoutS = ref<number | null>(null)
-const submitting = ref(false)
-const cancellingId = ref('')
-const selectedId = ref('')
-const chunks = ref<Chunk[]>([])
-const lastSeq = ref(0)
-const autoScroll = ref(true)
-const notice = ref('')
-const outputEl = ref<HTMLElement | null>(null)
-
-let source: EventSource | null = null
-let reconnectTimer: number | null = null
-let pollTimer: number | null = null
-const seenSeq = new Set<number>()
-
-const allowlist = computed(() => limits.value?.allowlist ?? [])
-const selected = computed(() => tasks.value.find((task) => task.id === selectedId.value) ?? null)
-const totalBytes = computed(() => chunks.value.reduce((sum, chunk) => sum + byteLength(chunk.text), 0))
-const stdoutBytes = computed(
-  () => chunks.value.filter((chunk) => chunk.stream !== 'stderr').reduce((sum, chunk) => sum + byteLength(chunk.text), 0),
+```python
+proc = subprocess.Popen(
+    [task.command, *task.args],
+    cwd=task.cwd,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    env=env,
+    start_new_session=True,
 )
-const stderrBytes = computed(() => totalBytes.value - stdoutBytes.value)
+task.pid = proc.pid
+task.pgid = os.getpgid(proc.pid)
+```
 
-function byteLength(text: string): number {
-  return new TextEncoder().encode(text).length
-}
+先发 SIGTERM，宽限期后再发 SIGKILL。
 
-function messageOf(data: unknown, fallback: string): string {
-  if (data && typeof data === 'object') {
-    const record = data as Record<string, unknown>
-    for (const key of ['detail', 'error', 'message']) {
-      const value = record[key]
-      if (typeof value === 'string' && value.trim()) return value.trim()
-    }
-  }
-  return fallback
-}
+```python
+def _terminate(self, task: Task, proc: subprocess.Popen) -> None:
+    self._signal_group(task.pgid, signal.SIGTERM)
+    deadline = time.monotonic() + GRACE_SECONDS
+    while proc.poll() is None and time.monotonic() < deadline:
+        time.sleep(SAMPLE_INTERVAL / 2)
+    if proc.poll() is None:
+        self._signal_group(task.pgid, signal.SIGKILL)
+```
 
-function formatSeconds(value?: number | null): string {
-  if (value === undefined || value === null || Number.isNaN(value)) return '-'
-  return `${value.toFixed(2)} s`
-}
+续传先取序号，再补历史分片，最后进推送循环。
 
-function formatBytes(value?: number | null): string {
-  if (value === undefined || value === null || Number.isNaN(value)) return '-'
-  if (value < 1024) return `${value} B`
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KiB`
-  return `${(value / 1024 / 1024).toFixed(2)} MiB`
-}
+```python
+from_seq = 0
+last_event_id = self.headers.get("Last-Event-ID") or ""
+if last_event_id.isdigit():
+    from_seq = int(last_event_id)
+if params.get("from", [""])[0].isdigit():
+    from_seq = max(from_seq, int(params["from"][0]))
 
-function statusClass(status: TaskStatus): string {
-  if (status === 'succeeded') return 'task-status-ok'
-  if (status === 'failed' || status === 'timeout') return 'task-status-bad'
-  if (status === 'running') return 'task-status-run'
-  return 'task-status-idle'
-}
-
-function canCancel(task: TaskSummary): boolean {
-  return task.status === 'queued' || task.status === 'running'
-}
-
-async function request(path: string, init?: RequestInit): Promise<{ status: number; data: unknown }> {
-  const response = await fetch(path, init)
-  let data: unknown = null
-  try {
-    data = await response.json()
-  } catch {
-    data = null
-  }
-  return { status: response.status, data }
-}
-
-/** 参数支持空格分隔，也支持每行一个。引号包住的片段算一个参数。 */
-function parseArgs(text: string): string[] {
-  const tokens: string[] = []
-  for (const line of text.split('\n')) {
-    const pattern = /"([^"]*)"|'([^']*)'|(\S+)/g
-    let matched: RegExpExecArray | null = pattern.exec(line)
-    while (matched !== null) {
-      tokens.push(matched[1] ?? matched[2] ?? matched[3])
-      matched = pattern.exec(line)
-    }
-  }
-  return tokens
-}
-
-async function refresh(): Promise<void> {
-  try {
-    const { status, data } = await request('/api/tasks?limit=50')
-    const payload = data as { tasks?: TaskSummary[]; limits?: Limits } | null
-    if (status < 200 || status >= 300 || !payload || !Array.isArray(payload.tasks)) {
-      online.value = false
-      return
-    }
-    tasks.value = payload.tasks
-    if (payload.limits) limits.value = payload.limits
-    if (!command.value && allowlist.value.length > 0) command.value = allowlist.value[0]
-    online.value = true
-  } catch {
-    online.value = false
-  }
-}
-
-function updateSelected(status: TaskStatus, extra?: Partial<TaskSummary>): void {
-  const task = tasks.value.find((item) => item.id === selectedId.value)
-  if (!task) return
-  task.status = status
-  if (extra) Object.assign(task, extra)
-}
-
-async function submit(): Promise<void> {
-  if (!command.value.trim()) {
-    notice.value = '先选择或填写命令。'
-    return
-  }
-  submitting.value = true
-  try {
-    const body: Record<string, unknown> = { command: command.value.trim(), args: parseArgs(argsText.value) }
-    if (typeof timeoutS.value === 'number' && Number.isFinite(timeoutS.value) && timeoutS.value > 0) {
-      body.timeout_s = timeoutS.value
-    }
-    const { status, data } = await request('/api/tasks', { method: 'POST', body: JSON.stringify(body) })
-    online.value = true
-    if (status === 201 && data) {
-      notice.value = ''
-      const created = data as TaskSummary
-      openTask(created.id)
-      await refresh()
-      return
-    }
-    if (status === 400) notice.value = `参数校验失败：${messageOf(data, '检查参数与工作目录')}。`
-    else if (status === 429) notice.value = `并发已达上限（${limits.value?.max_concurrency ?? '-'}），等任务结束再提交。`
-    else notice.value = `提交失败（HTTP ${status}）：${messageOf(data, '未知原因')}。`
-  } catch {
-    online.value = false
-    notice.value = '提交失败：连不上任务服务。'
-  } finally {
-    submitting.value = false
-  }
-}
-
-async function cancel(id: string): Promise<void> {
-  cancellingId.value = id
-  try {
-    const { status, data } = await request(`/api/tasks/${id}/cancel`, { method: 'POST' })
-    online.value = true
-    if (status === 200) {
-      notice.value = '已发送取消信号。宽限期后强制结束。'
-      await refresh()
-      return
-    }
-    if (status === 409) notice.value = '任务已结束，取消无效。'
-    else if (status === 404) notice.value = '任务不存在，可能已被清理。'
-    else notice.value = `取消失败（HTTP ${status}）：${messageOf(data, '未知原因')}。`
-  } catch {
-    online.value = false
-    notice.value = '取消失败：连不上任务服务。'
-  } finally {
-    cancellingId.value = ''
-  }
-}
-
-function closeStream(): void {
-  if (reconnectTimer !== null) {
-    window.clearTimeout(reconnectTimer)
-    reconnectTimer = null
-  }
-  if (source) {
-    source.close()
-    source = null
-  }
-}
-
-/** 打开某任务的输出流。from 是起始序号，用于断线续传。 */
-function openStream(id: string, from: number): void {
-  closeStream()
-  const stream = new EventSource(`/api/tasks/${id}/stream?from=${from}`)
-  source = stream
-  stream.onopen = () => {
-    online.value = true
-  }
-  stream.addEventListener('output', (event) => {
-    pushChunk((event as MessageEvent).data)
-  })
-  stream.addEventListener('status', (event) => {
-    try {
-      const payload = JSON.parse((event as MessageEvent).data) as { status?: TaskStatus }
-      if (payload.status) updateSelected(payload.status)
-    } catch {
-      notice.value = '收到无法解析的状态帧。'
-    }
-  })
-  stream.addEventListener('end', (event) => {
-    try {
-      const payload = JSON.parse((event as MessageEvent).data) as {
-        status?: TaskStatus
-        exit_code?: number | null
-        metrics?: TaskMetrics
-      }
-      if (payload.status) updateSelected(payload.status, { exit_code: payload.exit_code ?? null, metrics: payload.metrics })
-    } catch {
-      notice.value = '收到无法解析的结束帧。'
-    }
-    closeStream()
-    void refresh()
-  })
-  stream.onerror = () => {
-    // 浏览器会自动重连并带上 Last-Event-ID。连接被彻底关闭时，本组件按序号重建。
-    if (stream.readyState === EventSource.CLOSED && selectedId.value === id) {
-      reconnectTimer = window.setTimeout(() => openStream(id, lastSeq.value + 1), 2000)
-    }
-  }
-}
-
-function openTask(id: string): void {
-  selectedId.value = id
-  chunks.value = []
-  seenSeq.clear()
-  lastSeq.value = 0
-  openStream(id, 0)
-}
-
-function pushChunk(raw: string): void {
-  let chunk: Chunk
-  try {
-    chunk = JSON.parse(raw) as Chunk
-  } catch {
-    notice.value = '收到无法解析的输出帧。'
-    return
-  }
-  if (typeof chunk.seq !== 'number' || typeof chunk.text !== 'string') return
-  if (seenSeq.has(chunk.seq)) return
-  seenSeq.add(chunk.seq)
-  chunks.value.push(chunk)
-  if (chunk.seq > lastSeq.value) lastSeq.value = chunk.seq
-}
-
-function clearOutput(): void {
-  chunks.value = []
-}
-
-watch(
-  () => chunks.value.length,
-  async () => {
-    if (!autoScroll.value) return
-    await nextTick()
-    const element = outputEl.value
-    if (element) element.scrollTop = element.scrollHeight
-  },
-)
-
-onMounted(() => {
-  void refresh()
-  pollTimer = window.setInterval(() => void refresh(), 3000)
-})
-
-onBeforeUnmount(() => {
-  closeStream()
-  if (pollTimer !== null) {
-    window.clearInterval(pollTimer)
-    pollTimer = null
-  }
-})
-</script>
-
-<template>
-  <div class="task-console">
-    <p v-if="online === false" class="task-banner task-banner-offline">
-      任务服务不可用。提交与实时输出暂时关闭。静态说明仍可阅读。
-    </p>
-    <p v-else-if="online === null" class="task-banner">正在连接任务服务……</p>
-
-    <p class="task-note">任务与输出只保存在内存。服务重启后清空。</p>
-
-    <form class="task-form" @submit.prevent="submit">
-      <label class="task-field">
-        <span class="task-label">命令</span>
-        <select v-model="command" class="task-input" :disabled="online === false">
-          <option v-for="name in allowlist" :key="name" :value="name">{{ name }}</option>
-        </select>
-      </label>
-      <label class="task-field task-field-wide">
-        <span class="task-label">参数</span>
-        <textarea
-          v-model="argsText"
-          class="task-input task-args"
-          rows="2"
-          :disabled="online === false"
-          placeholder="空格分隔，也可以每行一个"
-        />
-      </label>
-      <label class="task-field">
-        <span class="task-label">超时（秒）</span>
-        <input
-          v-model.number="timeoutS"
-          class="task-input"
-          type="number"
-          min="1"
-          :max="limits?.timeout_max_s"
-          :disabled="online === false"
-        />
-      </label>
-      <button type="submit" class="task-button" :disabled="online === false || submitting || !command">
-        {{ submitting ? '提交中……' : '提交任务' }}
-      </button>
-    </form>
-
-    <p v-if="limits" class="task-limits">
-      并发上限 {{ limits.max_concurrency }} ·
-      超时上限 {{ limits.timeout_max_s }} 秒 ·
-      输出上限 {{ formatBytes(limits.output_max_bytes) }} ·
-      保留 {{ limits.keep }} 条
-    </p>
-    <p v-if="notice" class="task-banner task-banner-error">{{ notice }}</p>
-
-    <div class="task-grid">
-      <section class="task-panel">
-        <p class="task-panel-title">任务列表<span class="task-meta">{{ tasks.length }} 条</span></p>
-        <p v-if="tasks.length === 0" class="task-empty">还没有任务。先提交一个试试。</p>
-        <ul class="task-list">
-          <li
-            v-for="task in tasks"
-            :key="task.id"
-            class="task-card"
-            :class="{ 'task-card-active': task.id === selectedId }"
-          >
-            <div class="task-card-head">
-              <code class="task-cmd">{{ task.command }} {{ (task.args ?? []).join(' ') }}</code>
-              <span class="badge" :class="statusClass(task.status)">{{ STATUS_TEXT[task.status] ?? task.status }}</span>
-            </div>
-            <div class="task-card-metrics">
-              <span>退出码 {{ task.exit_code ?? '-' }}</span>
-              <span>耗时 {{ formatSeconds(task.metrics?.duration_s) }}</span>
-              <span>CPU {{ formatSeconds(task.metrics?.cpu_s) }}</span>
-              <span>峰值内存 {{ formatBytes(task.metrics?.peak_rss_bytes) }}</span>
-              <span>输出 {{ formatBytes(task.metrics?.output_bytes) }}</span>
-              <span v-if="task.truncated" class="task-truncated">已截断</span>
-            </div>
-            <div class="task-card-actions">
-              <button type="button" class="task-link" @click="openTask(task.id)">看输出</button>
-              <button
-                type="button"
-                class="task-link"
-                :disabled="!canCancel(task) || cancellingId === task.id"
-                @click="cancel(task.id)"
-              >
-                {{ cancellingId === task.id ? '取消中……' : '取消' }}
-              </button>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <section class="task-panel">
-        <p class="task-panel-title">
-          实时输出
-          <span class="task-meta">
-            {{ selected ? `${selected.command} · ${STATUS_TEXT[selected.status] ?? selected.status}` : '未选任务' }}
-          </span>
-        </p>
-        <p class="task-bytes">
-          共 {{ formatBytes(totalBytes) }} ·
-          stdout {{ formatBytes(stdoutBytes) }} ·
-          stderr {{ formatBytes(stderrBytes) }}
-        </p>
-        <div class="task-output-tools">
-          <label class="task-toggle"><input v-model="autoScroll" type="checkbox" /> 自动滚动</label>
-          <button type="button" class="task-link" @click="clearOutput">清空显示</button>
-        </div>
-        <div ref="outputEl" class="task-output">
-          <p v-if="chunks.length === 0" class="task-empty">选中一个任务，输出会出现在这里。</p>
-          <p
-            v-for="chunk in chunks"
-            :key="chunk.seq"
-            class="task-line"
-            :class="chunk.stream === 'stderr' ? 'task-line-err' : 'task-line-out'"
-          >
-            <span class="task-prefix">{{ chunk.stream === 'stderr' ? '[err]' : '[out]' }}</span>
-            <span class="task-text">{{ chunk.text }}</span>
-            <span class="task-size">{{ byteLength(chunk.text) }}B</span>
-          </p>
-        </div>
-      </section>
-    </div>
-  </div>
-</template>
+subscriber, history = task.subscribe(from_seq)
+self._sse("status", None, {"id": task.id, "status": task.status, "from_seq": from_seq})
+for chunk in history:
+    self._sse("output", chunk["seq"], chunk)
+if task.finished:
+    self._sse("end", None, task._end_payload_locked())
 ```
 
 ## 设计说明
 
-- 轮询与推流分工。任务列表每 3 秒拉一次，输出走 SSE 推流。
-- 序号去重。每个分片带唯一序号，已见的序号直接丢弃。
-- 断线续传有两条路。浏览器自动重连并带 `Last-Event-ID`。连接被彻底关闭时，组件按最大序号加一重建。
-- 降级不阻塞阅读。`fetch` 抛错就把状态置为离线，表单禁用并给出提示。
-- 面板只保留本次会话的分片。大任务的长输出不会长期留在浏览器内存里。
-- 安全边界在服务端。命令限于白名单，参数拒绝 shell 元字符，工作目录限定在工作区。
+- 校验与限额合在一层。命令、参数、工作目录与超时都在 `Limits.validate_submit` 里判。
+- 名额先占后用。`try_acquire_slot` 失败即返回 429，任务不进池子。
+- 状态机单向。状态只能按 `TRANSITIONS` 表往前走，回退一律拒绝。
+- 输出走环形缓冲。每个任务持有分片队列与订阅者集合，读方按序号取。
+- 取消分两段。SIGTERM 给宽限，3 秒后仍不退再发 SIGKILL。
+- 指标按需采样。CPU 时间与峰值内存每 250 毫秒采一次。
 
 ### 官方依据与版本差异
 
-- [MDN EventSource](https://developer.mozilla.org/zh-CN/docs/Web/API/EventSource) — Chrome 6 与 Firefox 6 起提供。
-- [MDN fetch](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/fetch) — Chrome 42 与 Firefox 39 起提供。
-- [Vue script setup](https://vuejs.org/api/sfc-script-setup.html) — Vue 3.2 起稳定。
+- [http.server](https://docs.python.org/3/library/http.server.html) — Python 3.7 起提供 `ThreadingHTTPServer`。
+- [subprocess](https://docs.python.org/3/library/subprocess.html) — Python 3.2 起提供 `start_new_session`。
+- [signal](https://docs.python.org/3/library/signal.html) — `SIGTERM` 与 `SIGKILL` 是 Unix 语义，Windows 上不可用。
 
 ## 使用文档
 
-组件已在站点主题里全局注册。Markdown 页面直接写标签即可。
+复制 `service/` 目录后直接运行。主机与端口由环境变量给出。
 
-```md
-<TaskConsole />
+```bash
+export DOCS1_HOST=127.0.0.1
+export DOCS1_PORT=8787
+python3 -m service.app
 ```
 
-自己的 Vue 3 项目里，注册一次就能在任何组件里使用。
+最小一次下发与取流。
 
-```javascript
-import { createApp } from "vue"
-import TaskConsole from "./components/TaskConsole.vue"
-
-createApp(App).component("TaskConsole", TaskConsole)
+```bash
+curl -s -X POST http://127.0.0.1:8787/api/tasks \
+  -d '{"command": "cp", "args": ["big.bin", "copy.bin"], "timeout_s": 60}'
+curl -N 'http://127.0.0.1:8787/api/tasks/<id>/stream?from=0'
 ```
 
-接口默认同源。组件请求 `/api/tasks`，不需要额外配置地址。
+命令清单与限额写在 `service/config.json`。也可以用 `DOCS1_MAX_CONCURRENCY` 这类环境变量覆盖。
 
-## API 手册：实时输出接口
+## 复用四件套
 
+本节渲染 `reuse/task-console/manifest.json` 的后端部分。清单落地前先按下表对齐字段名。
 
-
-
-### 连接与订阅
-
-<ApiTable :items='[{"name":"EventSource","rank":"必会","signature":"new EventSource(url, { withCredentials })","params":[{"name":"url","type":"string","default":"必填","desc":"SSE 端点地址"},{"name":"withCredentials","type":"bool","default":"false","desc":"是否带跨域凭据"}],"returns":"事件源对象","methods":["addEventListener(&#39;output&#39;, handler) — 订阅命名事件","close() — 主动关闭连接","onerror — 断线回调"],"effect":"浏览器长连服务端，按事件名分发增量输出","scenario":"实时日志、进度推送、任务状态同步","example":"const source = new EventSource(&#39;/api/tasks/1/stream?from=0&#39;)\nsource.addEventListener(&#39;output&#39;, (event) => console.log(event.data))\nsource.onerror = () => console.warn(&#39;reconnecting&#39;)","exampleLang":"javascript","pitfall":"服务端必须回 text/event-stream。断线后浏览器自动重连并带上 Last-Event-ID。"},{"name":"fetch","rank":"必会","signature":"fetch(input, init)","params":[{"name":"input","type":"string","default":"必填","desc":"接口路径"},{"name":"init","type":"object","default":"{}","desc":"method 与 body 等选项"}],"returns":"Promise<Response>","methods":["response.json() — 解析响应体","response.ok — 判断是否 2xx"],"effect":"发同源请求，提交任务并拉取列表","scenario":"提交任务、拉取任务列表、取消任务","example":"const response = await fetch(&#39;/api/tasks&#39;, { method: &#39;POST&#39;, body: JSON.stringify({ command: &#39;cp&#39;, args: [&#39;a&#39;, &#39;b&#39;] }) })\nconsole.log(response.status)","exampleLang":"javascript","pitfall":"HTTP 4xx 与 5xx 不会让 fetch 抛错。要自己看 response.ok。"}]' />
-
-### 事件与续传
-
-<ApiTable :items='[{"name":"Last-Event-ID 续传","rank":"常用","signature":"GET /api/tasks/{id}/stream?from=N","params":[{"name":"from","type":"number","default":"0","desc":"起始序号，重连兜底"}],"returns":"缺失的后续分片","methods":["Last-Event-ID 请求头 — 浏览器自动带上","?from=N — 手动重建时的起点"],"effect":"按序号补发，断线重连后不丢不重","scenario":"网络抖动、切后台后恢复输出","example":"const source = new EventSource(`/api/tasks/${id}/stream?from=${lastSeq + 1}`)","exampleLang":"javascript","pitfall":"只有服务端回了 id 字段，浏览器才带 Last-Event-ID。没带就退化用 from 参数。"}]' />
-## 演示：下发一个 cp 任务
-
-下面这块由组件实时渲染。服务在时可以直接操作，服务不在时会给降级提示。
-
-<TaskConsole />
-
-演示用 `cp` 复制大文件，输出面板会持续追加进度。命令限于白名单：`cp`、`ls`、`echo`、`sleep`、`sha256sum`、`mkdir`、`dd`。参数里不能出现 shell 元字符。工作目录限定在工作区。
-
-任务与输出只保存在内存。服务重启即清空，也不会跨实例共享。
+| 件 | 内容 |
+|---|---|
+| 文件清单 | `service/app.py`（路由与 SSE）、`service/registry.py`（任务与缓冲）、`service/executor.py`（调度与子进程）、`service/limits.py`（校验与限额）、`service/config.json`（默认取值） |
+| 外部依赖 | 无。只用 Python 3.13 标准库 |
+| 适配点 | 命令清单与工作区改 `config.json`。端口与并发上限走环境变量 |
+| 验收命令 | `python3 -m pytest tests/test_task_service.py -q`，期望全部通过 |
 
 ## 其他项目如何引用
 
-### 方式一：复制组件文件
+### 方式一：整目录复制
 
-把「核心源码」整段存成 `TaskConsole.vue`，放进你的组件目录。它只依赖 Vue 3。
+把 `service/` 整目录搬进你的项目，入口保持不变。它不依赖本仓其他部分。
 
-### 方式二：注册为全局组件
-
-在应用入口注册一次，模板里直接写标签。
-
-```javascript
-import TaskConsole from "./components/TaskConsole.vue"
-
-app.component("TaskConsole", TaskConsole)
+```bash
+cp -r service/ your-project/service/
+python3 -m your_project.service.app
 ```
 
-### 方式三：接进自己的任务服务
+### 方式二：只取调度层
 
-组件按契约读写 `/api/tasks`。换成你自己的服务时，保持下面五个端点与 SSE 事件名不变即可。
+只要进程组与取消能力时，留 `executor.py` 与 `registry.py`。HTTP 层可以换成你的框架。
 
-```text
-GET  /api/tasks            -> { tasks, limits }
-POST /api/tasks            -> 201 任务对象
-POST /api/tasks/{id}/cancel
-GET  /api/tasks/{id}/stream  (SSE: output / status / end)
-GET  /api/health
+```python
+from service.executor import Executor
+from service.limits import Limits
+from service.registry import Registry
+
+limits = Limits(config_path="service/config.json")
+registry = Registry(limits.keep)
+executor = Executor(limits, registry)
 ```
 
-### 常见误区
+### 方式三：接进现有服务
 
-- 「EventSource 出错后一定会自动重连」是错的。服务端返回非 `text/event-stream` 时连接直接关闭。
-- 「fetch 遇到 404 会中断后续代码」是错的。它只在网络层失败时 reject。
-- 「重连一定会重复输出」是错的。分片带序号，前端按序号去重。
+已有 Web 框架时，只复用它做三件事：校验、调度、取流。
 
-### 面试追问链
+```python
+payload = limits.validate_submit(request.json)
+if not executor.try_acquire_slot():
+    return {"error": "并发已达上限"}, 429
+task = Task(...)
+registry.add(task)
+executor.submit(task)
+return task.summary(), 201
+```
+
+## 接口契约
+
+六个端点同源提供。失败与降级按下表处理。
+
+| 端点 | 方法 | 成功 | 失败 |
+|---|---|---|---|
+| `/api/tasks` | POST | 201 任务摘要 | 400 参数错误，429 并发超限 |
+| `/api/tasks` | GET | 200 任务列表与限额 | 500 内部错误 |
+| `/api/tasks/{id}` | GET | 200 任务与指标 | 404 任务不存在 |
+| `/api/tasks/{id}/cancel` | POST | 200 已受理 | 409 已结束，404 不存在 |
+| `/api/tasks/{id}/stream` | GET | 200 SSE 流 | 404 任务不存在 |
+| `/api/health` | GET | 200 版本与限额 | 500 内部错误 |
+
+推送事件只有三种。`status` 报状态，`output` 带分片，`end` 带终态与指标。
+
+读方断开是常态。写失败按连接关闭处理，不算服务错误。
+
+### 契约版本与迁移
+
+当前 `contract_version` 为 `1.0.0`。端点、事件名与字段名在本版内不变。
+
+破坏性变更要递增主版本号，并在本节写明迁移步骤与替代字段。
+
+读方按未知事件名忽略处理。这样新增事件不会打断旧读方。
+
+## API 手册：任务服务
+
+### 任务生命周期端点
+
+<ApiTable :items='[{"name":"POST /api/tasks","rank":"必会","signature":"POST /api/tasks","params":[{"name":"command","type":"string","default":"必填","desc":"白名单里的命令名"},{"name":"args","type":"string[]","default":"[]","desc":"参数列表，拒绝元字符"},{"name":"cwd","type":"string","default":"工作区","desc":"限定在工作区内"},{"name":"timeout_s","type":"int","default":"300","desc":"不超过限额上限"}],"returns":"201 任务摘要；400 参数错误，429 并发超限","effect":"校验命令与参数，建任务并交线程池","scenario":"页面点一次下发","example":"curl -s -X POST http://127.0.0.1:8787/api/tasks \\\n  -d &#39;{\"command\": \"cp\", \"args\": [\"a\", \"b\"], \"timeout_s\": 60}&#39;","exampleLang":"bash","pitfall":"并发到上限时返回 429。调用方要等一个任务结束再试。"},{"name":"POST /api/tasks/{id}/cancel","rank":"必会","signature":"POST /api/tasks/{id}/cancel","params":[{"name":"id","type":"string","default":"必填","desc":"任务标识"}],"returns":"200 {id, status, cancel_requested}；409 已结束，404 不存在","effect":"向任务进程组发 SIGTERM，宽限 3 秒后发 SIGKILL","scenario":"长任务提前停止","example":"curl -s -X POST http://127.0.0.1:8787/api/tasks/t001/cancel","exampleLang":"bash","pitfall":"任务已到终态时返回 409。取消是请求，不阻塞等结果。"},{"name":"GET /api/tasks","rank":"常用","signature":"GET /api/tasks?limit=50","params":[{"name":"limit","type":"int","default":"50","desc":"返回条数上限"}],"returns":"{tasks, limits}","effect":"按时间倒序返回任务摘要与当前限额","scenario":"页面轮询任务列表","example":"curl -s &#39;http://127.0.0.1:8787/api/tasks?limit=20&#39;","exampleLang":"bash","pitfall":"只保留最近 keep 个任务，更早的任务已被丢弃。"},{"name":"GET /api/tasks/{id}","rank":"常用","signature":"GET /api/tasks/{id}","params":[{"name":"id","type":"string","default":"必填","desc":"任务标识"}],"returns":"{task, metrics}","effect":"取单个任务的状态与指标快照","scenario":"刷新详情或事后对账","example":"curl -s http://127.0.0.1:8787/api/tasks/t001","exampleLang":"bash","pitfall":"任务被环形缓冲淘汰后返回 404。"}]' />
+
+### 输出流与探活
+
+<ApiTable :items='[{"name":"GET /api/tasks/{id}/stream","rank":"必会","signature":"GET /api/tasks/{id}/stream?from=N","params":[{"name":"from","type":"int","default":"0","desc":"起始分片序号"},{"name":"Last-Event-ID","type":"header","default":"空","desc":"重连时的续传序号"}],"returns":"text/event-stream：status / output / end","effect":"先补历史分片，再持续推送新分片","scenario":"实时查看 stdout 与 stderr","example":"curl -N &#39;http://127.0.0.1:8787/api/tasks/t001/stream?from=0&#39;","exampleLang":"bash","pitfall":"from 与 Last-Event-ID 取较大值，序号更小的分片不重发。"},{"name":"GET /api/health","rank":"常用","signature":"GET /api/health","params":[],"returns":"{ok, service, version, running, limits}","effect":"报告服务版本、并发占用与限额","scenario":"探活与容量查看","example":"curl -s http://127.0.0.1:8787/api/health","exampleLang":"bash","pitfall":"running 计数包含排队中的任务。"}]' />
+
+### 调度与限额内部接口
+
+<ApiTable :items='[{"name":"Executor.submit","rank":"必会","signature":"Executor.submit(task)","params":[{"name":"task","type":"Task","default":"必填","desc":"已通过校验的任务"}],"returns":"无","effect":"把任务交给线程池，占用一个并发名额","scenario":"收到合法下发请求后调度","example":"executor.submit(task)","exampleLang":"python","pitfall":"名额由 try_acquire_slot 先占。并发满时返回 429，别把任务压进池子。"},{"name":"Executor.cancel","rank":"必会","signature":"Executor.cancel(task) -&gt; bool","params":[{"name":"task","type":"Task","default":"必填","desc":"目标任务"}],"returns":"True 表示已受理；False 表示已结束","effect":"置取消标记，运行中则向进程组发 SIGTERM","scenario":"接口层处理取消请求","example":"if not executor.cancel(task):\n    return 409","exampleLang":"python","pitfall":"排队中的任务不发信号。工作线程取到后直接置为已取消。"},{"name":"Limits.validate_submit","rank":"必会","signature":"Limits.validate_submit(payload) -&gt; dict","params":[{"name":"payload","type":"dict","default":"必填","desc":"下发请求体"}],"returns":"校验通过的下发参数","effect":"校验命令、参数、工作目录与超时","scenario":"所有下发请求的唯一入口","example":"payload = limits.validate_submit(body)","exampleLang":"python","pitfall":"参数里的元字符与控制字符一律拒绝，不做转义。"},{"name":"Registry.list","rank":"常用","signature":"Registry.list(limit=50) -&gt; list[Task]","params":[{"name":"limit","type":"int","default":"50","desc":"返回条数"}],"returns":"任务列表，新的在前","effect":"读环形缓冲里的任务摘要","scenario":"列表接口与自检","example":"for task in registry.list(20):\n    print(task.id, task.status)","exampleLang":"python","pitfall":"超出 keep 的旧任务已被丢弃，列表不会返回。"}]' />
+
+## 常见误区
+
+- 「提交成功就一定能跑完」是错的。并发到上限时服务直接返回 429，任务不入队。
+- 「取消会立刻杀掉进程」是错的。服务先发 SIGTERM，宽限 3 秒后才发 SIGKILL。
+- 「输出可以攒到结束后一次取」是错的。分片只留在内存环形缓冲里，服务会丢弃超期任务。
+- 「重启后还能查到旧任务」是错的。任务与输出不落盘，重启即清空。
+
+## 面试追问链
 
 <details>
-<summary>Q1：为什么用 SSE 而不是 WebSocket？</summary>
+<summary>Q1：为什么每个任务要单独建进程组？</summary>
 
-输出是单向推送。SSE 走普通 HTTP，断线重连与序号续传由协议自理。
+命令可能再拉起子进程。按进程组发信号才能一次收干净，不留孤儿进程。
 
 </details>
 
 <details>
-<summary>Q2：既然浏览器会自动重连，为什么还要自己记序号？</summary>
+<summary>Q2：既然发了 SIGTERM，为什么还要 SIGKILL？</summary>
 
-自动重连依赖服务端回的 id 字段。没带时浏览器从头请求，组件就按最大序号加一兜底。
-
-</details>
-
-<details>
-<summary>Q3：输出面板怎么保证不丢不重？</summary>
-
-服务端给每个分片唯一序号。前端丢弃已见序号，重连时只请求该序号之后的内容。
+有的进程不处理 SIGTERM。宽限 3 秒仍不退出时，SIGKILL 才能保证收尾。
 
 </details>
 
 <details>
-<summary>Q4：大任务的长输出会不会打满浏览器内存？</summary>
+<summary>Q3：取消排队中的任务为什么不发信号？</summary>
 
-服务端按上限截断并标记 truncated。面板只保留本次会话的分片，切换任务即释放。
+排队中的任务还没有子进程。服务只置取消标记，工作线程取到后直接置为已取消。
 
 </details>
 
-### 下一讲衔接
+<details>
+<summary>Q4：SSE 断线后怎么保证不丢不重？</summary>
 
-本组件与 [进程安全队列](/backend/components/safe-queue) 同源：一个守服务端队列，一个守浏览器面板。接着读 [套接字与流](/backend/learn/communication/socket-and-streams) 可以看清长连接的分片语义。
+每个分片带唯一序号。重连时取 `Last-Event-ID` 与 `from` 的较大值，只补缺口。
+
+</details>
+
+<details>
+<summary>Q5：输出为什么放内存环形缓冲，不落盘？</summary>
+
+演示场景要的是低延迟与简单部署。代价是重启丢数据，服务也会丢弃超期任务。
+
+</details>
 
 ## 与其他组件的关系
 
-[进程安全队列](/backend/components/safe-queue) 负责进程内的投递与回收。本组件把同一套「提交、排队、消费、收尾」搬到浏览器可见的一层，队列在服务端，前端只订阅结果。
+[进程安全队列](/backend/components/safe-queue) 管进程内的投递与回收。本服务把它搬到 HTTP 之后，多了取消、限额与流式推送。
+
+两个组件的共同点是把「提交、排队、消费、收尾」四步显式化。差别在生命周期归属：队列由调用方控制，本服务由请求驱动。
+
+## 下一讲衔接
+
+服务端的进程组与超时判断来自 [子进程与信号](/backend/learn/concurrency/subprocess-signals)。
+
+调度与并发名额的取舍见 [任务编排与线程池](/backend/learn/concurrency/executor-pools)。

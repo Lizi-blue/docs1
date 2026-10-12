@@ -1,0 +1,47 @@
+{
+  "component": "task-console",
+  "contract_version": "1.0.0",
+  "page": "/backend/components/task-console",
+  "notes": "后端任务服务组件。前端控制台组件见 /frontend/components/task-console，两端通过同一份接口契约协作。",
+  "sides": {
+    "backend": {
+      "files": [
+        { "path": "service/app.py", "purpose": "HTTP 路由与 SSE 输出流", "required": true },
+        { "path": "service/registry.py", "purpose": "任务状态机、输出缓冲与订阅分发", "required": true },
+        { "path": "service/executor.py", "purpose": "线程池调度、子进程进程组、取消与指标采样", "required": true },
+        { "path": "service/limits.py", "purpose": "命令白名单、参数校验与限额加载", "required": true },
+        { "path": "service/config.json", "purpose": "白名单与限额默认值", "required": true },
+        { "path": "service/__init__.py", "purpose": "包标记", "required": true },
+        { "path": "scripts/entrypoint.sh", "purpose": "同时拉起服务与反向代理并转发信号", "required": false },
+        { "path": "Caddyfile", "purpose": "/api 反代与 /health 探针示例", "required": false }
+      ],
+      "external_deps": [],
+      "adaptation": [
+        { "point": "命令白名单", "how": "改 service/config.json 的 allowlist，只放目标项目需要的命令" },
+        { "point": "工作区与限额", "how": "设 DOCS1_WORKSPACE 与 DOCS1_MAX_CONCURRENCY、DOCS1_OUTPUT_MAX_BYTES 等环境变量" },
+        { "point": "端口与反代", "how": "服务默认 8787，反向代理把 /api 指到它，并把 /health 指到 /api/health" }
+      ],
+      "verify": [
+        { "command": "python3 -m pytest tests/test_task_service.py -q", "expect": "全部通过" },
+        { "command": "curl -sS http://127.0.0.1:8787/api/health", "expect": "返回 200 与 limits" }
+      ]
+    },
+    "frontend": {
+      "files": [
+        { "path": "docs/.vitepress/theme/components/TaskConsole.vue", "purpose": "控制台单文件组件", "required": true },
+        { "path": "docs/.vitepress/theme/styles/tokens.css", "purpose": "设计令牌（组件取色的唯一来源）", "required": true }
+      ],
+      "external_deps": [
+        { "name": "vue", "version": "^3.5", "install": "npm install vue" }
+      ],
+      "adaptation": [
+        { "point": "接口基地址", "how": "同源部署不用改；跨域时传 api-base 属性指向服务地址" },
+        { "point": "品牌与文案", "how": "改设计令牌取值与组件内文案，不改结构" },
+        { "point": "容器宽度", "how": "由外层容器决定，组件自身不写死宽度" }
+      ],
+      "verify": [
+        { "command": "npx vite --port 5173（挂载组件后）", "expect": "提交白名单任务后输出面板逐行追加" }
+      ]
+    }
+  }
+}

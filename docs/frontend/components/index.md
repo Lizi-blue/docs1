@@ -3,11 +3,12 @@ title: "前端工程化 · 组件查询"
 type: landing
 domain: frontend
 entry: components
-description: "本方向的组件还在整理，先看学习路径"
+description: "前端方向的组件：任务控制台实时日志面板"
 ---
 
 # 组件查询
 
-本方向暂未收录组件。
+本方向已收录 1 个组件：任务控制台（前端控制台组件）。
 
-组件页需要「完整源码 + 测试 + 三种引用方式」，达到门槛后再收录。现在请先走[渐进式学习](/frontend/learn/)。
+组件页给出「核心源码 + 复用四件套 + 三种引用方式」，按方向与依赖知识域筛选见下。
+先补依赖的知识点，再复制组件到自己的项目：从[并发通信](/backend/learn/communication/queue-and-pipe)与[前端工程化](/frontend/learn/engineering/vite-dev-and-build)两条路径入手。
