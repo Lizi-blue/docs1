@@ -59,8 +59,14 @@ related_components: []
 
 ## API 手册：构建与部署接口
 
-<ApiTable :items='[{"name": "npm run build", "rank": "必会", "pitfall": "构建前先跑 npm ci。直接 install 可能装到别的版本。", "signature": "npm run build", "params": [], "returns": "dist 目录", "methods": ["vite build", "vite build --mode production"], "effect": "产出可直接托管的静态文件", "scenario": "发布前的构建步骤", "example": "npm ci\nnpm run build\nls dist", "exampleLang": "bash"}, {"name": "public/", "rank": "常用", "pitfall": "public 里的文件原样拷贝。引用时不要写 public 前缀。", "signature": "public/&lt;file&gt;", "params": [{"name": "file", "type": "file", "default": "必填", "desc": "原样拷贝的文件"}], "returns": "无", "methods": ["引用时省略 public 前缀"], "effect": "放不需要构建处理的文件，例如图标与 robots.txt", "scenario": "favicon、跨域校验文件", "example": "public/favicon.svg  -&gt;  产物 /favicon.svg", "exampleLang": "text"}, {"name": ".env 与 VITE_ 前缀", "rank": "常用", "pitfall": "构建时按 mode 选 .env 文件。mode 写错会用到另一套值。", "signature": ".env.[mode]", "params": [{"name": "mode", "type": "string", "default": "development", "desc": "构建模式名"}], "returns": "注入 import.meta.env", "methods": [".env.development — 开发默认", ".env.production — 生产默认"], "effect": "同一份代码按环境取不同值", "scenario": "接口地址与功能开关", "example": "# .env.production\nVITE_API_BASE=https://api.example.com", "exampleLang": "bash"}]' />
 
+### 必会接口
+
+<ApiTable :items='[{"name":"npm run build","rank":"必会","pitfall":"构建前先跑 npm ci。直接 install 可能装到别的版本。","signature":"npm run build","params":[],"returns":"dist 目录","methods":["vite build","vite build --mode production"],"effect":"产出可直接托管的静态文件","scenario":"发布前的构建步骤","example":"npm ci\nnpm run build\nls dist","exampleLang":"bash"}]' />
+
+### 常用接口
+
+<ApiTable :items='[{"name":"public/","rank":"常用","pitfall":"public 里的文件原样拷贝。引用时不要写 public 前缀。","signature":"public/<file>","params":[{"name":"file","type":"file","default":"必填","desc":"原样拷贝的文件"}],"returns":"无","methods":["引用时省略 public 前缀"],"effect":"放不需要构建处理的文件，例如图标与 robots.txt","scenario":"favicon、跨域校验文件","example":"public/favicon.svg  ->  产物 /favicon.svg","exampleLang":"text"},{"name":".env 与 VITE_ 前缀","rank":"常用","pitfall":"构建时按 mode 选 .env 文件。mode 写错会用到另一套值。","signature":".env.[mode]","params":[{"name":"mode","type":"string","default":"development","desc":"构建模式名"}],"returns":"注入 import.meta.env","methods":[".env.development — 开发默认",".env.production — 生产默认"],"effect":"同一份代码按环境取不同值","scenario":"接口地址与功能开关","example":"# .env.production\nVITE_API_BASE=https://api.example.com","exampleLang":"bash"}]' />
 ## 组合用法：多环境构建与静态托管
 
 ### 组合了哪些知识？
