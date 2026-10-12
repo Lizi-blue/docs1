@@ -86,7 +86,17 @@ npm run check:responsive    # 响应式（构建后）
 npm run check:nav           # 导航层级 N1–N5（构建后）
 ```
 
-十二条命令退出码都为 0 才算通过。CI 在镜像构建阶段全跑。
+十三条命令退出码都为 0 才算通过。CI 在镜像构建阶段全跑。
+
+## 布局档位（优化版 / 经典版）
+
+站点有两套布局档位，默认 `taste`（优化后）。顶栏可随时切换，选择记在本地。
+
+```bash
+npm run build                      # 优化版（默认）
+DOCS1_LAYOUT=classic npm run build # 经典版
+npm run check:layout               # 布局门禁：冻结未被破坏、断点标准、顶栏上限、作用域
+```
 
 ## 样式回滚（布局改造随时可退）
 

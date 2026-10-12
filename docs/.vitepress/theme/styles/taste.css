@@ -1,0 +1,286 @@
+/* 优化层（006 layout-taste）：全部规则限定在 html.layout-taste 之下，经典档不受影响。
+ *
+ * 规则来源：specs/006-layout-taste/reference/taste-skill-digest.md（参照 Leonxlnx/taste-skill，MIT）。
+ * 档位：DESIGN_VARIANCE 5 / MOTION_INTENSITY 3 / VISUAL_DENSITY 3（文档场景）。
+ * 结构：骨架（容器与顶栏）→ 目录（侧栏与页内目录）→ 内容（正文、卡片、表格）→ 三档折叠与动效。
+ */
+
+html.layout-taste {
+  /* 顶栏高度上限：单行、不侵占阅读区 */
+  --docs1-nav-height: 64px;
+  /* 整页容器限宽居中 */
+  --docs1-container-max: 1440px;
+  /* 正文列宽：约 65–75 字符 */
+  --docs1-content-measure: 46rem;
+  /* 顶栏毛玻璃与悬停位移：效果值也走令牌，避免裸 px */
+  --docs1-blur: 8px;
+  --docs1-lift: -2px;
+  --vp-nav-height: var(--docs1-nav-height);
+}
+
+/* ---------- 骨架：顶栏与容器 ---------- */
+
+html.layout-taste .VPNav {
+  border-bottom: 1px solid var(--docs1-color-border);
+  background: color-mix(in srgb, var(--vp-c-bg) 88%, transparent);
+  backdrop-filter: blur(var(--docs1-blur));
+}
+
+html.layout-taste .VPNavBar {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+html.layout-taste .VPNavBarTitle .title,
+html.layout-taste .VPNavBarMenuLink,
+html.layout-taste .VPNavBarMenuGroup .text {
+  white-space: nowrap;
+}
+
+html.layout-taste .VPNavBarMenuLink:hover,
+html.layout-taste .VPNavBarMenuLink.active {
+  color: var(--docs1-color-accent);
+}
+
+html.layout-taste .VPContent .container {
+  max-width: var(--docs1-container-max);
+  margin-inline: auto;
+}
+
+html.layout-taste .VPDoc.has-aside .content-container {
+  max-width: var(--docs1-content-measure);
+}
+
+/* ---------- 骨架：入口页首屏留白收紧 ---------- */
+
+html.layout-taste .VPHome .VPHero,
+html.layout-taste .entry-index {
+  padding-top: var(--docs1-space-8);
+}
+
+html.layout-taste .entry-card,
+html.layout-taste .cmp-card {
+  border-radius: var(--docs1-radius-lg);
+  border: 1px solid var(--docs1-color-border);
+  box-shadow: var(--docs1-shadow-1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+html.layout-taste .entry-card:hover,
+html.layout-taste .cmp-card:hover {
+  transform: translateY(var(--docs1-lift));
+  box-shadow: var(--docs1-shadow-2);
+  border-color: var(--docs1-color-accent-soft);
+}
+
+html.layout-taste .entry-card:focus-visible,
+html.layout-taste .cmp-card:focus-visible {
+  outline: var(--docs1-focus-ring);
+  outline-offset: var(--docs1-focus-offset);
+}
+
+/* ---------- 目录：侧栏层级、选中态与焦点 ---------- */
+
+html.layout-taste .VPSidebar {
+  padding-top: var(--docs1-space-5);
+}
+
+html.layout-taste .VPSidebarItem.level-1 > .item .text {
+  font-size: var(--docs1-font-sm);
+  font-weight: 600;
+}
+
+html.layout-taste .VPSidebarItem.level-2 > .item {
+  padding-left: var(--docs1-space-3);
+}
+
+html.layout-taste .VPSidebarItem.level-3 > .item {
+  padding-left: var(--docs1-space-5);
+}
+
+html.layout-taste .VPSidebarItem.level-3 > .item .text {
+  font-size: var(--docs1-font-xs);
+  color: var(--docs1-color-muted);
+}
+
+html.layout-taste .VPSidebarItem.is-active > .item .text,
+html.layout-taste .VPSidebarItem.is-active > .item .link .text {
+  color: var(--docs1-color-accent);
+}
+
+html.layout-taste .VPSidebarItem.is-active > .item {
+  border-left: var(--docs1-border-2) solid var(--docs1-color-accent);
+}
+
+html.layout-taste .VPSidebarItem .link:hover .text {
+  color: var(--docs1-color-accent);
+}
+
+html.layout-taste .VPSidebarItem .link:focus-visible,
+html.layout-taste .VPDocAsideOutline .outline-link:focus-visible {
+  outline: var(--docs1-focus-ring);
+  outline-offset: var(--docs1-focus-offset);
+}
+
+html.layout-taste .VPDocAsideOutline .outline-link {
+  line-height: 1.5;
+}
+
+html.layout-taste .VPDocAsideOutline .outline-link.active {
+  color: var(--docs1-color-accent);
+  font-weight: 600;
+}
+
+/* ---------- 内容：正文节奏与标题阶梯 ---------- */
+
+html.layout-taste .vp-doc {
+  line-height: 1.75;
+}
+
+html.layout-taste .vp-doc h2 {
+  margin-top: var(--docs1-space-9);
+  padding-top: var(--docs1-space-5);
+  border-top: 1px solid var(--docs1-color-border);
+  font-size: var(--docs1-font-2xl);
+  letter-spacing: -0.01em;
+}
+
+html.layout-taste .vp-doc h3 {
+  margin-top: var(--docs1-space-8);
+  font-size: var(--docs1-font-xl);
+}
+
+html.layout-taste .vp-doc h4 {
+  margin-top: var(--docs1-space-6);
+  font-size: var(--docs1-font-lg);
+}
+
+html.layout-taste .vp-doc p,
+html.layout-taste .vp-doc li {
+  font-size: var(--docs1-font-lg);
+}
+
+html.layout-taste .vp-doc blockquote {
+  border-left: var(--docs1-border-3) solid var(--docs1-color-border);
+  color: var(--docs1-color-muted);
+}
+
+html.layout-taste .vp-doc :not(pre) > code {
+  border-radius: var(--docs1-radius-sm);
+}
+
+/* ---------- 内容：卡片网格（网格替代百分比算术） ---------- */
+
+html.layout-taste .cmp-list,
+html.layout-taste .entry-grid,
+html.layout-taste .kd-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--docs1-space-6);
+}
+
+html.layout-taste .cmp-list {
+  align-items: stretch;
+}
+
+/* ---------- 内容：密度分级（长文留白，手册与表格加密） ---------- */
+
+html.layout-taste .vp-doc table {
+  font-size: var(--docs1-font-sm);
+}
+
+html.layout-taste .vp-doc thead th {
+  position: sticky;
+  top: calc(var(--docs1-nav-height) + var(--docs1-space-2));
+  background: var(--docs1-color-surface);
+  z-index: 1;
+}
+
+html.layout-taste .api-table td,
+html.layout-taste .api-table th {
+  padding: var(--docs1-space-1) var(--docs1-space-3);
+}
+
+html.layout-taste .kd-groups,
+html.layout-taste .meta-row {
+  font-size: var(--docs1-font-xs);
+}
+
+/* ---------- 动效：只用 transform 与 opacity，并尊重减少动效 ---------- */
+
+html.layout-taste .badge,
+html.layout-taste .layout-switch-btn {
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.layout-taste *,
+  html.layout-taste *::before,
+  html.layout-taste *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- 三档折叠（每段就地声明） ---------- */
+
+@media (max-width: 1280px) {
+  html.layout-taste {
+    --docs1-container-max: 1200px;
+  }
+  html.layout-taste .VPDoc.has-aside .content-container {
+    max-width: 42rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  html.layout-taste .VPNavBarMenuLink {
+    padding-inline: var(--docs1-space-1);
+    font-size: var(--docs1-font-sm);
+  }
+  html.layout-taste .VPNavBarMenuGroup .text {
+    font-size: var(--docs1-font-sm);
+  }
+  html.layout-taste .VPSidebarItem.level-3 > .item {
+    padding-left: var(--docs1-space-4);
+  }
+  html.layout-taste .vp-doc h2 {
+    margin-top: var(--docs1-space-8);
+  }
+}
+
+@media (max-width: 768px) {
+  html.layout-taste .cmp-list,
+  html.layout-taste .entry-grid,
+  html.layout-taste .kd-groups {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--docs1-space-4);
+  }
+  html.layout-taste .VPDoc.has-aside .content-container {
+    max-width: 100%;
+  }
+  html.layout-taste .vp-doc table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  html.layout-taste {
+    --docs1-nav-height: 56px;
+  }
+  html.layout-taste .vp-doc p,
+  html.layout-taste .vp-doc li {
+    font-size: var(--docs1-font-md);
+  }
+  html.layout-taste .vp-doc h2 {
+    margin-top: var(--docs1-space-7);
+    padding-top: var(--docs1-space-4);
+    font-size: var(--docs1-font-xl);
+  }
+  html.layout-taste .entry-index,
+  html.layout-taste .VPHome .VPHero {
+    padding-top: var(--docs1-space-6);
+  }
+}

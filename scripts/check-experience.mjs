@@ -51,6 +51,8 @@ const SIZE_FUNCTIONS = new Set(['minmax', 'repeat', 'var', 'clamp', 'min', 'max'
 /** 判断某个 px 命中是否落在结构尺寸上下文里。 */
 function pxAllowed(property, value, index) {
   if (SIZE_PROPERTIES.has(property)) return true
+  // 设计令牌定义本身：--docs1-* 是唯一允许出现字面量的地方（契约 §1 白名单）。
+  if (/^--docs1-/.test(property)) return true
   const before = value.slice(0, index)
   const open = before.lastIndexOf('(')
   if (open >= 0 && !before.slice(open).includes(')')) {
@@ -215,7 +217,8 @@ function checkRawValues(file, css) {
   }
   // 去掉 @media / @supports 前置，避免把断点当作裸 px
   const flattened = body.replace(/@(media|supports)[^{]*\{/g, '{')
-  for (const matched of flattened.matchAll(/([a-z-]+)\s*:\s*([^;{}]+)/gi)) {
+  // 属性名允许数字与自定义属性的双横线前缀（--docs1-*）。
+  for (const matched of flattened.matchAll(/([a-z0-9-]+)\s*:\s*([^;{}]+)/gi)) {
     const property = matched[1].toLowerCase()
     const value = matched[2]
     if (/env\(/.test(value)) continue
@@ -238,7 +241,15 @@ function main() {
   const rootDir = resolveRoot(rootArg)
   const themeDir = path.join(rootDir, '.vitepress', 'theme')
   const tokensFile = path.join(themeDir, 'styles', 'tokens.css')
-  const customFile = path.join(themeDir, 'styles', 'custom.css')
+  // 样式已分档（custom.css 入口 + classic.css 冻结 + taste.css 优化层），
+  // 门禁按目录扫描全部样式文件，避免把重构当成违规。tokens.css 单独处理。
+  const stylesDir = path.join(themeDir, 'styles')
+  const styleFiles = fs
+    .readdirSync(stylesDir)
+    .filter((name) => name.endsWith('.css') && name !== 'tokens.css')
+    .map((name) => path.join(stylesDir, name))
+  const customFile = styleFiles.find((file) => path.basename(file) === 'custom.css') ?? styleFiles[0]
+  const customCss = styleFiles.map((file) => fs.readFileSync(file, 'utf8')).join('\n')
   const componentDir = path.join(themeDir, 'components')
 
   if (!fs.existsSync(tokensFile)) {
@@ -247,7 +258,6 @@ function main() {
   }
 
   const tokensCss = fs.readFileSync(tokensFile, 'utf8')
-  const customCss = fs.existsSync(customFile) ? fs.readFileSync(customFile, 'utf8') : ''
   const componentFiles = fs.existsSync(componentDir)
     ? fs.readdirSync(componentDir).filter((name) => name.endsWith('.vue')).map((name) => path.join(componentDir, name))
     : []

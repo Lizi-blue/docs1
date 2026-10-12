@@ -12,12 +12,16 @@ import { useData } from 'vitepress'
 import PageHeader from './components/PageHeader.vue'
 import EntryIndex from './components/EntryIndex.vue'
 import RelatedLinks from './components/RelatedLinks.vue'
+import LayoutSwitch from './components/LayoutSwitch.vue'
 
 const { frontmatter: fm } = useData()
 </script>
 
 <template>
   <DefaultTheme.Layout>
+    <template #nav-bar-content-after>
+      <LayoutSwitch />
+    </template>
     <template #doc-before>
       <EntryIndex v-if="fm.entry" :kind="fm.entry" />
       <PageHeader v-else-if="fm.pageModel" />

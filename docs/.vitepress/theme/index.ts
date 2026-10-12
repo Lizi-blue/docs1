@@ -12,6 +12,7 @@ import TagIndex from './components/TagIndex.vue'
 import RelatedLinks from './components/RelatedLinks.vue'
 import TaskConsole from './components/TaskConsole.vue'
 import KnowledgeIndex from './components/KnowledgeIndex.vue'
+import LayoutSwitch from './components/LayoutSwitch.vue'
 import './styles/tokens.css'
 import './styles/custom.css'
 
@@ -30,5 +31,6 @@ export default {
     app.component('RelatedLinks', RelatedLinks)
     app.component('TaskConsole', TaskConsole)
     app.component('KnowledgeIndex', KnowledgeIndex)
+    app.component('LayoutSwitch', LayoutSwitch)
   },
 } satisfies Theme

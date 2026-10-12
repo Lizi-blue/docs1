@@ -55,7 +55,13 @@ function main() {
   const htmlFiles = listFiles(dist, '.html')
   const cssFiles = listFiles(path.join(dist, 'assets'), '.css')
   const css = cssFiles.map((file) => fs.readFileSync(file, 'utf8')).join('\n')
-  const sourceCss = fs.readFileSync(path.join(REPO_ROOT, 'docs', '.vitepress', 'theme', 'styles', 'custom.css'), 'utf8')
+  // 样式分档后按目录读取（custom.css 入口 + classic.css + taste.css）。
+  const stylesDir = path.join(REPO_ROOT, 'docs', '.vitepress', 'theme', 'styles')
+  const sourceCss = fs
+    .readdirSync(stylesDir)
+    .filter((name) => name.endsWith('.css'))
+    .map((name) => fs.readFileSync(path.join(stylesDir, name), 'utf8'))
+    .join('\n')
 
   // 1 视口声明
   const missingViewport = htmlFiles.filter((file) => {
@@ -72,7 +78,7 @@ function main() {
   const missingBreakpoints = breakpoints.filter((bp) => !css.includes(`max-width: ${bp}`) && !css.includes(`max-width:${bp}`))
   record('R2', missingBreakpoints.length === 0,
     `断点：${breakpoints.length - missingBreakpoints.length}/${breakpoints.length} 档存在（缺 ${missingBreakpoints.join(' ') || '无'}）`,
-    '在 custom.css 补手机 / 平板 / 桌面三档 media query')
+    '在样式目录（custom.css / taste.css）补手机 / 平板 / 桌面三档 media query')
 
   // 3 图解高度受视口约束
   record('R3', /\.diagram-frame iframe[^}]*min\(var\(--diagram-height/.test(css.replace(/\n/g, ' ')),

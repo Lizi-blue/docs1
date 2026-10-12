@@ -113,6 +113,16 @@ for (const domain of tree.domains) {
   }
 }
 
+// 布局档位：taste（优化后，默认）或 classic（改造前）。运行期可切换，见 006 契约。
+const LAYOUTS = ['taste', 'classic']
+function resolveLayout(): string {
+  const raw = process.env.DOCS1_LAYOUT ?? 'taste'
+  if (!LAYOUTS.includes(raw)) {
+    throw new Error(`DOCS1_LAYOUT 只允许 ${LAYOUTS.join(' 或 ')}，当前：${raw}`)
+  }
+  return raw
+}
+
 // 基础路径由构建期环境变量注入：内网默认根路径，GitHub Pages 用仓库子路径。
 // 见 specs/005-github-pages-deploy/contracts/base-path-contract.md §1。
 function resolveBase(): string {
@@ -122,6 +132,8 @@ function resolveBase(): string {
   }
   return raw
 }
+
+const layout = resolveLayout()
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -135,11 +147,23 @@ export default defineConfig({
   ignoreDeadLinks: true,
   srcExclude: ['**/README.md'],
   lastUpdated: false,
-  head: [['meta', { name: 'theme-color', content: '#3b6ef6' }]],
+  head: [
+    ['meta', { name: 'theme-color', content: '#3b6ef6' }],
+    [
+      'script',
+      {},
+      // 首屏前定档：运行期选择优先于构建期默认，localStorage 不可用时回退默认档。
+      `(function(){try{var k='docs1-layout';var v=localStorage.getItem(k);var d='${layout}';var m=(v==='classic'||v==='taste')?v:d;var e=document.documentElement;e.classList.remove('layout-taste','layout-classic');e.classList.add('layout-'+m);}catch(err){document.documentElement.classList.add('layout-${layout}');}})();`,
+    ],
+  ],
   markdown: {
     config: (md) => {
       md.use(cmpSplit)
     },
+  },
+  transformHtml(code) {
+    // 服务端渲染时先带上默认档类名，避免首屏闪烁。
+    return code.replace('<html', `<html class="layout-${layout}"`)
   },
   vite: {
     plugins: [docEngine(docsRoot)],

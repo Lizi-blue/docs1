@@ -20,7 +20,8 @@
     "check:nav": "node --experimental-strip-types --no-warnings scripts/check-nav.mjs",
     "check:component": "node scripts/check-component.mjs",
     "check:experience": "node scripts/check-experience.mjs",
-    "check:pages": "node scripts/check-pages-artifact.mjs"
+    "check:pages": "node scripts/check-pages-artifact.mjs",
+    "check:layout": "node scripts/check-layout.mjs"
   },
   "devDependencies": {
     "gray-matter": "^4.0.3",
