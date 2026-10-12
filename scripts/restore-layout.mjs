@@ -10,6 +10,7 @@
  * 只恢复「样式与布局」文件；内容、URL、引擎与门禁不在范围内（FR-005）。
  */
 import { execFileSync } from 'node:child_process'
+import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -40,6 +41,7 @@ function parseArgs(argv) {
   return {
     list: argv.includes('--list'),
     dryRun: argv.includes('--dry-run'),
+    prune: argv.includes('--prune'),
     tag: tagIndex >= 0 ? argv[tagIndex + 1] : DEFAULT_TAG,
   }
 }
@@ -54,8 +56,15 @@ function resolveBaseline(rev) {
   return commit
 }
 
+/** 基线中不存在、但当前工作区有的布局文件（精确回滚时删除）。 */
+function addedFiles(tag) {
+  const tracked = git(['ls-files', '--', ...LAYOUT_PATHS]) ?? ''
+  const inBaseline = new Set((git(['ls-tree', '-r', '--name-only', tag, '--', ...LAYOUT_PATHS]) ?? '').split('\n').filter(Boolean))
+  return tracked.split('\n').filter(Boolean).filter((file) => !inBaseline.has(file))
+}
+
 function main() {
-  const { list, dryRun, tag } = parseArgs(process.argv.slice(2))
+  const { list, dryRun, prune, tag } = parseArgs(process.argv.slice(2))
 
   if (list) {
     console.log(`[restore-layout] 基线标签：${tag}`)
@@ -73,12 +82,23 @@ function main() {
   for (const file of files.slice(0, 30)) console.log(`  M ${file}`)
   if (files.length > 30) console.log(`  … 其余 ${files.length - 30} 个`)
 
+  const added = addedFiles(tag)
+  if (added.length) {
+    console.log(`[restore-layout] 基线中不存在的新增布局文件：${added.length} 个${prune ? '（将删除）' : '（保留；加 --prune 可删除）'}`)
+    for (const file of added.slice(0, 20)) console.log(`  ${prune ? 'D' : '?'} ${file}`)
+  }
+
   if (dryRun) {
     console.log('[restore-layout] 预演结束：未修改任何文件。去掉 --dry-run 即可实做。')
     return
   }
 
   git(['checkout', tag, '--', ...LAYOUT_PATHS])
+  if (prune) {
+    for (const file of added) {
+      if (fs.existsSync(path.join(REPO_ROOT, file))) fs.rmSync(path.join(REPO_ROOT, file), { force: true })
+    }
+  }
   console.log('[restore-layout] 已恢复。接着跑：npm run check:content && npm run check:experience && npm run build')
 }
 

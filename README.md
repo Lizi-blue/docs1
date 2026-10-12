@@ -110,6 +110,7 @@ npm run check:content && npm run check:experience && npm run build
 
 只恢复布局面文件（站点配置、主题布局、样式、组件、取数）。内容、URL 与引擎不在范围内。
 也可指定其它基线：`node scripts/restore-layout.mjs --tag <标签或提交>`。
+加 `--prune` 会同时删除基线中不存在的新增布局文件，做精确回滚。
 改造规则与验收见 `specs/006-layout-taste/`。
 
 ## 发布

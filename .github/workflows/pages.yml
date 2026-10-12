@@ -81,19 +81,22 @@ jobs:
       - name: 门禁八：体验断言（X1–X7）
         run: npm run check:experience
 
+      - name: 门禁九：布局档位与冻结（L1–L6）
+        run: npm run check:layout
+
       - name: 构建站点（公网基础路径）
         run: npm run build
 
-      - name: 门禁九：响应式布局
+      - name: 门禁十：响应式布局
         run: npm run check:responsive
 
-      - name: 门禁十：导航层级（N1–N6）
+      - name: 门禁十一：导航层级（N1–N6）
         run: npm run check:nav
 
       - name: 生成公网产物附加件（.nojekyll 与深链兜底页）
         run: node scripts/pages-extra.mjs --dist docs/.vitepress/dist --base /docs1/
 
-      - name: 门禁十一：产物门禁（发布前最后一道闸门）
+      - name: 门禁十二：产物门禁（发布前最后一道闸门）
         run: npm run check:pages
 
       - name: 提示：Pages 未开启时的可操作修法
