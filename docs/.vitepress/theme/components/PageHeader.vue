@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 import ProgressBar from './ProgressBar.vue'
 import Prerequisite from './Prerequisite.vue'
 import InstallBox from './InstallBox.vue'
@@ -54,7 +54,7 @@ const dependencyGroups = computed(() => {
         <div class="dep-title">依赖汇聚（后端与前端如何汇入本组件）</div>
         <div v-for="(items, group) in dependencyGroups" :key="group" class="dep-group">
           <span class="dep-domain">{{ group }}</span>
-          <a v-for="item in items" :key="item.url" class="dep-chip" :href="item.url">{{ item.title }}</a>
+          <a v-for="item in items" :key="item.url" class="dep-chip" :href="withBase(item.url)">{{ item.title }}</a>
         </div>
       </div>
     </template>

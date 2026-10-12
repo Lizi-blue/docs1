@@ -6,7 +6,7 @@
  *   kind="components" 组件查询入口：组件卡片 + 标签索引
  */
 import { computed, ref } from 'vue'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 import TagIndex from './TagIndex.vue'
 import { domainOf, knowledgeDomainOf } from '../lib/tree'
 
@@ -104,7 +104,7 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
     <!-- 领域首页：两个入口 -->
     <template v-if="props.kind === 'domain'">
       <div class="entry-cards">
-        <a v-if="domain.entry.learn" class="entry-card" :href="domain.entry.learn">
+        <a v-if="domain.entry.learn" class="entry-card" :href="withBase(domain.entry.learn)">
           <div class="entry-card-icon">📚</div>
           <div class="entry-card-title">渐进式学习</div>
           <div class="entry-card-desc">按学习路径逐讲推进：原理 → API 手册 → 组合用法 → 完整 Demo</div>
@@ -112,7 +112,7 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
             {{ stats.kds }} 个知识域 · 已开写 {{ stats.pages }} 讲<template v-if="stats.outlines"> · 待补 {{ stats.outlines }} 域</template>
           </div>
         </a>
-        <a v-if="domain.entry.components" class="entry-card" :href="domain.entry.components">
+        <a v-if="domain.entry.components" class="entry-card" :href="withBase(domain.entry.components)">
           <div class="entry-card-icon">🧩</div>
           <div class="entry-card-title">组件查询</div>
           <div class="entry-card-desc">按组件查复用：由哪些知识点组合、完整源码、其他项目如何引入</div>
@@ -127,7 +127,7 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
         <section v-for="kd in domain.learn" :key="kd.slug" class="kd-card">
           <header class="kd-header">
             <span class="kd-icon">{{ kd.icon }}</span>
-            <a v-if="!isOutline(kd)" class="kd-name" :href="kd.url">{{ kdIndex(kd) }}. {{ kd.name }}</a>
+            <a v-if="!isOutline(kd)" class="kd-name" :href="withBase(kd.url)">{{ kdIndex(kd) }}. {{ kd.name }}</a>
             <span v-else class="kd-name kd-name-outline">{{ kdIndex(kd) }}. {{ kd.name }}</span>
             <span v-if="isOutline(kd)" class="badge badge-outline">待补</span>
             <span class="kd-count">{{ isOutline(kd) ? '未开写' : `${lessonTotal(kd)} 讲` }}</span>
@@ -143,14 +143,14 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
             <li v-for="(item, index) in kd.pages" :key="item.url" class="kd-page-item">
               <div class="kd-page-line">
                 <span class="kd-index">{{ kdIndex(kd) }}.{{ index + 1 }}</span>
-                <a :href="item.url">{{ item.title }}</a>
+                <a :href="withBase(item.url)">{{ item.title }}</a>
                 <span v-if="item.level" class="badge badge-level">{{ levelText[item.level] ?? item.level }}</span>
                 <span v-if="item.description" class="kd-page-desc">{{ item.description }}</span>
               </div>
               <ol v-if="groupsOf(item).length" class="kd-groups">
                 <li v-for="(group, groupIndex) in groupsOf(item)" :key="group.slug">
                   <span class="kd-index">{{ kdIndex(kd) }}.{{ index + 1 }}.{{ groupIndex + 1 }}</span>
-                  <a :href="`${item.url}#${group.slug}`">{{ group.text }}</a>
+                  <a :href="withBase(`${item.url}#${group.slug}`)">{{ group.text }}</a>
                 </li>
               </ol>
             </li>
@@ -160,16 +160,16 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
             <ol class="kd-pages kd-pages-sub">
               <li v-for="(item, index) in sub.pages" :key="item.url">
                 <span class="kd-index">{{ kdIndex(kd) }}.{{ subIndex + 1 }}.{{ index + 1 }}</span>
-                <a :href="item.url">{{ item.title }}</a>
+                <a :href="withBase(item.url)">{{ item.title }}</a>
                 <span v-if="item.description" class="kd-page-desc">{{ item.description }}</span>
               </li>
             </ol>
           </div>
           <div v-if="isOutline(kd) && domain.entry.learn" class="kd-start">
-            已登记方向，内容待补：<a :href="domain.entry.learn">返回学习入口</a>
+            已登记方向，内容待补：<a :href="withBase(domain.entry.learn)">返回学习入口</a>
           </div>
           <div v-if="!isOutline(kd) && kd.pages.length" class="kd-start">
-            推荐起点：<a :href="kd.pages[0].url">{{ kd.pages[0].title }}</a>
+            推荐起点：<a :href="withBase(kd.pages[0].url)">{{ kd.pages[0].title }}</a>
           </div>
         </section>
       </div>
@@ -204,7 +204,7 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
       <div v-for="group in directionGroups" :key="group.key" class="cmp-group">
         <h3 class="cmp-group-title">{{ group.label }}<span class="cmp-group-count">{{ group.items.length }}</span></h3>
         <div class="cmp-list">
-          <a v-for="item in group.items" :key="item.url" class="cmp-card" :href="item.url">
+          <a v-for="item in group.items" :key="item.url" class="cmp-card" :href="withBase(item.url)">
             <div class="cmp-card-head">
               <span class="cmp-card-title">{{ item.title }}</span>
               <span class="badge badge-type">{{ typeText[item.componentType ?? ''] ?? item.componentType ?? '组件' }}</span>

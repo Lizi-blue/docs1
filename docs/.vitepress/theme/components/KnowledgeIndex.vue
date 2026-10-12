@@ -4,7 +4,7 @@
  * 目标知识域若为 outline，渲染「待补」标签而不是普通链接。
  */
 import { computed } from 'vue'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 import { knowledgeDomainOf, resolvePage, titleOf } from '../lib/tree'
 
 interface Entry { page: string; role: string }
@@ -49,7 +49,7 @@ function label(link: string): string {
               <span class="ki-label">{{ label(entry.page) }}</span>
               <span class="badge badge-outline">待补</span>
             </template>
-            <a v-else :href="entry.page">{{ label(entry.page) }}</a>
+            <a v-else :href="withBase(entry.page)">{{ label(entry.page) }}</a>
           </td>
           <td class="ki-domain">{{ kdNameOfLink(entry.page) || domainOfLink(entry.page) }}</td>
           <td>{{ entry.role }}</td>

@@ -5,7 +5,7 @@
  *   · 组件页   -> 依赖了哪些知识点 + 关联组件
  */
 import { computed } from 'vue'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 import { backlinksOf, resolvePage } from '../lib/tree'
 
 const { frontmatter: fm } = useData()
@@ -42,7 +42,7 @@ const groups = computed(() => {
       <div class="related-group-title">{{ group.title }}</div>
       <ul v-if="group.items.length" class="related-list">
         <li v-for="item in group.items" :key="item.url">
-          <a :href="item.url">{{ item.ok ? item.title : `${item.title}（未命中）` }}</a>
+          <a :href="withBase(item.url)">{{ item.ok ? item.title : `${item.title}（未命中）` }}</a>
         </li>
       </ul>
       <div v-else class="related-empty">暂无</div>
