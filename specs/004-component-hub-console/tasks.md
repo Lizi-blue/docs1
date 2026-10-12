@@ -117,7 +117,7 @@ FR-007 独立可运行）。测试集中在「平台契约」（`tests/test_reus
 - [x] T041 [P] 在 `AGENTS.md` §2 更新命令清单为十一条并标注适用时机（含需先构建的两条）（覆盖 SC-008）
 - [x] T042 跑全量门禁并修复残留（`package.json` 中十一条命令），结论写入 `specs/004-component-hub-console/checklists/local-baseline.md`：`check:content`、`check:zh`、`check:component`、`check:experience`、`check:orchestration`、`test:component`、`selftest:gates`、`check:extensibility`、`build`、`check:responsive`、`check:nav`（覆盖 SC-008）
 - [x] T043 [P] 记录 quickstart S0–S8 全量证据到 `specs/004-component-hub-console/checklists/local-baseline.md`（含命令与真实输出）（覆盖 SC-008）
-- [ ] T044 部署验收：推送后确认 CI Run 全绿，`https://docs1.minilab.uzibird.cn/backend/components/task-console` 与 `/frontend/components/task-console` 均 200，且经域名提交 `cp` 任务能看到实时输出（覆盖 SC-008）
+- [x] T044 部署验收：推送后确认 CI Run 全绿，`https://docs1.minilab.uzibird.cn/backend/components/task-console` 与 `/frontend/components/task-console` 均 200，且经域名提交 `cp` 任务能看到实时输出（覆盖 SC-008）
 - [x] T045 [P] 按 Governance 移除 `.specify/memory/constitution.md` 头部的 Sync Impact Report，并确认版本行日期（覆盖 Governance）
 - [x] T046 [P] 文档一致性回归：核对 `AGENTS.md`、`README.md`、`specs/001` 契约、`specs/004` 契约与技能五处口径一致（命令清单、组件四件套、方向规则、令牌规则）（覆盖 SC-008）
 

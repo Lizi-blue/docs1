@@ -82,4 +82,11 @@ POST /api/tasks {"command":"cp","args":["-v","/etc/hostname","h.copy"]}
 
 ## S8 门禁与上线（SC-008）
 
-见下方「部署验收」小节。
+| 项 | 值 |
+|---|---|
+| CI Run | **#4568** 全绿（build + deploy），镜像 tag `5b5ef2e` |
+| 线上页面 | `/backend/components/task-console` 200 · `/frontend/components/task-console` 200 · 两个组件索引页 200 |
+| 方向纯净（线上） | 后端页 `EventSource` 命中 **0**；前端页 `killpg`/`SIGTERM` 命中 **0**；后端页含「对应另一端」互链 |
+| 知识索引（线上） | 两页各渲染知识索引表；组件索引出现方向分组与「依赖 N 个知识域」 |
+| 服务链路（线上） | `/health` 200；经域名提交 `cp` 任务 → `succeeded`、退出码 0、输出 31 字节 |
+| 人工待办 | S6 键盘流程与 S7 三档视口/深色/朗读顺序（沙箱无浏览器，需人工执行） |
