@@ -32,6 +32,8 @@ const stats = computed(() => {
 })
 
 const isOutline = (kd: any) => kd.teach?.status === 'outline'
+/** 页内 H3 分组：让「某个包怎么用」在学习入口就有层级 */
+const groupsOf = (page: any) => (page.outline ?? []).filter((item: any) => item.level === 3)
 const lessonTotal = (kd: any) =>
   kd.pages.length + (kd.subtopics ?? []).reduce((sum: number, sub: any) => sum + sub.pages.length, 0)
 
@@ -85,11 +87,19 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
           </div>
           <p v-if="isOutline(kd)" class="kd-outline">方向已登记，内容待补。学完能做什么：{{ (kd.teach?.outcomes ?? []).join('；') }}</p>
           <ol v-else class="kd-pages">
-            <li v-for="(item, index) in kd.pages" :key="item.url">
-              <span class="kd-index">{{ kdIndex(kd) }}.{{ index + 1 }}</span>
-              <a :href="item.url">{{ item.title }}</a>
-              <span v-if="item.level" class="badge badge-level">{{ levelText[item.level] ?? item.level }}</span>
-              <span v-if="item.description" class="kd-page-desc">{{ item.description }}</span>
+            <li v-for="(item, index) in kd.pages" :key="item.url" class="kd-page-item">
+              <div class="kd-page-line">
+                <span class="kd-index">{{ kdIndex(kd) }}.{{ index + 1 }}</span>
+                <a :href="item.url">{{ item.title }}</a>
+                <span v-if="item.level" class="badge badge-level">{{ levelText[item.level] ?? item.level }}</span>
+                <span v-if="item.description" class="kd-page-desc">{{ item.description }}</span>
+              </div>
+              <ol v-if="groupsOf(item).length" class="kd-groups">
+                <li v-for="(group, groupIndex) in groupsOf(item)" :key="group.slug">
+                  <span class="kd-index">{{ kdIndex(kd) }}.{{ index + 1 }}.{{ groupIndex + 1 }}</span>
+                  <a :href="`${item.url}#${group.slug}`">{{ group.text }}</a>
+                </li>
+              </ol>
             </li>
           </ol>
           <div v-for="(sub, subIndex) in kd.subtopics ?? []" :key="sub.slug" class="kd-sub">

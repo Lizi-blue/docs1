@@ -64,7 +64,11 @@ related_components: []
 
 ## API 手册：fixture
 
-<ApiTable :items='[{"name": "fixture.call", "rank": "必会", "params": [{"name": "a", "type": "int", "default": "1", "desc": "夹具"}], "returns": "无", "effect": "夹具", "scenario": "夹具", "example": "fixture.call(1)"}]' />
+### 基础调用
+<ApiTable :items='[{"name": "fixture.call", "rank": "必会", "params": [{"name": "a", "type": "int", "default": "1", "desc": "夹具"}], "returns": "无", "effect": "夹具", "scenario": "夹具", "example": "fixture.call(1)", "pitfall": "夹具误区"}]' />
+
+### 扩展调用
+<ApiTable :items='[{"name": "fixture.extend", "rank": "常用", "params": [], "returns": "无", "effect": "夹具扩展", "scenario": "夹具", "example": "fixture.extend()", "pitfall": "夹具误区"}]' />
 
 ## 组合用法：夹具功能
 
@@ -218,6 +222,7 @@ teach:
   if (options.breakPayload) page = page.replace('"name": "fixture.call"', '"name": fixture.call')
   if (options.breakDiagram) page = page.replace('/diagrams/fixture.html', '/diagrams/not-exist.html')
   if (options.breakOfficialSources) page = page.replace('### 官方依据与版本差异', '### 参考资料')
+  if (options.breakApiGroups) page = page.replace('### 扩展调用', '')
   write(root, 'zz/learn/01-kd/01-page.md', page)
 
   let component = COMPONENT
@@ -262,6 +267,7 @@ const CASES = [
   { id: 'G7', label: 'V15：知识域缺 teach 块', options: { breakTeach: true }, expectCode: 'V15' },
   { id: 'G8', label: 'V16：缺教学要素', options: { breakElement: true }, expectCode: 'V16' },
   { id: 'G9', label: 'V19：缺官方依据与版本差异', options: { breakOfficialSources: true }, expectCode: 'V19' },
+  { id: 'G10', label: 'V23：API 手册只有一个方法组', options: { breakApiGroups: true }, expectCode: 'V23' },
 ]
 
 function main() {

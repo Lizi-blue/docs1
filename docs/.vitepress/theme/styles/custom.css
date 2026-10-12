@@ -149,6 +149,14 @@
 .cmp-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .cmp-card-meta { margin-top: 8px; font-size: 12px; color: var(--vp-c-text-3); }
 
+/* ---- 页内分组（1.1.1 级） ---- */
+.kd-page-item { display: block; }
+.kd-page-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.kd-groups { margin: 2px 0 6px 26px; padding-left: 12px; list-style: none; border-left: 2px solid var(--vp-c-divider); }
+.kd-groups li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 2px 0; font-size: 12px; }
+.kd-groups a { color: var(--vp-c-text-2); }
+.kd-groups a:hover { color: var(--vp-c-brand-1); }
+
 /* ---- 层级与待补 ---- */
 .badge-outline { color: var(--vp-c-warning-1, #b45309); border-color: var(--vp-c-warning-1, #b45309); }
 .kd-pages .kd-index { width: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; }

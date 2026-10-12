@@ -1,15 +1,13 @@
 <!--
 Sync Impact Report
-- 版本变化：1.2.0 → 1.3.0（MINOR：新增原则 X「导航层级与接口覆盖」）
-- 本次修订：新增原则 X。导航层级 MUST 与内容层级一致且可折叠；学习入口 MUST 呈现层级；
-  API 手册 MUST 覆盖 source_module 的公开接口要点并按重要性分档，必会与常用条目 MUST 给全字段；
-  跨线程与跨进程通信 MUST 单独成体系；未开写领域 MUST 只落目录结构与登记并标注待补。
-- 受影响产物：`specs/001-docs-engine/contracts/content-contract.md`（API 字段与层级）、
-  `scripts/data/module-api-index.json`（模块接口清单与分档，新增）、
-  `scripts/check-content.mjs`（V20/V22）、`scripts/check-nav.mjs`（N1–N4，新增）、
-  `docs/.vitepress/config.mts` 与 `EntryIndex.vue`（层级渲染）、
-  `.dsh/skills/docs-authoring/SKILL.md`、并发与通信各页
-- 历史：1.0.0 首版八原则；1.1.0 新增 VIII 并扩写 IV 与 V；1.2.0 新增 IX 官方依据基线
+- 版本变化：1.3.0 → 1.4.0（MINOR：实质扩写原则 X，新增三层导航与方法级条目要求）
+- 本次修订：导航层级由三层加到四层（领域 → 知识域 → 讲 → 页内分组 → 方法）。
+  知识点的 API 手册 MUST 按方法组用 H3 分层，核心方法 MUST 各自成条并写全七字段；
+  侧边栏 MUST 呈现「1.1.1」这一级。新增门禁 V23 与导航断言 N6。
+- 受影响产物：`scripts/check-content.mjs`（V23）、`docs/.vitepress/plugins/doc-engine.ts`
+  （页内大纲抽取）、`docs/.vitepress/config.mts`（侧边栏第三层）、全部知识点页（API 手册重构）、
+  `scripts/check-nav.mjs`（N6）、`.dsh/skills/docs-authoring/SKILL.md`
+- 历史：1.0.0 首版八原则；1.1.0 新增 VIII 并扩写 IV/V；1.2.0 新增 IX；1.3.0 新增 X
 -->
 
 # docs-1 Constitution
@@ -153,8 +151,13 @@ MUST 有统一判据，MUST NOT 只停留在各页经验里。
 
 导航层级 MUST 与内容层级一致，接口讲解 MUST 覆盖到方法级。压平层级与一句话描述 MUST 判为不合格。
 
-- 导航层级 MUST 至少四层：领域 → 知识域 → 讲 → 子主题。
-  MUST NOT 把子主题与讲压平到同一层。
+- 导航层级 MUST 至少四层：领域 → 知识域 → 讲 → 页内分组（`1.1.1` 级）。
+  MUST NOT 把子主题与讲压平到同一层，MUST NOT 把方法组压在讲里看不见。
+- 知识点页的 API 手册 MUST 按方法组用 H3 分层，MUST 至少两个方法组。
+  每个方法组 MUST 紧跟一张 `<ApiTable>`。
+- 核心方法 MUST 各自成条（一条一个方法或一个类），MUST NOT 只塞进 `methods` 数组一句话带过。
+  条目 MUST 写全七字段：签名、参数、返回、作用、场景、示例、误区。
+- 侧边栏与页内大纲 MUST 呈现到 `1.1.1` 这一级，链接 MUST 指向真实锚点。
 - 侧边栏 MUST 可折叠，MUST 默认展开当前路径所在分支。
 - 渐进式学习入口 MUST 呈现层级：知识域、路径分段、讲、子主题，并标出难度与顺序。
 - 每个知识点页的 API 手册 MUST 覆盖其 `source_module` 的公开接口要点。
@@ -224,4 +227,4 @@ MUST 有统一判据，MUST NOT 只停留在各页经验里。
 - 豁免：任何豁免 MUST 写在特性任务里，并给出恢复计划。豁免 MUST NOT 扩散，
   且 MUST NOT 用于跳过受控中文、内容契约与组件测试三类门禁。
 
-**Version**: 1.3.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-12
+**Version**: 1.4.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-12

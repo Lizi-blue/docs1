@@ -10,6 +10,7 @@
  *   N3 未开写知识域（teach.status: outline）在入口页标出「待补」
  *   N4 每个知识点页的侧边栏含所属知识域名与至少两条同域链接（作用域侧边栏生效）
  *   N5 领域首页的顶栏下拉含该域全部知识域（顶栏层级加深）
+ *   N6 有页内 H3 分组的知识点页：侧边栏出现 1.1.1 级锚点链接且锚点真实存在
  *
  * 用法：node --experimental-strip-types scripts/check-nav.mjs [--dist docs/.vitepress/dist] [--json]
  * 退出码：0 通过 / 1 有问题 / 2 脚本异常。前置：先跑 npm run build。
@@ -124,6 +125,28 @@ function main() {
       `${domain.slug} 顶栏层级：缺 ${missingNav.length} 个知识域`,
       `顶栏下拉必须含全部知识域：${missingNav.join('、')}`)
   }
+
+  const anchorMissing = []
+  let anchorChecked = 0
+  for (const domain of tree.domains) {
+    for (const kd of domain.learn) {
+      for (const page of allPages(kd)) {
+        const groups = (page.outline ?? []).filter((item) => item.level === 3)
+        if (groups.length === 0) continue
+        anchorChecked += 1
+        const html = readHtml(dist, page.url)
+        if (!html) continue
+        const linked = groups.filter((group) => html.includes(`${page.url}#${group.slug}`)).length
+        const anchored = groups.filter((group) => html.includes(`id="${group.slug}"`)).length
+        if (linked === 0 || anchored < groups.length) {
+          anchorMissing.push(`${page.url}（锚点链接 ${linked}，锚点存在 ${anchored}/${groups.length}）`)
+        }
+      }
+    }
+  }
+  record('N6', anchorMissing.length === 0,
+    `页内分组锚点：抽查 ${anchorChecked} 页，问题 ${anchorMissing.length} 页`,
+    `侧边栏必须链到 1.1.1 级锚点，且锚点真实存在：${anchorMissing.slice(0, 4).join('、')}`)
 
   if (args.includes('--json')) {
     console.log(JSON.stringify({ ok: errors.length === 0, checks, errors }, null, 2))

@@ -51,6 +51,12 @@ export interface DirMeta {
   teach?: TeachBlock
 }
 
+export interface OutlineItem {
+  level: number
+  text: string
+  slug: string
+}
+
 export interface PageNode {
   file: string
   url: string
@@ -58,6 +64,8 @@ export interface PageNode {
   order: number
   type: PageType
   title: string
+  /** 页内标题大纲：供侧边栏第三层（1.1.1）使用 */
+  outline: OutlineItem[]
   description?: string
   level?: string
   tags: string[]
@@ -173,6 +181,35 @@ interface FileEntry {
   slug: string
   front: Record<string, any>
   title: string
+  content: string
+}
+
+/** 与 VitePress 一致的锚点规则：非字母数字连续段压成 -，首尾去 - */
+export function headingSlug(text: string): string {
+  return String(text)
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+/** 抽取 H2/H3 标题大纲，跳过代码围栏；供侧边栏第三层（1.1.1）使用 */
+export function extractOutline(content: string): OutlineItem[] {
+  const items: OutlineItem[] = []
+  let inFence = false
+  for (const line of content.split('\n')) {
+    if (/^\s*```/.test(line)) {
+      inFence = !inFence
+      continue
+    }
+    if (inFence) continue
+    const matched = /^(#{2,3})\s+(.+?)\s*$/.exec(line)
+    if (!matched) continue
+    const text = matched[2].replace(/<[^>]+>/g, '').trim()
+    if (!text) continue
+    items.push({ level: matched[1].length, text, slug: headingSlug(text) })
+  }
+  return items
 }
 
 function readPage(file: string, docsRoot: string, warnings: string[]): FileEntry {
@@ -188,6 +225,7 @@ function readPage(file: string, docsRoot: string, warnings: string[]): FileEntry
     slug: base.slug === 'index' ? '' : base.slug,
     front: data,
     title: data.title || firstHeading || base.slug,
+    content: parsed.content,
   }
 }
 
@@ -223,6 +261,7 @@ function toPageNode(
     order: entry.order,
     type,
     title: entry.title,
+    outline: extractOutline(entry.content),
     description: front.description,
     level: front.level,
     tags: list(front.tags),

@@ -24,7 +24,17 @@ function kdItems(kd: KnowledgeDomainNode, kdIndex: number, fallbackLink?: string
   const items: any[] = []
   kd.pages.forEach((page, index) => {
     const suffix = page.level ? ` · ${levelBadge[page.level] ?? page.level}` : ''
-    items.push({ text: `${kdIndex}.${index + 1} ${page.title}${suffix}`, link: page.url })
+    // 第三层：页内 H3 分组（1.1.1 起），让「某个包怎么用」有独立层级
+    const groups = (page.outline ?? []).filter((item) => item.level === 3)
+    items.push({
+      text: `${kdIndex}.${index + 1} ${page.title}${suffix}`,
+      link: page.url,
+      collapsed: false,
+      items: groups.map((group, groupIndex) => ({
+        text: `${kdIndex}.${index + 1}.${groupIndex + 1} ${group.text}`,
+        link: `${page.url}#${group.slug}`,
+      })),
+    })
   })
   kd.subtopics.forEach((sub, subIndex) => {
     items.push({
@@ -138,7 +148,11 @@ export default defineConfig({
           ...(domain.entry.learn ? [{ text: '学习入口与路径', link: domain.entry.learn }] : []),
           ...domain.learn.map((kd, index) => ({
             text: `${kd.icon} ${index + 1}. ${kd.name}${kd.teach?.status === 'outline' ? '（待补）' : ''}`,
-            items: kdItems(kd, index + 1, domain.entry.learn).map((item: any) => (item.items ? { text: item.text, link: item.items[0]?.link ?? domain.entry.learn } : item)),
+            items: kdItems(kd, index + 1, domain.entry.learn)
+              .filter((item: any) => !item.items || item.items.length > 0)
+              .map((item: any) => (item.items
+                ? { text: item.text, link: item.items[0]?.link ?? domain.entry.learn }
+                : item)),
           })),
           ...(domain.entry.components ? [{ text: '组件查询', link: domain.entry.components }] : []),
         ],

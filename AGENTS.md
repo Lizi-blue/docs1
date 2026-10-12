@@ -23,14 +23,14 @@
 ## 2. 机械校验命令
 
 ```bash
-npm run check:content       # 内容契约 V1–V19
+npm run check:content       # 内容契约 V1–V23
 npm run check:zh            # 受控中文（封装：scripts/lint-zh.mjs）
 npm run check:orchestration # 编排自检 S1–S7（技能与台账）
 npm run test:component      # 组件自测（tests/，源码从组件页提取）
 npm run selftest:gates      # 门禁自测（定向破坏夹具，证明会红）
 npm run check:extensibility # 零配置扩展断言（新增领域不改配置）
 npm run check:responsive    # 响应式布局（需先构建）
-npm run check:nav           # 导航层级 N1–N5（需先构建）
+npm run check:nav           # 导航层级 N1–N6（需先构建）
 npm run build               # 站点构建
 ```
 
@@ -69,6 +69,9 @@ CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 - 常用方法不得一句话带过：要写阻塞语义、异常与误区。
 - 未开写知识域只落目录与登记，`teach.status: outline`，不建空页面（门禁 V22）。
 - 层级由引擎派生：作者只写元数据与正文，不手写侧边栏与入口清单。
+- `## API 手册` 必须按方法组拆成 ≥2 个 H3，每组紧跟一张 `<ApiTable>`（门禁 V23）。
+- 核心方法必须各自成条并写全七字段；不得只塞进 `methods` 数组一句话带过。
+- 导航层级到 `1.1.1`：侧边栏与学习入口都列出方法组，锚点由引擎按标题生成。
 
 ## 5. 响应式布局
 

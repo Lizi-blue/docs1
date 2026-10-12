@@ -29,6 +29,7 @@
  *   V19 知识点页有官方依据与版本差异（≥2 条官方链接，每条带版本标注）
  *   V20 模块接口覆盖（必会全覆盖、常用 ≥80%）与必会/常用条目字段完整
  *   V22 未开写知识域只落目录与登记（status: outline）且无正文
+ *   V23 知识点页 API 手册按方法组 H3 分层（≥2 组，每组紧跟一张 ApiTable）
  *   V15 知识域 teach 块字段齐全且类型正确
  *   V16 四教学要素标题存在，追问链条目 3–5 条
  *   V17 teach.lessons 与知识点页双向完整
@@ -514,13 +515,16 @@ const DETAIL_FIELDS = ['signature', 'returns', 'effect', 'scenario', 'example', 
 
 function readApiItems(docs, page) {
   const content = fs.readFileSync(path.join(docs, page.file), 'utf8')
-  const matched = /<ApiTable :items='([\s\S]*?)'\s*\/>/.exec(content)
-  if (!matched) return []
-  try {
-    return JSON.parse(decodeEntities(matched[1]))
-  } catch {
-    return []
+  const items = []
+  // 页面按方法组拆成多张表，覆盖统计必须读全部表
+  for (const matched of content.matchAll(/<ApiTable :items='([\s\S]*?)'\s*\/>/g)) {
+    try {
+      items.push(...JSON.parse(decodeEntities(matched[1])))
+    } catch {
+      // 解析失败由 V13 报错，这里跳过
+    }
   }
+  return items
 }
 
 function candidateNames(item) {
@@ -611,6 +615,27 @@ function checkOutlineKnowledgeDomains(metas, tree) {
   }
 }
 
+
+function checkApiGroups(docs, pages) {
+  for (const page of pages) {
+    if (page.type !== 'knowledge') continue
+    const file = rel(page.file)
+    const content = fs.readFileSync(path.join(docs, page.file), 'utf8')
+    const matched = /^##\s*API 手册[^\n]*\n([\s\S]*?)(?=^##\s|\Z)/m.exec(content)
+    if (!matched) continue
+    const body = matched[1]
+    const groups = [...body.matchAll(/^###\s+(.+?)\s*$/gm)].map((item) => item[1])
+    const tables = [...body.matchAll(/<ApiTable :items='/g)].length
+    if (groups.length < 2) {
+      fail('V23', file, 1, `API 手册只有 ${groups.length} 个方法组`, '按方法组拆成 ≥2 个 H3，每组紧跟一张 ApiTable')
+      continue
+    }
+    if (tables < groups.length) {
+      fail('V23', file, 1, `方法组 ${groups.length} 个但 ApiTable 只有 ${tables} 张`, '每个方法组紧跟一张 ApiTable')
+    }
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const rootIndex = args.indexOf('--root')
@@ -635,6 +660,7 @@ function main() {
   checkPayloads(pages)
   checkModuleCoverage(docs, tree.pages)
   checkOutlineKnowledgeDomains(metas, tree)
+  checkApiGroups(docs, tree.pages)
 
   if (asJson) {
     console.log(JSON.stringify({
