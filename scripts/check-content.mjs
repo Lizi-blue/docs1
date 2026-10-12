@@ -60,10 +60,12 @@ const TYPE_FIELDS = {
   component: [
     'domain', 'order', 'component_type', 'install_command', 'depends_on_knowledge',
     'depends_on_components', 'related_components', 'tags_index', 'reusability',
+    'direction', 'knowledge_index', 'reuse_manifest', 'cross_link',
   ],
   'cross-component': [
     'domain', 'order', 'depends_on', 'depends_on_components', 'install_command',
     'tags_index', 'reusability',
+    'direction', 'knowledge_index', 'reuse_manifest', 'cross_link',
   ],
   landing: ['domain', 'entry'],
 }

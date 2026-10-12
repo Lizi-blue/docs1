@@ -428,43 +428,45 @@ ${head}
 `
 }
 
-function componentPage({ title, domain, order, slug }) {
-  return `---
-title: "${title}"
-type: component
-domain: ${domain}
-component_type: library
-order: ${order}
-install_command: "pip install 待填"
-depends_on_knowledge: []
-depends_on_components: []
-related_components: []
-tags_index: [todo-tag]
-reusability: high
-description: "待填：一句话说明这个组件解决什么问题"
----
+function renderComponentTemplate({ title, domain, order, slug, kind, cross }) {
+  const templateUrl = path.join(REPO_ROOT, 'templates', 'component', 'page.md.tmpl')
+  const template = fs.readFileSync(templateUrl, 'utf8')
+  const direction = kind === 'cross-component' ? 'fullstack' : domain === 'frontend' ? 'frontend' : 'backend'
+  const directionLabel = direction === 'frontend' ? '前端实现' : direction === 'backend' ? '后端实现' : '跨端'
+  const knowledgeByDirection = {
+    backend: ['/backend/learn/concurrency/executor-pools', '/backend/learn/concurrency/subprocess-signals', '/backend/learn/concurrency/sync-primitives'],
+    frontend: ['/frontend/learn/engineering/vite-dev-and-build', '/frontend/learn/engineering/npm-and-modules', '/frontend/learn/engineering/project-structure'],
+    fullstack: ['/backend/learn/communication/socket-and-streams', '/frontend/learn/engineering/vite-dev-and-build', '/backend/learn/concurrency/async-advanced'],
+  }
+  const links = knowledgeByDirection[direction]
+  const replacement = {
+    '{{title}}': title,
+    '{{kind}}': kind,
+    '{{domain}}': domain,
+    '{{direction}}': direction,
+    '{{direction_label}}': directionLabel,
+    '{{order}}': String(order),
+    '{{slug}}': slug,
+    '{{install_command}}': direction === 'frontend' ? 'npm install vue' : '无需安装（复制源码）',
+    '{{knowledge_link_1}}': links[0],
+    '{{knowledge_link_2}}': links[1],
+    '{{knowledge_link_3}}': links[2],
+    '{{role_1}}': '待填：该知识点在本组件中承担什么（10–80 字）',
+    '{{role_2}}': '待填：该知识点在本组件中承担什么（10–80 字）',
+    '{{role_3}}': '待填：该知识点在本组件中承担什么（10–80 字）',
+  }
+  let rendered = template
+  for (const [key, value] of Object.entries(replacement)) rendered = rendered.split(key).join(value)
+  return rendered
+}
 
-${componentBody({ title, slug })}
-`
+function componentPage({ title, domain, order, slug }) {
+  return renderComponentTemplate({ title, domain, order, slug, kind: 'component' })
 }
 
 function crossComponentPage({ title, order, domainKey, slug }) {
-  return `---
-title: "${title}"
-type: cross-component
-domain: cross-domain
-order: ${order}
-depends_on:
-  ${domainKey}: []
-depends_on_components: []
-install_command: "pip install 待填"
-tags_index: [todo-tag]
-reusability: high
-description: "待填：一句话说明这个跨领域组件解决什么问题"
----
-
-${componentBody({ title, slug, cross: true })}
-`
+  const page = renderComponentTemplate({ title, domain: 'cross-domain', order, slug, kind: 'cross-component' })
+  return page.replace('depends_on_components: []', `depends_on:\n  ${domainKey}: []\ndepends_on_components: []`)
 }
 
 /* ---------------------------------------------------- teach.lessons 追加 */

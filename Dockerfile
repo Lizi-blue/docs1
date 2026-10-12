@@ -37,6 +37,10 @@ RUN npm run build \
 RUN npm run check:responsive
 # 门禁七：导航层级（入口层级、子主题、待补标注、作用域侧边栏、顶栏层级）。
 RUN npm run check:nav
+# 门禁八：组件页契约（方向纯净、知识索引、复用清单、样式作用域、互链）。
+RUN npm run check:component
+# 门禁九：体验断言（令牌、深色覆盖、状态类、焦点环、对比度、响应式）。
+RUN npm run check:experience
 
 FROM caddy:2-alpine
 

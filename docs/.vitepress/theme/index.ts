@@ -11,6 +11,8 @@ import EntryIndex from './components/EntryIndex.vue'
 import TagIndex from './components/TagIndex.vue'
 import RelatedLinks from './components/RelatedLinks.vue'
 import TaskConsole from './components/TaskConsole.vue'
+import KnowledgeIndex from './components/KnowledgeIndex.vue'
+import './styles/tokens.css'
 import './styles/custom.css'
 
 export default {
@@ -27,5 +29,6 @@ export default {
     app.component('TagIndex', TagIndex)
     app.component('RelatedLinks', RelatedLinks)
     app.component('TaskConsole', TaskConsole)
+    app.component('KnowledgeIndex', KnowledgeIndex)
   },
 } satisfies Theme

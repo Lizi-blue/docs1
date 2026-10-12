@@ -104,7 +104,10 @@
         "domain",
         "component_type",
         "install_command",
-        "tags_index"
+        "tags_index",
+        "direction",
+        "knowledge_index",
+        "reuse_manifest"
       ],
       "properties": {
         "title": {
@@ -161,6 +164,45 @@
         },
         "description": {
           "$ref": "#/$defs/description"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "backend",
+            "frontend",
+            "fullstack"
+          ]
+        },
+        "knowledge_index": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "page",
+              "role"
+            ],
+            "properties": {
+              "page": {
+                "type": "string",
+                "pattern": "^/"
+              },
+              "role": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 80
+              }
+            }
+          }
+        },
+        "reuse_manifest": {
+          "type": "string",
+          "pattern": "^reuse/"
+        },
+        "cross_link": {
+          "type": "string",
+          "pattern": "^/"
         }
       }
     },
@@ -174,7 +216,10 @@
         "domain",
         "depends_on",
         "install_command",
-        "tags_index"
+        "tags_index",
+        "direction",
+        "knowledge_index",
+        "reuse_manifest"
       ],
       "properties": {
         "title": {
@@ -223,6 +268,40 @@
         },
         "description": {
           "$ref": "#/$defs/description"
+        },
+        "direction": {
+          "const": "fullstack"
+        },
+        "knowledge_index": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "page",
+              "role"
+            ],
+            "properties": {
+              "page": {
+                "type": "string",
+                "pattern": "^/"
+              },
+              "role": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 80
+              }
+            }
+          }
+        },
+        "reuse_manifest": {
+          "type": "string",
+          "pattern": "^reuse/"
+        },
+        "cross_link": {
+          "type": "string",
+          "pattern": "^/"
         }
       }
     },

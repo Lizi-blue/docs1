@@ -76,6 +76,8 @@ node scripts/new-content.mjs entry learn --domain backend
 ```bash
 npm run check:content       # 内容契约 V1–V22
 npm run check:zh            # 受控中文
+npm run check:component     # 组件页契约（方向纯净、知识索引、复用清单、样式作用域）
+npm run check:experience    # 体验断言（令牌、状态、焦点、对比度、响应式）
 npm run selftest:gates      # 门禁自测（定向破坏夹具）
 npm run test:component      # 组件与服务自测
 npm run check:extensibility # 零配置扩展断言
@@ -84,7 +86,7 @@ npm run check:responsive    # 响应式（构建后）
 npm run check:nav           # 导航层级 N1–N5（构建后）
 ```
 
-九条命令退出码都为 0 才算通过。CI 在镜像构建阶段全跑。
+十一条命令退出码都为 0 才算通过。CI 在镜像构建阶段全跑。
 
 ## 4. 交付与验收
 

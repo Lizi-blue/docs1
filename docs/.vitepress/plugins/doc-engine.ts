@@ -80,6 +80,14 @@ export interface PageNode {
   prerequisites: string[]
   relatedKnowledge: string[]
   relatedComponents: string[]
+  /** 组件方向：backend / frontend / fullstack（见 004 组件契约） */
+  direction?: string
+  /** 组件依赖的知识索引：页面 + 在本组件中的作用 */
+  knowledgeIndex?: { page: string; role: string }[]
+  /** 复用清单相对路径 */
+  reuseManifest?: string
+  /** 同一功能另一端组件页 */
+  crossLink?: string
   sourceModule?: string
   apiMethods: string[]
   componentType?: string
@@ -276,6 +284,12 @@ function toPageNode(
     prerequisites: list(front.prerequisites),
     relatedKnowledge: list(front.related_knowledge),
     relatedComponents: list(front.related_components),
+    direction: front.direction,
+    knowledgeIndex: Array.isArray(front.knowledge_index)
+      ? front.knowledge_index.map((item: any) => ({ page: String(item?.page ?? ''), role: String(item?.role ?? '') }))
+      : undefined,
+    reuseManifest: front.reuse_manifest,
+    crossLink: front.cross_link,
     sourceModule: front.source_module,
     apiMethods: list(front.api_methods),
     componentType: front.component_type,

@@ -82,3 +82,9 @@ S7 判错并提示「先建立 `scripts/ste-lint-zh.baseline`」。
 | V20 | 模块接口覆盖（must 全覆盖、common ≥80%）与必会/常用条目七字段含 `pitfall` | 宪法 X |
 | V22 | 未开写知识域只落目录与登记（`teach.status: outline`） | 宪法 X |
 | N1–N5 | 导航层级：入口层级、子主题、待补标注、作用域侧边栏、顶栏层级（`scripts/check-nav.mjs`） | 宪法 X |
+
+## 5. 组件页规则（004）指针
+
+组件页的方向归属、必需章节、知识索引、复用清单与样式作用域，
+以 `specs/004-component-hub-console/contracts/component-page-contract.md` 与
+`scripts/check-component.mjs` 为准；本节只写指针，不复制取值。

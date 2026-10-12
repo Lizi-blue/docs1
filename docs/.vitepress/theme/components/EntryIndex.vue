@@ -5,7 +5,7 @@
  *   kind="learn"      渐进式学习入口：知识域列表 + 学习路径 + 有序知识点
  *   kind="components" 组件查询入口：组件卡片 + 标签索引
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useData } from 'vitepress'
 import TagIndex from './TagIndex.vue'
 import { domainOf, knowledgeDomainOf } from '../lib/tree'
@@ -32,6 +32,59 @@ const stats = computed(() => {
 })
 
 const isOutline = (kd: any) => kd.teach?.status === 'outline'
+
+/** 组件方向筛选与知识域筛选（宪法 XI：组件按方向归属） */
+const directionLabels: Record<string, string> = {
+  backend: '后端实现',
+  frontend: '前端实现',
+  fullstack: '跨端',
+  unknown: '未标注',
+}
+const directionFilter = ref<string>('all')
+const kdFilter = ref<string>('all')
+
+const directionOf = (item: any) => item.direction ?? 'unknown'
+
+const directions = computed(() => {
+  const set = new Set<string>((domain.value?.components ?? []).map(directionOf))
+  return ['all', ...['backend', 'frontend', 'fullstack', 'unknown'].filter((key) => set.has(key))]
+})
+
+/** 组件依赖的知识域 slug（取自 knowledge_index 或 depends_on_knowledge 的路径第 3 段） */
+function kdSlugsOf(item: any): string[] {
+  const links: string[] = [
+    ...((item.knowledgeIndex ?? []) as any[]).map((entry) => entry?.page),
+    ...((item.dependsOnKnowledge ?? []) as string[]),
+  ].filter(Boolean)
+  const slugs = links
+    .map((link) => /^\/[^/]+\/learn\/([^/]+)\//.exec(link)?.[1])
+    .filter(Boolean) as string[]
+  return [...new Set(slugs)]
+}
+
+const kdOptions = computed(() => {
+  const slugs = new Set<string>()
+  for (const item of domain.value?.components ?? []) for (const slug of kdSlugsOf(item)) slugs.add(slug)
+  return [...slugs].sort()
+})
+
+const filteredComponents = computed(() =>
+  (domain.value?.components ?? []).filter((item: any) => {
+    if (directionFilter.value !== 'all' && directionOf(item) !== directionFilter.value) return false
+    if (kdFilter.value !== 'all' && !kdSlugsOf(item).includes(kdFilter.value)) return false
+    return true
+  }),
+)
+
+const directionGroups = computed(() =>
+  ['backend', 'frontend', 'fullstack', 'unknown']
+    .map((key) => ({ key, label: directionLabels[key], items: filteredComponents.value.filter((item: any) => directionOf(item) === key) }))
+    .filter((group) => group.items.length > 0),
+)
+
+function kdLabel(slug: string) {
+  return knowledgeDomainOf(domainSlug.value, slug)?.name ?? slug
+}
 /** 页内 H3 分组：让「某个包怎么用」在学习入口就有层级 */
 const groupsOf = (page: any) => (page.outline ?? []).filter((item: any) => item.level === 3)
 const lessonTotal = (kd: any) =>
@@ -124,21 +177,50 @@ function kdTitle(domainSlugValue: string, kdSlug: string) {
 
     <!-- 组件查询入口 -->
     <template v-else>
-      <div class="cmp-list">
-        <a v-for="item in domain.components" :key="item.url" class="cmp-card" :href="item.url">
-          <div class="cmp-card-head">
-            <span class="cmp-card-title">{{ item.title }}</span>
-            <span class="badge badge-type">{{ typeText[item.componentType ?? ''] ?? item.componentType ?? '组件' }}</span>
-          </div>
-          <div class="cmp-card-desc">{{ item.description }}</div>
-          <div class="cmp-card-tags">
-            <span v-for="tag in item.tagsIndex" :key="tag" class="badge badge-tag">#{{ tag }}</span>
-          </div>
-          <div class="cmp-card-meta">
-            依赖 {{ item.dependsOnKnowledge.length }} 个知识点 · 可复用度 {{ item.reusability ?? '未评' }}
-          </div>
-        </a>
+      <div class="cmp-filter" role="group" aria-label="组件筛选">
+        <div class="cmp-filter-row">
+          <span class="cmp-filter-label">方向</span>
+          <button
+            v-for="key in directions"
+            :key="key"
+            type="button"
+            class="cmp-filter-btn"
+            :class="{ 'is-active': directionFilter === key }"
+            :aria-pressed="directionFilter === key"
+            @click="directionFilter = key"
+          >
+            {{ key === 'all' ? '全部' : directionLabels[key] }}
+          </button>
+        </div>
+        <div class="cmp-filter-row">
+          <label class="cmp-filter-label" for="cmp-kd-filter">知识域</label>
+          <select id="cmp-kd-filter" v-model="kdFilter" class="cmp-filter-select">
+            <option value="all">全部知识域</option>
+            <option v-for="slug in kdOptions" :key="slug" :value="slug">{{ kdLabel(slug) }}</option>
+          </select>
+        </div>
       </div>
+
+      <div v-for="group in directionGroups" :key="group.key" class="cmp-group">
+        <h3 class="cmp-group-title">{{ group.label }}<span class="cmp-group-count">{{ group.items.length }}</span></h3>
+        <div class="cmp-list">
+          <a v-for="item in group.items" :key="item.url" class="cmp-card" :href="item.url">
+            <div class="cmp-card-head">
+              <span class="cmp-card-title">{{ item.title }}</span>
+              <span class="badge badge-type">{{ typeText[item.componentType ?? ''] ?? item.componentType ?? '组件' }}</span>
+            </div>
+            <div class="cmp-card-desc">{{ item.description }}</div>
+            <div class="cmp-card-tags">
+              <span v-for="tag in item.tagsIndex" :key="tag" class="badge badge-tag">#{{ tag }}</span>
+              <span class="badge badge-tag">依赖 {{ kdSlugsOf(item).length }} 个知识域</span>
+            </div>
+            <div class="cmp-card-meta">
+              依赖 {{ (item.knowledgeIndex ?? item.dependsOnKnowledge ?? []).length }} 个知识点 · 可复用度 {{ item.reusability ?? '未评' }}
+            </div>
+          </a>
+        </div>
+      </div>
+      <p v-if="directionGroups.length === 0" class="cmp-empty">没有符合筛选条件的组件。</p>
       <TagIndex :domain="domainSlug" />
     </template>
   </div>

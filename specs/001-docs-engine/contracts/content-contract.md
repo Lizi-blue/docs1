@@ -200,3 +200,10 @@ npm run check:content   # 元数据、结构、命名、链接、图解存在性
 npm run check:zh        # 受控中文
 npm run build           # 站点可构建
 ```
+
+## 组件页契约指针
+
+`docs/<domain>/components/*.md` 与 `docs/cross-domain/*.md` 的组件页条款
+（元数据、必需章节、方向归属、知识索引、复用四件套、样式作用域）
+以 `specs/004-component-hub-console/contracts/component-page-contract.md` 为准。
+本节只写指针，不复制取值。
