@@ -88,6 +88,20 @@ npm run check:nav           # 导航层级 N1–N5（构建后）
 
 十二条命令退出码都为 0 才算通过。CI 在镜像构建阶段全跑。
 
+## 样式回滚（布局改造随时可退）
+
+布局改造前的状态已打成注解标签 `layout-baseline-pre-taste`。
+
+```bash
+node scripts/restore-layout.mjs --dry-run    # 预演：列出有差异的布局文件，不改工作区
+node scripts/restore-layout.mjs              # 实做：从基线恢复布局文件
+npm run check:content && npm run check:experience && npm run build
+```
+
+只恢复布局面文件（站点配置、主题布局、样式、组件、取数）。内容、URL 与引擎不在范围内。
+也可指定其它基线：`node scripts/restore-layout.mjs --tag <标签或提交>`。
+改造规则与验收见 `specs/006-layout-taste/`。
+
 ## 发布
 
 | 目标 | 地址 | 触发 | 基础路径 |
