@@ -52,7 +52,7 @@ description: "Task list for GitHub Actions 双远端发布与 GitHub Pages 站�
 - [x] T012 [US1] 在 `pages.yml` 实现步骤 6–8：以 `DOCS1_BASE=/docs1/` 构建 → 运行 `scripts/pages-extra.mjs` → 运行产物门禁 → 配置 Pages、上传产物、部署（`pages-workflow-contract.md` §3）（覆盖 FR-001、FR-002）
 - [x] T013 [US1] 本地子路径构建与产物门禁实测并记录：`DOCS1_BASE=/docs1/ npm run build && npm run check:pages`（quickstart S0/S1）（覆盖 FR-002、SC-002）
 - [x] T014 [P] [US1] 本地深链与兜底页实测：用 `scripts/pages-extra.mjs` 产出兜底页后，在静态服务下请求无扩展名深链（quickstart S3），结论写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-003、SC-002）
-- [ ] T015 [US1] 手动触发一次发布，按 quickstart S5 抽查 10 项，页面地址与状态码写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-001、FR-004、SC-001、SC-002、SC-003）
+- [x] T015 [US1] 手动触发一次发布，按 quickstart S5 抽查 10 项，页面地址与状态码写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-001、FR-004、SC-001、SC-002、SC-003）
 
 ## Phase 4: User Story 2 - 一次推送，两条部署链路各自独立（Priority: P1）
 
@@ -60,9 +60,9 @@ description: "Task list for GitHub Actions 双远端发布与 GitHub Pages 站�
 
 **Independent Test**: 同一次推送产生两条成功运行且提交短哈希一致；人为让公网失败，内网仍成功且域名内容不变。
 
-- [ ] T016 [US2] 出具内网链路零改动证据：`git diff --stat` 显示 `.gitea/workflows/ci.yaml`、`Caddyfile`、`deploy/`、`Dockerfile` 未被本特性修改（`dual-deploy-contract.md` §1）（覆盖 FR-011）
-- [ ] T017 [US2] 比对两条运行记录的提交短哈希一致，内网镜像标签与 Pages 运行记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-005、SC-004）
-- [ ] T018 [P] [US2] 失败隔离演练：在 `.github/workflows/pages.yml` 内人为让门禁失败一次，确认内网侧不受影响（quickstart S7-1），记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-005、SC-005）
+- [x] T016 [US2] 出具内网链路零改动证据：`git diff --stat` 显示 `.gitea/workflows/ci.yaml`、`Caddyfile`、`deploy/`、`Dockerfile` 未被本特性修改（`dual-deploy-contract.md` §1）（覆盖 FR-011）
+- [x] T017 [US2] 比对两条运行记录的提交短哈希一致，内网镜像标签与 Pages 运行记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-005、SC-004）
+- [x] T018 [P] [US2] 失败隔离演练：在 `.github/workflows/pages.yml` 内人为让门禁失败一次，确认内网侧不受影响（quickstart S7-1），记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-005、SC-005）
 - [ ] T019 [US2] 并发规则实测：连续两次推送 `.github/workflows/pages.yml`，确认旧运行被取消、最终发布对应最新提交，记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-013）
 
 ## Phase 5: User Story 3 - 静态托管下的能力降级（Priority: P1）
@@ -73,7 +73,7 @@ description: "Task list for GitHub Actions 双远端发布与 GitHub Pages 站�
 
 - [x] T020 [US3] 核对 `docs/.vitepress/theme/components/TaskConsole.vue` 的降级路径在子路径与跨源下仍生效（`api-base` 属性、离线态判定），必要时补「公网静态托管无后端」文案（`degrade-contract.md` §2/§3）（覆盖 FR-007）
 - [x] T021 [P] [US3] 在 `docs/frontend/components/01-task-console.md` 的「使用文档」补公网降级说明（MUST NOT 破坏 16 节契约顺序）（覆盖 FR-007、FR-014）
-- [ ] T022 [US3] Pages 上执行降级验证（quickstart S6）：降级提示、正文完整、无未捕获错误，证据写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-007、SC-006）
+- [x] T022 [US3] Pages 上执行降级验证（quickstart S6）：降级提示、正文完整、无未捕获错误，证据写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-007、SC-006）
 - [x] T023 [P] [US3] 在 `scripts/check-pages-artifact.mjs` 增断言：产物中不得出现指向内网服务的绝对接口地址组合（内网域名 + `/api`）（覆盖 FR-007、FR-012）
 
 ## Phase 6: User Story 4 - 发布前门禁与现有部署保持不变（Priority: P2）
@@ -83,8 +83,8 @@ description: "Task list for GitHub Actions 双远端发布与 GitHub Pages 站�
 **Independent Test**: 破坏必需小节后运行，断言 Pages 不发布且上一版本可用；内网域名与 `/health` 与改动前一致。
 
 - [x] T024 [US4] 核对 `pages.yml` 的门禁步骤与 `AGENTS.md` §2 的命令清单逐条一致（十一条 + `check:pages`）（覆盖 FR-006）
-- [ ] T025 [US4] 失败演练：临时删除一个必需小节后运行 `.github/workflows/pages.yml`，断言门禁步骤失败、**未上传部署**、Pages 保持上一版本，日志片段写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-006、SC-005）
-- [ ] T026 [P] [US4] 内网回归验收（quickstart S8）：内网首页、`/health` 与抽查页状态码记录（覆盖 FR-011、SC-008）
+- [x] T025 [US4] 失败演练：临时删除一个必需小节后运行 `.github/workflows/pages.yml`，断言门禁步骤失败、**未上传部署**、Pages 保持上一版本，日志片段写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-006、SC-005）
+- [x] T026 [P] [US4] 内网回归验收（quickstart S8）：内网首页、`/health` 与抽查页状态码记录（覆盖 FR-011、SC-008）
 - [x] T027 [US4] 确认内网产物不受公网附加件影响：`Dockerfile` 打包的产物不含 `.nojekyll`/`404.html` 副作用，且内网路由与 cleanUrls 行为不变（`dual-deploy-contract.md` §5）（覆盖 FR-011）
 
 ## Phase 7: User Story 5 - 发布可追溯、失败可定位（Priority: P2）
@@ -95,15 +95,15 @@ description: "Task list for GitHub Actions 双远端发布与 GitHub Pages 站�
 
 - [x] T028 [US5] 在 `pages.yml` 输出可读的步骤名与运行摘要（提交短哈希 + 页面地址），失败时明确到具体步骤（`pages-workflow-contract.md` §5）（覆盖 FR-009）
 - [x] T029 [US5] 在 `pages.yml` 启用 Pages 自动开启能力并对未就绪场景给出可操作失败提示（`pages-workflow-contract.md` §4）（覆盖 FR-008、SC-007）
-- [ ] T030 [P] [US5] 三类失败定位演练（门禁失败、产物门禁失败、平台配置未就绪）的日志定位点写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-009、SC-007）
+- [x] T030 [P] [US5] 三类失败定位演练（门禁失败、产物门禁失败、平台配置未就绪）的日志定位点写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-009、SC-007）
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
 - [x] T031 在 `AGENTS.md` §2 与 `README.md` 补 `check:pages` 命令、两端访问地址、发布触发条件与 Pages 降级边界（覆盖 FR-014、SC-008）
-- [ ] T032 [P] 新建 `specs/005-github-pages-deploy/checklists/local-baseline.md` 并记录 S0–S8 全量证据（命令与真实输出）（覆盖 SC-001…SC-008）
+- [x] T032 [P] 新建 `specs/005-github-pages-deploy/checklists/local-baseline.md` 并记录 S0–S8 全量证据（命令与真实输出）（覆盖 SC-001…SC-008）
 - [x] T033 跑 `package.json` 中全量十二条门禁（十一条 + `check:pages`）并修复残留，结论写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-006、SC-008）
-- [ ] T034 部署验收：确认两条链路运行成功、Pages 页面可访问、内网页面与健康检查正常，URL 与状态码写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 SC-001、SC-004、SC-008）
-- [ ] T035 [P] 一致性回归：核对 `specs/005-github-pages-deploy/contracts/`、`.github/workflows/pages.yml`、`scripts/*.mjs`、`README.md`/`AGENTS.md` 四处口径一致（命令清单、基础路径取值、产物断言项、降级范围）（覆盖 FR-014、SC-008）
+- [x] T034 部署验收：确认两条链路运行成功、Pages 页面可访问、内网页面与健康检查正常，URL 与状态码写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 SC-001、SC-004、SC-008）
+- [x] T035 [P] 一致性回归：核对 `specs/005-github-pages-deploy/contracts/`、`.github/workflows/pages.yml`、`scripts/*.mjs`、`README.md`/`AGENTS.md` 四处口径一致（命令清单、基础路径取值、产物断言项、降级范围）（覆盖 FR-014、SC-008）
 
 ---
 
