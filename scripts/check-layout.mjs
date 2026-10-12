@@ -10,6 +10,9 @@
  * L4 优化层规则全部限定在 html.layout-taste 之下
  * L5 档位切换机制齐备（构建期变量、根类名、localStorage 键、控件组件、脚本别名）
  * L6 禁止 flex 百分比栅格写法
+ * L7 宽内容外扩（代码、表格、图框）且窄屏归零
+ * L8 组件页双栏：网格声明、窄屏单列、侧栏卡片化
+ * L9 入口主卡与知识域卡分级
  */
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
@@ -107,12 +110,55 @@ function ruleL5() {
   if (!pkg.scripts?.['check:layout']) fail('L5', 'package.json', '缺少 check:layout 脚本别名', '添加 node scripts/check-layout.mjs')
 }
 
+function ruleL7() {
+  const taste = read(TASTE) ?? ''
+  if (!/--docs1-bleed:\s*\d/.test(taste)) {
+    fail('L7', TASTE, '未声明宽内容外扩令牌 --docs1-bleed', '声明外扩量，并让代码块、表格与图框使用它')
+  }
+  if (!/margin-inline:\s*calc\(-1 \* var\(--docs1-bleed\)/.test(taste)) {
+    fail('L7', TASTE, '宽内容没有使用外扩令牌', '给代码块、表格、图框加 margin-inline: calc(-1 * var(--docs1-bleed) / 2)')
+  }
+  if (!/--docs1-bleed:\s*0rem/.test(taste)) {
+    fail('L7', TASTE, '窄屏没有关闭外扩', '在 ≤1024px 把 --docs1-bleed 归零，避免横向溢出')
+  }
+}
+
+function ruleL8() {
+  const taste = read(TASTE) ?? ''
+  if (!/html\.layout-taste \.cmp-grid\s*\{[^}]*grid-template-columns/.test(taste)) {
+    fail('L8', TASTE, '组件页双栏未使用网格声明', '在优化层给 .cmp-grid 声明 grid-template-columns')
+  }
+  if (!/\.cmp-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/.test(taste)) {
+    fail('L8', TASTE, '组件页双栏没有窄屏单列折叠', '在 ≤1024px 折叠为单列')
+  }
+  if (!/html\.layout-taste \.cmp-aside\s*\{[^}]*border-radius:\s*var\(--docs1-radius/.test(taste)) {
+    fail('L8', TASTE, '侧栏未卡片化', '给 .cmp-aside 圆角与描边，减少分隔线堆叠')
+  }
+}
+
+function ruleL9() {
+  const taste = read(TASTE) ?? ''
+  const hasEntry = /html\.layout-taste \.entry-card-title\s*\{/.test(taste)
+  const hasKd = /html\.layout-taste \.kd-card\s*\{/.test(taste)
+  if (!hasEntry || !hasKd) {
+    fail('L9', TASTE, '入口主卡与知识域卡未分级', '分别声明 .entry-card-title 与 .kd-card，形成主次层次')
+  }
+}
+
+/**
+ * L6 只拦「纯百分比算术凑栅格」（摘要里点名的 calc(33% - 1rem) 写法）。
+ * 引用 --docs1-* 令牌的百分比算式属于有意为之的外扩，不判错。
+ */
 function ruleL6() {
   for (const rel of [TASTE, CLASSIC]) {
     const text = read(rel)
     if (text === null) continue
-    const hits = text.match(/width:\s*calc\([^)]*%/g)
-    if (hits) fail('L6', rel, `出现 ${hits.length} 处 flex 百分比栅格写法`, '改用 CSS Grid：repeat(auto-fit, minmax(…, 1fr))')
+    // 捕获整条声明（到 ; 或 } 之前），再判断是否含 % 且未引用令牌。
+    const decls = text.match(/width:\s*calc\([^;}]*/g) ?? []
+    const offenders = decls.filter((hit) => hit.includes('%') && !/var\(--docs1-/.test(hit))
+    if (offenders.length) {
+      fail('L6', rel, `出现 ${offenders.length} 处纯百分比栅格写法（首处：${offenders[0].trim()}）`, '改用 CSS Grid：repeat(auto-fit, minmax(…, 1fr))，或引用令牌说明外扩意图')
+    }
   }
 }
 
@@ -124,6 +170,9 @@ function main() {
   ruleL4()
   ruleL5()
   ruleL6()
+  ruleL7()
+  ruleL8()
+  ruleL9()
 
   if (asJson) {
     console.log(JSON.stringify({ ok: errors.length === 0, errors }, null, 2))

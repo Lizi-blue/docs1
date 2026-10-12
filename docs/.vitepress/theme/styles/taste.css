@@ -15,6 +15,8 @@ html.layout-taste {
   /* 顶栏毛玻璃与悬停位移：效果值也走令牌，避免裸 px */
   --docs1-blur: 8px;
   --docs1-lift: -2px;
+  /* 宽内容（代码、表格、图框）相对正文阅读栏的外扩量 */
+  --docs1-bleed: 6rem;
   --vp-nav-height: var(--docs1-nav-height);
 }
 
@@ -169,6 +171,65 @@ html.layout-taste .vp-doc :not(pre) > code {
   border-radius: var(--docs1-radius-sm);
 }
 
+/* ---------- 内容：宽内容外扩（正文守阅读栏，代码与表格可越界） ---------- */
+
+html.layout-taste .vp-doc div[class*='language-'],
+html.layout-taste .vp-doc .custom-block,
+html.layout-taste .vp-doc table,
+html.layout-taste .diagram-frame,
+html.layout-taste .code-tabs {
+  margin-inline: calc(-1 * var(--docs1-bleed) / 2);
+}
+
+html.layout-taste .vp-doc table {
+  width: calc(100% + var(--docs1-bleed));
+}
+
+/* ---------- 组件页双栏：主栏守阅读栏，侧栏卡片化 ---------- */
+
+html.layout-taste .cmp-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+  gap: var(--docs1-space-8);
+}
+
+html.layout-taste .cmp-main {
+  max-width: var(--docs1-content-measure);
+}
+
+html.layout-taste .cmp-aside {
+  position: sticky;
+  top: calc(var(--docs1-nav-height) + var(--docs1-space-6));
+  padding: var(--docs1-space-5);
+  border: 1px solid var(--docs1-color-border);
+  border-left: 1px solid var(--docs1-color-border);
+  border-radius: var(--docs1-radius-lg);
+  background: var(--docs1-color-surface);
+}
+
+/* ---------- 入口层次：主入口卡与知识域卡分级 ---------- */
+
+html.layout-taste .entry-cards {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+html.layout-taste .entry-card-title {
+  font-size: var(--docs1-font-lg);
+}
+
+html.layout-taste .kd-card {
+  border-radius: var(--docs1-radius-md);
+  box-shadow: none;
+  background: transparent;
+}
+
+html.layout-taste .kd-name {
+  font-size: var(--docs1-font-lg);
+}
+
+html.layout-taste .VPNavBarMenu {
+  gap: var(--docs1-space-3);
+}
+
 /* ---------- 内容：卡片网格（网格替代百分比算术） ---------- */
 
 html.layout-taste .cmp-list,
@@ -235,6 +296,18 @@ html.layout-taste .layout-switch-btn {
 }
 
 @media (max-width: 1024px) {
+  html.layout-taste {
+    --docs1-bleed: 0rem;
+  }
+  html.layout-taste .cmp-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--docs1-space-6);
+  }
+  html.layout-taste .cmp-aside {
+    position: static;
+    padding-left: var(--docs1-space-5);
+    border-left: 1px solid var(--docs1-color-border);
+  }
   html.layout-taste .VPNavBarMenuLink {
     padding-inline: var(--docs1-space-1);
     font-size: var(--docs1-font-sm);
@@ -251,6 +324,13 @@ html.layout-taste .layout-switch-btn {
 }
 
 @media (max-width: 768px) {
+  html.layout-taste .VPNavBarMenuGroup .text,
+  html.layout-taste .VPNavBarTitle .title {
+    font-size: var(--docs1-font-sm);
+  }
+  html.layout-taste .VPNavBar {
+    column-gap: var(--docs1-space-2);
+  }
   html.layout-taste .cmp-list,
   html.layout-taste .entry-grid,
   html.layout-taste .kd-groups {
