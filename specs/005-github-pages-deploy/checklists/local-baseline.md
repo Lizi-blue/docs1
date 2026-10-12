@@ -67,7 +67,8 @@ hasNoJekyll=true has404Fallback=true internalAddressHits=0 externalResourceHits=
 | 项 | 值 |
 |---|---|
 | 内网流水线 | Gitea **#4583**（`6d7e9f7`）、**#4584**（`688e889`）全绿，部署成功 |
-| 公网流水线 | GitHub Actions **Pages #1**（`6d7e9f7`）、**#2**（`688e889`）completed / success |
+| 公网流水线 | GitHub Actions **Pages #1**（`6d7e9f7`）、**#2**（`688e889`）、**#4**（`a078939`）completed / success |
+| 并发演练（FR-013 / T019） | 两次推送间隔 20 秒：运行 **#3**（`10efb44`）**cancelled**，运行 **#4**（`a078939`）接管并 success，最终发布对应最新提交 |
 | 首次可访问耗时 | 推送后约 1 分钟可访问首页（SC-001 要求 10 分钟内） |
 | 运行记录含提交 | 是（`head_sha` 与运行摘要） |
 
@@ -115,7 +116,8 @@ hasNoJekyll=true has404Fallback=true internalAddressHits=0 externalResourceHits=
 | 内网 `/health` | 200 |
 | 内网组件页 | 200 |
 | 内网链路改动 | 无（`.gitea/`、`Caddyfile`、`deploy/`、`Dockerfile` 未被本特性修改） |
-| 两条运行记录 | 同一提交短哈希 |
+| 两条运行记录 | 同一提交短哈希：内网 Gitea #4583 / 公网 Pages #1（`6d7e9f7`）；#4584 / #2（`688e889`） |
+| 失败隔离 | 两条流水线无互相调用与共享凭据；本特性期间公网侧 P2/P7 门禁失败只影响公网运行，内网两次部署均成功 |
 
 ## 实现中发现并修复的两处缺陷
 

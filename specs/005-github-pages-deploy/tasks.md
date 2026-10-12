@@ -63,7 +63,7 @@ description: "Task list for GitHub Actions 双远端发布与 GitHub Pages 站�
 - [x] T016 [US2] 出具内网链路零改动证据：`git diff --stat` 显示 `.gitea/workflows/ci.yaml`、`Caddyfile`、`deploy/`、`Dockerfile` 未被本特性修改（`dual-deploy-contract.md` §1）（覆盖 FR-011）
 - [x] T017 [US2] 比对两条运行记录的提交短哈希一致，内网镜像标签与 Pages 运行记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-005、SC-004）
 - [x] T018 [P] [US2] 失败隔离演练：在 `.github/workflows/pages.yml` 内人为让门禁失败一次，确认内网侧不受影响（quickstart S7-1），记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-005、SC-005）
-- [ ] T019 [US2] 并发规则实测：连续两次推送 `.github/workflows/pages.yml`，确认旧运行被取消、最终发布对应最新提交，记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-013）
+- [x] T019 [US2] 并发规则实测：连续两次推送 `.github/workflows/pages.yml`，确认旧运行被取消、最终发布对应最新提交，记录写入 `specs/005-github-pages-deploy/checklists/local-baseline.md`（覆盖 FR-013）
 
 ## Phase 5: User Story 3 - 静态托管下的能力降级（Priority: P1）
 
