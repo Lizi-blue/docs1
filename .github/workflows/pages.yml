@@ -36,6 +36,9 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
+        with:
+          # 取全量历史：编排自检 S6 需要技能正文真实最后修改日期，浅克隆会误判。
+          fetch-depth: 0
 
       - name: 准备 Node
         uses: actions/setup-node@v4

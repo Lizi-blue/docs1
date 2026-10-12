@@ -374,8 +374,19 @@ function localDate(date) {
 
 // 正文最后修改日期：干净文件取提交日期，脏文件取 mtime。
 // 新克隆的 mtime 是检出时刻，直接用会误判。
+/**
+ * 文件「真实最后修改日期」。
+ *
+ * 浅克隆里 `git log -- <文件>` 只会返回本次构建的那一个提交，日期会被误当成文件修改日期。
+ * 因此浅克隆一律返回 null，由调用方跳过日期比较（不要用 mtime 顶替：克隆时 mtime 是检出时间）。
+ */
 function lastModifiedDate(file, root) {
   try {
+    const shallow = execFileSync('git', ['-C', root, 'rev-parse', '--is-shallow-repository'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    if (shallow === 'true') return null;
     const status = execFileSync('git', ['-C', root, 'status', '--porcelain', '--', file], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
@@ -421,6 +432,10 @@ function ruleS6(skill) {
     return;
   }
   const modified = lastModifiedDate(skill.file, ROOT);
+  if (modified === null) {
+    skip('S6', CHANGELOG_REL, '浅克隆无法确定技能正文的真实修改日期，已跳过日期比较（CI 请取全量历史）');
+    return;
+  }
   if (dated[1] < modified) {
     fail('S6', CHANGELOG_REL, null, `变更日志最新日期 ${dated[1]} 早于正文修改日期 ${modified}`, '为本次改动追加一条变更记录');
   }
