@@ -87,6 +87,14 @@ const GROUPS = {
     ['清单与依赖', /package\.json|dependencies|devDependencies|scripts|lock|engines/],
     ['模块语法', /ESM|import|export|require|type.*module/],
   ],
+  SafeQueue: [
+    ['构造与生命周期', /__init__|__enter__|__exit__|close/],
+    ['任务与结果', /submit|drain/],
+  ],
+  '实时输出接口': [
+    ['连接与订阅', /EventSource|fetch|连接|订阅/],
+    ['事件与续传', /Last-Event-ID|事件|续传|status|output|end/],
+  ],
   vite: [
     ['命令行', /vite (dev|build|preview)/],
     ['配置项', /defineConfig|base|build\.|server\.|resolve\.|plugins|optimizeDeps|envDir/],
@@ -160,7 +168,8 @@ function listKnowledgePages() {
       if (item.isDirectory()) walk(full)
       else if (item.name.endsWith('.md')) {
         const content = fs.readFileSync(full, 'utf8')
-        if (/^type:\s*knowledge$/m.test(content)) pages.push(full)
+        // 知识点页与组件页都要按方法组分层
+        if (/^type:\s*(knowledge|component|cross-component)$/m.test(content)) pages.push(full)
       }
     }
   }

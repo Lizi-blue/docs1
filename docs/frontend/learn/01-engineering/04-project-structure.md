@@ -60,6 +60,8 @@ related_components: []
 ## API 手册：构建与部署接口
 
 
+
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"npm run build","rank":"必会","pitfall":"构建前先跑 npm ci。直接 install 可能装到别的版本。","signature":"npm run build","params":[],"returns":"dist 目录","methods":["vite build","vite build --mode production"],"effect":"产出可直接托管的静态文件","scenario":"发布前的构建步骤","example":"npm ci\nnpm run build\nls dist","exampleLang":"bash"}]' />

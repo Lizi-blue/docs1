@@ -59,6 +59,8 @@ Vite 是前端构建工具，开发态负责按需编译与热更新，生产态
 ## API 手册：Vite
 
 
+
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"vite dev","rank":"必会","pitfall":"开发服务器不能直接上生产。它按需编译，不做压缩与分包。","signature":"vite [--host] [--port]","params":[{"name":"--host","type":"flag","default":"关闭","desc":"监听所有网卡，便于容器访问"},{"name":"--port","type":"number","default":"5173","desc":"监听端口"}],"returns":"开发服务器进程","methods":["vite — 启动开发服务器","vite build — 生产构建","vite preview — 预览构建产物"],"effect":"按需编译源码并推送热更新","scenario":"本地开发","example":"npx vite --host\nnpx vite build\nnpx vite preview","exampleLang":"bash"},{"name":"vite.config.js","rank":"必会","pitfall":"server.proxy 只在开发期生效。线上要配网关转发。base 写错会让资源 404。","signature":"defineConfig({ plugins, resolve, server, build, base })","params":[{"name":"plugins","type":"array","default":"[]","desc":"插件列表"},{"name":"base","type":"string","default":"&#39;/&#39;","desc":"部署子路径前缀"},{"name":"server.proxy","type":"object","default":"{}","desc":"开发代理规则"},{"name":"build.outDir","type":"string","default":"dist","desc":"构建输出目录"}],"returns":"配置对象","methods":["defineConfig() — 带类型提示的配置导出","server.proxy — 开发期转发接口","base — 部署子路径前缀","build.outDir — 产物输出目录"],"effect":"声明构建行为，插件可深度介入管线","scenario":"任何 Vite 项目","example":"import { defineConfig } from \"vite\"\nimport vue from \"@vitejs/plugin-vue\"\n\nexport default defineConfig({\n  plugins: [vue()],\n  server: { proxy: { \"/api\": \"http://127.0.0.1:8000\" } }\n})","exampleLang":"javascript"}]' />

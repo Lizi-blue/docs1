@@ -58,6 +58,8 @@ related_components: []
 ## API 手册：浏览器原生入口
 
 
+
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"document.querySelector","rank":"必会","pitfall":"选择器匹配不到时返回 null。直接读属性会报错。","signature":"querySelector(selectors)","params":[{"name":"selectors","type":"string","default":"必填","desc":"CSS 选择器"}],"returns":"首个匹配元素或 null","methods":["addEventListener(type, handler) — 绑定事件","textContent — 读写文本"],"effect":"按选择器取到元素，再挂事件或改内容","scenario":"脚本直接操作页面结构","example":"<button id=&#39;go&#39;>走</button>\n<script>\n  document.querySelector(&#39;#go&#39;).addEventListener(&#39;click&#39;, () => {\n    console.log(&#39;clicked&#39;)\n  })\n</script>","exampleLang":"html"}]' />

@@ -59,6 +59,8 @@ npm 是 Node.js 自带的包管理器，负责下载、安装与管理第三方�
 ## API 手册：npm 与模块
 
 
+
+
 ### 核心接口
 
 <ApiTable :items='[{"name":"npm install","rank":"必会","pitfall":"它按声明范围改写锁文件。CI 里要改用 npm ci。","signature":"npm install [pkg] [--save-dev]","params":[{"name":"pkg","type":"string","default":"省略则按 package.json 安装","desc":"包名，可带版本范围"},{"name":"--save-dev","type":"flag","default":"关闭","desc":"写入 devDependencies"}],"returns":"退出码 0 表示成功","methods":["npm install pkg — 装运行时依赖","npm install -D pkg — 装开发依赖","npm install — 按声明补齐"],"effect":"把包装进 node_modules 并更新锁文件","scenario":"本地开发新增依赖","example":"npm install vue\nnpm install -D vitepress","exampleLang":"bash"},{"name":"npm ci","rank":"必会","pitfall":"它会先清空 node_modules。没有锁文件就会安装失败。","signature":"npm ci","returns":"退出码 0 表示成功","methods":["npm ci — 严格按锁文件安装","npm ci --omit=dev — 跳过开发依赖"],"effect":"先清空 node_modules，再按锁文件精确还原","scenario":"CI 与生产构建，要求可复现","example":"npm ci\nnpm run build","exampleLang":"bash"}]' />

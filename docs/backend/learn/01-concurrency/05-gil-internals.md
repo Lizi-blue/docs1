@@ -63,6 +63,8 @@ GIL 是 CPython 解释器里的一把全局互斥锁，保护解释器内部状�
 
 
 
+
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"sys.getswitchinterval","rank":"必会","signature":"getswitchinterval()","params":[],"returns":"浮点秒数","methods":["getswitchinterval() — 读取当前切换间隔"],"effect":"读到解释器请求让出的时间片长度","scenario":"排查线程被饿死或切换过密","example":"import sys\nprint(sys.getswitchinterval())","exampleLang":"python","pitfall":"它只读当前值。间隔调小不等于多个线程能并行跑字节码。","raises":"无异常，只读解释器状态"}]' />

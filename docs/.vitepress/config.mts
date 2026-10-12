@@ -69,11 +69,22 @@ function learnGroup(domain: DomainNode, only?: KnowledgeDomainNode) {
   return { text: '📚 渐进式学习', collapsed: false, items }
 }
 
+function componentEntry(page: { title: string; url: string; outline?: { level: number; text: string; slug: string }[] }, icon: string) {
+  const groups = (page.outline ?? []).filter((item) => item.level === 3)
+  if (groups.length === 0) return { text: `${icon} ${page.title}`, link: page.url }
+  return {
+    text: `${icon} ${page.title}`,
+    link: page.url,
+    collapsed: false,
+    items: groups.map((group) => ({ text: group.text, link: `${page.url}#${group.slug}` })),
+  }
+}
+
 function componentGroup(domain: DomainNode) {
   const items: any[] = []
   if (domain.components.length && domain.entry.components) items.push({ text: '组件索引', link: domain.entry.components })
-  for (const page of domain.components) items.push({ text: `🧩 ${page.title}`, link: page.url })
-  for (const page of domain.crossComponents) items.push({ text: `🔗 ${page.title}`, link: page.url })
+  for (const page of domain.components) items.push(componentEntry(page, '🧩'))
+  for (const page of domain.crossComponents) items.push(componentEntry(page, '🔗'))
   if (!items.length) return null
   return { text: '🧩 组件查询', collapsed: false, items }
 }

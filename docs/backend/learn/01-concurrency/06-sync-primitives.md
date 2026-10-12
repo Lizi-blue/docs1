@@ -65,6 +65,8 @@ related_components:
 
 
 
+
+
 ### 常用接口
 
 <ApiTable :items='[{"name":"threading.RLock","rank":"常用","signature":"RLock()","params":[],"returns":"可重入锁对象","methods":["acquire() — 加锁，同一线程可重复","release() — 解锁，次数必须配平","locked() — 查询状态"],"effect":"同一线程重复进入临界区不会自锁","scenario":"类的公有方法互相调用且都要加锁","example":"import threading\nlock = threading.RLock()\n\ndef outer():\n    with lock:\n        inner()\n\ndef inner():\n    with lock:\n        print(\"reentrant\")","exampleLang":"python","pitfall":"acquire 与 release 次数必须配平，嵌套层数不等会让锁一直不释放。","raises":"RuntimeError，release 未持有的锁时抛出"}]' />

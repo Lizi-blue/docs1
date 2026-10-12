@@ -64,6 +64,8 @@ related_components:
 
 
 
+
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"subprocess.run","rank":"必会","signature":"run(args, timeout=None, check=False, capture_output=False)","params":[{"name":"args","type":"list | str","default":"必填","desc":"命令与参数"},{"name":"timeout","type":"float","default":"None","desc":"超时秒数，超时抛 TimeoutExpired"},{"name":"check","type":"bool","default":"False","desc":"非零退出码是否抛错"},{"name":"capture_output","type":"bool","default":"False","desc":"是否捕获标准输出与错误"}],"returns":"CompletedProcess 对象","methods":["run() — 阻塞到命令结束","CompletedProcess.returncode — 退出码","CompletedProcess.stdout — 标准输出","run.check — 非零退出码时抛异常","run.capture_output — 捕获标准输出与错误","run.text — 按文本解码输出","run.shell — 交给系统 shell 执行","run.env — 指定子进程环境变量","run.cwd — 指定子进程工作目录"],"effect":"一条命令跑完再返回","scenario":"调用外部工具并读取结果","example":"import subprocess\n\nresult = subprocess.run([\"python3\", \"-c\", \"print(1)\"], capture_output=True, text=True, timeout=5)\nprint(result.stdout.strip())","exampleLang":"python","pitfall":"check=True 时非零退出码抛 CalledProcessError。不给 timeout 就会一直等。","raises":"CalledProcessError 与 TimeoutExpired"},{"name":"subprocess.TimeoutExpired","rank":"必会","signature":"TimeoutExpired(cmd, timeout)","params":[{"name":"cmd","type":"list","default":"属性","desc":"超时的命令"},{"name":"timeout","type":"float","default":"属性","desc":"设定的超时秒数"}],"returns":"异常对象","methods":["捕获后处理 — 终止并回收进程"],"effect":"把超时变成可处理的控制流","scenario":"给外部命令设上限","example":"import subprocess\n\ntry:\n    subprocess.run([\"sleep\", \"5\"], timeout=1, check=True)\nexcept subprocess.TimeoutExpired as exc:\n    print(f\"超过 {exc.timeout} 秒\")","exampleLang":"python","pitfall":"run 超时只杀直接子进程。它派生的孙进程会留下来。","raises":"无异常，它就是被抛出的那个异常类型"}]' />
