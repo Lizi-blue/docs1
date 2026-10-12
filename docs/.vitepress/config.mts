@@ -144,6 +144,16 @@ export default defineConfig({
   vite: {
     plugins: [docEngine(docsRoot)],
     server: { host: '0.0.0.0' },
+    build: {
+      rollupOptions: {
+        output: {
+          // 本地搜索索引的虚拟模块名以 @ 开头。GitHub Pages 不提供 @ 开头的文件，
+          // 会让站内搜索在公网静默失效，故在构建期去掉前缀。
+          // 见 specs/005-github-pages-deploy/contracts/base-path-contract.md §3。
+          chunkFileNames: (chunk) => `assets/chunks/${chunk.name.replace(/^@/, '')}.[hash].js`,
+        },
+      },
+    },
   },
   transformPageData(pageData) {
     const rel = pageData.relativePath.replace(/\.md$/, '')

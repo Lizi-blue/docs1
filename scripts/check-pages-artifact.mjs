@@ -104,6 +104,23 @@ function externalResources(html) {
 
 /* ------------------------------------------------------------------ 主流程 */
 
+/**
+ * P7 平台不可提供的文件名：GitHub Pages 不提供以 @ 或 _ 开头的文件与目录。
+ * 本地搜索索引的虚拟模块名曾以 @ 开头，导致公网站内搜索静默失效。
+ */
+function checkUnservableNames(files) {
+  const offenders = files.filter((file) => {
+    const rel = path.relative(distRootForNames, file).split(path.sep)
+    return rel.some((part) => part.startsWith('@') || part.startsWith('_'))
+  })
+  for (const file of offenders.slice(0, 5)) {
+    fail('P7', relative(file), 1, '文件名以 @ 或 _ 开头，托管平台不提供该文件', '改构建期命名，例如去掉 chunk 名的 @ 前缀')
+  }
+  return offenders.length
+}
+
+let distRootForNames = ''
+
 function main() {
   const args = process.argv.slice(2)
   const distIndex = args.indexOf('--dist')
@@ -123,10 +140,14 @@ function main() {
   const baseSource = baseIndex >= 0 ? '--base' : process.env.DOCS1_BASE ? 'DOCS1_BASE' : inferred ? '推断自产物' : '默认 /'
   const publicBuild = base !== '/'
 
+  distRootForNames = dist
   const files = walk(dist)
   const htmlFiles = files.filter((file) => file.endsWith('.html'))
   const textFiles = files.filter((file) => TEXT_EXTENSIONS.has(path.extname(file)))
   const sizeBytes = files.reduce((total, file) => total + fs.statSync(file).size, 0)
+
+  // P7 平台不可提供的文件名（@ / _ 开头）
+  const unservableNames = checkUnservableNames(files)
 
   // P1 站内链接带前缀
   const unprefixed = []
@@ -228,6 +249,7 @@ function main() {
     internalAddressHits,
     externalResourceHits,
     unprefixedRootLinks: base === '/' ? 0 : unprefixed.length,
+    unservableNames,
   }
 
   if (asJson) {
@@ -240,7 +262,7 @@ function main() {
       console.log(`⚠️ [${item.code}] ${item.file} ${item.message} → 建议：${item.fix}`)
     }
     console.log(`产物断言：base=${base}（${baseSource}） / 文件 ${files.length} 个 / 错误 ${errors.length} 项`)
-    console.log(`hasNoJekyll=${hasNoJekyll} has404Fallback=${has404Fallback} internalAddressHits=${internalAddressHits} externalResourceHits=${externalResourceHits} unprefixedRootLinks=${stats.unprefixedRootLinks}`)
+    console.log(`hasNoJekyll=${hasNoJekyll} has404Fallback=${has404Fallback} internalAddressHits=${internalAddressHits} externalResourceHits=${externalResourceHits} unprefixedRootLinks=${stats.unprefixedRootLinks} unservableNames=${unservableNames}`)
   }
   process.exit(errors.length === 0 ? 0 : 1)
 }
