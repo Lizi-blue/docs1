@@ -141,6 +141,7 @@ print(sum(item.value for item in results if item.ok))
 
 
 
+
 - [multiprocessing 官方文档](https://docs.python.org/3/library/multiprocessing.html) — 3.8 及以后可用，3.14 起 POSIX 默认 forkserver。
 - [concurrent.futures 官方文档](https://docs.python.org/3/library/concurrent.futures.html) — 3.8 及以后线程池默认上限为核数加四与 32 的较小值。
 

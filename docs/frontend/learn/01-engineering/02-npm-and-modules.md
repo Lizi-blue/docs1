@@ -61,13 +61,18 @@ npm 是 Node.js 自带的包管理器，负责下载、安装与管理第三方�
 
 
 
-### 核心接口
+
+### 包管理命令
 
 <ApiTable :items='[{"name":"npm install","rank":"必会","pitfall":"它按声明范围改写锁文件。CI 里要改用 npm ci。","signature":"npm install [pkg] [--save-dev]","params":[{"name":"pkg","type":"string","default":"省略则按 package.json 安装","desc":"包名，可带版本范围"},{"name":"--save-dev","type":"flag","default":"关闭","desc":"写入 devDependencies"}],"returns":"退出码 0 表示成功","methods":["npm install pkg — 装运行时依赖","npm install -D pkg — 装开发依赖","npm install — 按声明补齐"],"effect":"把包装进 node_modules 并更新锁文件","scenario":"本地开发新增依赖","example":"npm install vue\nnpm install -D vitepress","exampleLang":"bash"},{"name":"npm ci","rank":"必会","pitfall":"它会先清空 node_modules。没有锁文件就会安装失败。","signature":"npm ci","returns":"退出码 0 表示成功","methods":["npm ci — 严格按锁文件安装","npm ci --omit=dev — 跳过开发依赖"],"effect":"先清空 node_modules，再按锁文件精确还原","scenario":"CI 与生产构建，要求可复现","example":"npm ci\nnpm run build","exampleLang":"bash"}]' />
 
-### 延伸接口
+### 清单与依赖
 
-<ApiTable :items='[{"name":"package.json","rank":"必会","pitfall":"运行时需要的包要写进 dependencies。生产安装会跳过 devDependencies。","signature":"{ \"name\": string, \"scripts\": object, \"dependencies\": object, \"devDependencies\": object }","params":[{"name":"scripts","type":"object","default":"{}","desc":"命令别名，用 npm run 调用"},{"name":"dependencies","type":"object","default":"{}","desc":"运行时需要的包"},{"name":"devDependencies","type":"object","default":"{}","desc":"只在开发与构建期需要的包"}],"returns":"无","methods":["npm run <script> — 执行脚本"],"effect":"声明项目身份、依赖与命令入口","scenario":"任何 Node 项目","example":"{\n  \"scripts\": { \"build\": \"vitepress build docs\" },\n  \"devDependencies\": { \"vitepress\": \"1.6.4\" }\n}","exampleLang":"json"},{"name":"ESM import / export","rank":"必会","pitfall":"模块不共享全局变量。跨文件取值要用 export 显式导出。","signature":"import name from \"pkg\" / export default value","returns":"无","methods":["import — 引入模块","export — 导出模块","import() — 动态引入"],"effect":"按文件划分作用域，依赖关系写在代码里","scenario":"任何现代前端项目","example":"import { createApp } from \"vue\"\nimport App from \"./App.vue\"\n\ncreateApp(App).mount(\"#app\")","exampleLang":"javascript"}]' />
+<ApiTable :items='[{"name":"package.json","rank":"必会","pitfall":"运行时需要的包要写进 dependencies。生产安装会跳过 devDependencies。","signature":"{ \"name\": string, \"scripts\": object, \"dependencies\": object, \"devDependencies\": object }","params":[{"name":"scripts","type":"object","default":"{}","desc":"命令别名，用 npm run 调用"},{"name":"dependencies","type":"object","default":"{}","desc":"运行时需要的包"},{"name":"devDependencies","type":"object","default":"{}","desc":"只在开发与构建期需要的包"}],"returns":"无","methods":["npm run <script> — 执行脚本"],"effect":"声明项目身份、依赖与命令入口","scenario":"任何 Node 项目","example":"{\n  \"scripts\": { \"build\": \"vitepress build docs\" },\n  \"devDependencies\": { \"vitepress\": \"1.6.4\" }\n}","exampleLang":"json"}]' />
+
+### 模块语法
+
+<ApiTable :items='[{"name":"ESM import / export","rank":"必会","pitfall":"模块不共享全局变量。跨文件取值要用 export 显式导出。","signature":"import name from \"pkg\" / export default value","returns":"无","methods":["import — 引入模块","export — 导出模块","import() — 动态引入"],"effect":"按文件划分作用域，依赖关系写在代码里","scenario":"任何现代前端项目","example":"import { createApp } from \"vue\"\nimport App from \"./App.vue\"\n\ncreateApp(App).mount(\"#app\")","exampleLang":"javascript"}]' />
 ## 组合用法：装一个依赖并用起来
 
 ### 组合了哪些知识？

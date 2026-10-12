@@ -68,6 +68,7 @@ related_components:
 
 
 
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"faulthandler.dump_traceback","rank":"必会","signature":"dump_traceback(file=sys.stderr, all_threads=True)","params":[{"name":"all_threads","type":"bool","default":"True","desc":"是否打印所有线程"}],"returns":"None，调用栈写到 file 指定的流","methods":["dump_traceback() — 立即抓一次","dump_traceback_later() — 定时抓"],"effect":"在卡死瞬间打印全部调用栈","scenario":"线上疑似死锁","example":"import faulthandler\n\nfaulthandler.dump_traceback()","exampleLang":"python","pitfall":"它写向 stderr 或已打开的文件描述符，不会主动结束进程。","raises":"无异常，转储失败时保持静默"},{"name":"threading.enumerate","rank":"必会","signature":"enumerate()","params":[],"returns":"线程对象列表","methods":["enumerate() — 列出存活线程","thread.name — 线程名","thread.is_alive() — 是否存活"],"effect":"把线程数与名字对到业务角色","scenario":"确认线程是否泄漏","example":"import threading\n\nprint([t.name for t in threading.enumerate()])","exampleLang":"python","pitfall":"只列 Python 线程，看不到线程池内部状态。数量下降不代表资源已回收。","raises":"无异常，只读线程列表"}]' />

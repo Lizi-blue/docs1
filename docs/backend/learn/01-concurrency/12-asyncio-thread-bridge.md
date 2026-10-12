@@ -67,6 +67,7 @@ related_components:
 
 
 
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"loop.run_in_executor","rank":"必会","signature":"run_in_executor(executor, func, *args)","params":[{"name":"executor","type":"Executor | None","default":"None","desc":"None 表示默认线程池"},{"name":"func","type":"callable","default":"必填","desc":"同步函数"}],"returns":"可等待对象，完成时给出函数结果","methods":["run_in_executor() — 交出阻塞调用","loop.set_default_executor() — 换默认执行器"],"effect":"把阻塞调用移出事件循环","scenario":"调用无异步版本的库","example":"import asyncio\n\ndef blocking(n):\n    return n * 2\n\nasync def main():\n    loop = asyncio.get_running_loop()\n    return await loop.run_in_executor(None, blocking, 21)\n\nprint(asyncio.run(main()))","exampleLang":"python","pitfall":"默认执行器线程数有限。阻塞任务一多就排队，事件循环照样被拖住。","raises":"RuntimeError，默认执行器已关闭时"},{"name":"loop.call_soon_threadsafe","rank":"必会","signature":"call_soon_threadsafe(callback, *args)","params":[{"name":"callback","type":"callable","default":"必填","desc":"在循环线程里执行的函数"}],"returns":"Handle 对象","methods":["call_soon_threadsafe() — 线程安全地排队","Handle.cancel() — 取消未执行的回调"],"effect":"让其他线程安全地触发循环动作","scenario":"线程收到结果后唤醒循环","example":"import asyncio\nimport threading\n\nasync def main():\n    loop = asyncio.get_running_loop()\n    done = loop.create_future()\n\n    def notify():\n        loop.call_soon_threadsafe(done.set_result, \"来自线程\")\n\n    threading.Thread(target=notify).start()\n    return await done\n\nprint(asyncio.run(main()))","exampleLang":"python","pitfall":"它只排队不等待，回调里的异常不会传回调用线程。","raises":"RuntimeError，事件循环已关闭时"}]' />

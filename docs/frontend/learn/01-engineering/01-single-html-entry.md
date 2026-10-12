@@ -60,11 +60,12 @@ related_components: []
 
 
 
-### 必会接口
+
+### DOM 查询与操作
 
 <ApiTable :items='[{"name":"document.querySelector","rank":"必会","pitfall":"选择器匹配不到时返回 null。直接读属性会报错。","signature":"querySelector(selectors)","params":[{"name":"selectors","type":"string","default":"必填","desc":"CSS 选择器"}],"returns":"首个匹配元素或 null","methods":["addEventListener(type, handler) — 绑定事件","textContent — 读写文本"],"effect":"按选择器取到元素，再挂事件或改内容","scenario":"脚本直接操作页面结构","example":"<button id=&#39;go&#39;>走</button>\n<script>\n  document.querySelector(&#39;#go&#39;).addEventListener(&#39;click&#39;, () => {\n    console.log(&#39;clicked&#39;)\n  })\n</script>","exampleLang":"html"}]' />
 
-### 常用接口
+### 加载与生命周期
 
 <ApiTable :items='[{"name":"window.onload","rank":"常用","pitfall":"onload 等全部资源加载完。脚本只需 DOM 就绪时用 DOMContentLoaded。","signature":"window.onload = handler","params":[],"returns":"无","methods":["DOMContentLoaded — DOM 就绪即触发"],"effect":"等资源加载完成再执行脚本","scenario":"脚本需要操作完整 DOM","example":"window.addEventListener(&#39;DOMContentLoaded&#39;, () => {\n  console.log(&#39;dom ready&#39;)\n})","exampleLang":"javascript"}]' />
 ## 组合用法：表单加列表的无构建页面

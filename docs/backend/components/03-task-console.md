@@ -535,6 +535,7 @@ createApp(App).component("TaskConsole", TaskConsole)
 
 
 
+
 ### 连接与订阅
 
 <ApiTable :items='[{"name":"EventSource","rank":"必会","signature":"new EventSource(url, { withCredentials })","params":[{"name":"url","type":"string","default":"必填","desc":"SSE 端点地址"},{"name":"withCredentials","type":"bool","default":"false","desc":"是否带跨域凭据"}],"returns":"事件源对象","methods":["addEventListener(&#39;output&#39;, handler) — 订阅命名事件","close() — 主动关闭连接","onerror — 断线回调"],"effect":"浏览器长连服务端，按事件名分发增量输出","scenario":"实时日志、进度推送、任务状态同步","example":"const source = new EventSource(&#39;/api/tasks/1/stream?from=0&#39;)\nsource.addEventListener(&#39;output&#39;, (event) => console.log(event.data))\nsource.onerror = () => console.warn(&#39;reconnecting&#39;)","exampleLang":"javascript","pitfall":"服务端必须回 text/event-stream。断线后浏览器自动重连并带上 Last-Event-ID。"},{"name":"fetch","rank":"必会","signature":"fetch(input, init)","params":[{"name":"input","type":"string","default":"必填","desc":"接口路径"},{"name":"init","type":"object","default":"{}","desc":"method 与 body 等选项"}],"returns":"Promise<Response>","methods":["response.json() — 解析响应体","response.ok — 判断是否 2xx"],"effect":"发同源请求，提交任务并拉取列表","scenario":"提交任务、拉取任务列表、取消任务","example":"const response = await fetch(&#39;/api/tasks&#39;, { method: &#39;POST&#39;, body: JSON.stringify({ command: &#39;cp&#39;, args: [&#39;a&#39;, &#39;b&#39;] }) })\nconsole.log(response.status)","exampleLang":"javascript","pitfall":"HTTP 4xx 与 5xx 不会让 fetch 抛错。要自己看 response.ok。"}]' />

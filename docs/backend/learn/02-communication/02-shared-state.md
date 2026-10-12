@@ -80,6 +80,7 @@ related_components:
 
 
 
+
 ### 必会接口
 
 <ApiTable :items='[{"name":"multiprocessing.shared_memory.SharedMemory","rank":"必会","signature":"SharedMemory(name=None, create=False, size=0)","params":[{"name":"name","type":"str | None","default":"None","desc":"段名。创建时留空表示自动取名"},{"name":"create","type":"bool","default":"False","desc":"是否新建一段共享内存"},{"name":"size","type":"int","default":"0","desc":"段字节数，创建时必填"}],"returns":"映射好的共享内存对象","methods":["close() — 断开本进程映射","unlink() — 删除底层内存段","buf — memoryview 视图","name — 段名，供其他进程挂载","size — 段字节数"],"effect":"把同一段物理内存映射进多个进程，读写零拷贝","scenario":"大数组、图像缓冲与批量数值计算","example":"from multiprocessing import shared_memory\n\nshm = shared_memory.SharedMemory(create=True, size=1024)\nview = memoryview(shm.buf)\nview[0] = 65\nprint(shm.name)\nshm.close()\nshm.unlink()","exampleLang":"python","pitfall":"create 为 True 时 size 必须大于 0，否则抛 ValueError"},{"name":"SharedMemory.close","rank":"必会","signature":"close()","params":[],"returns":"None","effect":"断开当前进程的映射，段本身仍然存在","scenario":"子进程用完缓冲区后立即断开","example":"shm = shared_memory.SharedMemory(name=name)\nview = memoryview(shm.buf)\ndata = bytes(view[:16])\nview.release()\nshm.close()","exampleLang":"python","pitfall":"忘记 close 会一直占着一个文件描述符"},{"name":"SharedMemory.unlink","rank":"必会","signature":"unlink()","params":[],"returns":"None","effect":"删除内核里的段名，已映射的进程仍可读写","scenario":"创建方在全部使用者退出后回收内存","example":"shm.close()\nshm.unlink()","exampleLang":"python","pitfall":"只有创建方该调用，多进程各调一次会抛 FileNotFoundError"}]' />

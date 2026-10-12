@@ -78,6 +78,10 @@ const GROUPS = {
     ['选项与超时', /settimeout|setsockopt|close|shutdown|dup|fileno|getpeername|getsockname/],
     ['地址族与常量', /AF_|SOCK_|SO_|inet_|gethostbyname/],
   ],
+  '浏览器原生入口': [
+    ['DOM 查询与操作', /querySelector|querySelectorAll|textContent|innerHTML|addEventListener|classList|createElement|appendChild/],
+    ['加载与生命周期', /DOMContentLoaded|onload|window|document|script|defer|async|module/],
+  ],
   browser: [
     ['DOM 查询与操作', /querySelector|querySelectorAll|textContent|innerHTML|addEventListener|classList|createElement|appendChild/],
     ['加载与生命周期', /DOMContentLoaded|onload|window|document|script|defer|async|type=\"module\"/],
@@ -131,7 +135,8 @@ function splitFallback(items) {
 }
 
 function matchGroup(module, name) {
-  const rules = GROUPS[module]
+  // 标题可能带中文后缀（如「npm 与模块」），按前后缀回退匹配模块名
+  const rules = GROUPS[module] ?? GROUPS[module.split(/[\s与及、]+/)[0]]
   if (rules) {
     for (const [title, test] of rules) if (test.test(name)) return title
   }
