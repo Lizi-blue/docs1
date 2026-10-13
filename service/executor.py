@@ -1,8 +1,7 @@
-"""任务执行器：线程池调度、子进程管理与指标采样。
+"""任务执行器：线程池调度与任务生命周期。
 
-每个任务一个子进程，子进程自建进程组（start_new_session），
-于是取消与超时都能对整组生效（spec FR-003/FR-006）。
-监控样本来自 /proc，指标口径见 FR-007。
+对象关系：Executor 持有 MetricsSampler，并为每个任务创建一个 ChildProcess。
+子进程与采样细节在 .process 里，本对象只做调度、状态迁移与终态决定。
 """
 from __future__ import annotations
 
@@ -13,34 +12,10 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
+from .process import ChildProcess, MetricsSampler, signal_group
 from .registry import CANCELED, FAILED, QUEUED, RUNNING, SUCCEEDED, TIMEOUT, Registry, Task
 
-GRACE_SECONDS = 3.0
 SAMPLE_INTERVAL = 0.25
-CLOCK_TICKS = os.sysconf("SC_CLK_TCK")
-SAFE_ENV_KEYS = ("PATH", "HOME", "LANG", "LC_ALL", "TZ")
-
-
-def sample_process(pid: int) -> tuple[float | None, int | None]:
-    """读取 CPU 时间与峰值常驻内存。进程已退出时返回 (None, None)。"""
-    cpu_s: float | None = None
-    max_rss_kb: int | None = None
-    try:
-        stat = open(f"/proc/{pid}/stat", encoding="utf-8").read()
-        tail = stat.rsplit(")", 1)[1].split()
-        utime, stime = float(tail[11]), float(tail[12])
-        cpu_s = (utime + stime) / CLOCK_TICKS
-    except (OSError, IndexError, ValueError):
-        pass
-    try:
-        with open(f"/proc/{pid}/status", encoding="utf-8") as handle:
-            for line in handle:
-                if line.startswith("VmHWM:"):
-                    max_rss_kb = int(line.split()[1])
-                    break
-    except (OSError, ValueError):
-        pass
-    return cpu_s, max_rss_kb
 
 
 class Executor:
@@ -50,6 +25,8 @@ class Executor:
         self.registry = registry
         self.limits = limits
         self.pool = ThreadPoolExecutor(max_workers=limits.max_concurrency, thread_name_prefix="task")
+        # 组合：Executor 持有采样器，任务级子进程由 ChildProcess 承担。
+        self._sampler = MetricsSampler()
         self._lock = threading.Lock()
         self._slots = 0
 
@@ -75,7 +52,7 @@ class Executor:
             return False
         task.cancel_requested = True
         if task.status == RUNNING and task.pgid:
-            self._signal_group(task.pgid, signal.SIGTERM)
+            signal_group(task.pgid, signal.SIGTERM)
         return True
 
     def shutdown(self, cancel_running: bool = True) -> None:
@@ -91,49 +68,38 @@ class Executor:
             if task.cancel_requested:
                 task.finish(CANCELED, None, None, "提交后立即取消")
                 return
-            env = {key: os.environ[key] for key in SAFE_ENV_KEYS if key in os.environ}
-            env.update(task.env)
-            proc = subprocess.Popen(  # noqa: S603 - 白名单与参数校验已在 limits 层完成
-                [task.command, *task.args],
-                cwd=task.cwd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=env,
-                start_new_session=True,
-            )
+            child = ChildProcess.spawn(task)
             # 先起进程再置 running：读方看到 running 时 pid 必须已经可用
-            task.pid = proc.pid
-            task.pgid = os.getpgid(proc.pid)
+            task.pid = child.pid
+            task.pgid = child.pgid
             task.mark_running()
             pumps = [
-                threading.Thread(target=self._pump, args=(task, proc.stdout, "stdout"), daemon=True),
-                threading.Thread(target=self._pump, args=(task, proc.stderr, "stderr"), daemon=True),
+                threading.Thread(target=self._pump, args=(task, child.proc.stdout, "stdout"), daemon=True),
+                threading.Thread(target=self._pump, args=(task, child.proc.stderr, "stderr"), daemon=True),
             ]
             for pump in pumps:
                 pump.start()
 
             # 先采一次：短命进程在循环开始前就可能退出
-            task.update_usage(*sample_process(proc.pid))
+            self._sampler.update(task, child.pid)
             deadline = time.monotonic() + task.timeout_s
-            while proc.poll() is None:
-                cpu_s, max_rss_kb = sample_process(proc.pid)
-                task.update_usage(cpu_s, max_rss_kb)
+            while child.poll() is None:
+                self._sampler.update(task, child.pid)
                 if task.cancel_requested:
-                    self._terminate(task, proc)
+                    child.terminate(self._sampler, task)
                     break
                 if time.monotonic() > deadline:
                     task.reason = "超时"
-                    self._terminate(task, proc)
+                    child.terminate(self._sampler, task)
                     break
                 time.sleep(SAMPLE_INTERVAL)
 
-            proc.wait()
+            child.wait()
             for pump in pumps:
                 pump.join(timeout=2)
-            cpu_s, max_rss_kb = sample_process(proc.pid)
-            task.update_usage(cpu_s, max_rss_kb)
+            self._sampler.update(task, child.pid)
 
-            returncode = proc.returncode if proc.returncode is not None else -1
+            returncode = child.returncode if child.returncode is not None else -1
             exit_code = returncode if returncode >= 0 else None
             signum = -returncode if returncode < 0 else None
             if task.reason == "超时":
@@ -166,24 +132,3 @@ class Executor:
                 stream.close()
             except OSError:
                 pass
-
-    def _signal_group(self, pgid: int, signum: int) -> None:
-        try:
-            os.killpg(pgid, signum)
-        except ProcessLookupError:
-            pass
-        except PermissionError:
-            pass
-
-    def _terminate(self, task: Task, proc: subprocess.Popen) -> None:
-        """先 SIGTERM，宽限期内不退再 SIGKILL。"""
-        if not task.pgid:
-            return
-        self._signal_group(task.pgid, signal.SIGTERM)
-        deadline = time.monotonic() + GRACE_SECONDS
-        while proc.poll() is None and time.monotonic() < deadline:
-            cpu_s, max_rss_kb = sample_process(proc.pid)
-            task.update_usage(cpu_s, max_rss_kb)
-            time.sleep(SAMPLE_INTERVAL / 2)
-        if proc.poll() is None:
-            self._signal_group(task.pgid, signal.SIGKILL)

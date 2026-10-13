@@ -36,55 +36,36 @@ class AllowItem:
     example: str
 
 
-class Limits:
-    """从配置文件加载限额、白名单与工作区，支持环境变量覆盖。"""
+class Allowlist:
+    """命令白名单与参数校验。
 
-    def __init__(self, config_path: str | os.PathLike[str] | None = None) -> None:
-        path = Path(config_path or os.environ.get("DOCS1_SERVICE_CONFIG") or DEFAULT_CONFIG)
-        raw = json.loads(path.read_text(encoding="utf-8"))
-        self.version: str = raw.get("version", "0.0.0")
-        self.allowlist: dict[str, AllowItem] = {
-            name: AllowItem(name, item.get("desc", ""), item.get("example", ""))
-            for name, item in raw.get("allowlist", {}).items()
-        }
-        self.env_allowlist: list[str] = list(raw.get("env_allowlist", ["LC_ALL", "LANG", "TZ"]))
-        limits = dict(raw.get("limits", {}))
-        self.max_concurrency = int(os.environ.get("DOCS1_MAX_CONCURRENCY", limits.get("max_concurrency", 4)))
-        self.timeout_max_s = int(os.environ.get("DOCS1_TIMEOUT_MAX_S", limits.get("timeout_max_s", 300)))
-        self.output_max_bytes = int(os.environ.get("DOCS1_OUTPUT_MAX_BYTES", limits.get("output_max_bytes", 1 << 20)))
-        self.keep = int(os.environ.get("DOCS1_KEEP", limits.get("keep", 50)))
-        self.args_max = int(limits.get("args_max", 32))
-        self.arg_len_max = int(limits.get("arg_len_max", 256))
-        self.workspace = Path(
-            os.environ.get("DOCS1_WORKSPACE") or raw.get("workspace", "/var/lib/docs1-tasks")
-        ).resolve()
-        self.workspace.mkdir(parents=True, exist_ok=True)
+    对象职责：判断命令是否放行，校验参数与环境变量的形态。
+    对象边界：不管并发、超时与工作区，那些属于 Limits。
+    被谁持有：Limits 持有唯一实例。
+    """
 
-    # ---- 对外快照 ----
-    def public(self) -> dict:
-        return {
-            "version": self.version,
-            "max_concurrency": self.max_concurrency,
-            "timeout_max_s": self.timeout_max_s,
-            "output_max_bytes": self.output_max_bytes,
-            "keep": self.keep,
-            "allowlist": [
-                {"name": item.name, "desc": item.desc, "example": item.example}
-                for item in sorted(self.allowlist.values(), key=lambda entry: entry.name)
-            ],
-        }
+    def __init__(self, items: dict[str, "AllowItem"], env_keys: list[str],
+                 args_max: int, arg_len_max: int) -> None:
+        self.items = items
+        self.env_keys = env_keys
+        self.args_max = args_max
+        self.arg_len_max = arg_len_max
 
-    # ---- 提交校验 ----
-    def validate_submit(self, payload: object) -> dict:
-        if not isinstance(payload, dict):
-            raise ValidationError("提交体必须是 JSON 对象")
+    def names(self) -> list[str]:
+        return sorted(self.items)
+
+    def get(self, name: str) -> "AllowItem | None":
+        return self.items.get(name)
+
+    def validate_command(self, payload: dict) -> str:
         command = payload.get("command")
         if not isinstance(command, str) or not command:
             raise ValidationError("缺少 command 字段")
-        if command not in self.allowlist:
+        if command not in self.items:
             raise ValidationError(f"命令不在白名单内：{command}")
+        return command
 
-        raw_args = payload.get("args", [])
+    def validate_args(self, raw_args: object) -> list[str]:
         if raw_args is None:
             raw_args = []
         if not isinstance(raw_args, list):
@@ -103,6 +84,71 @@ class Limits:
             if hit:
                 raise ValidationError(f"参数包含被禁止的字符：{''.join(sorted(hit))}")
             args.append(item)
+        return args
+
+    def validate_env(self, raw_env: object) -> dict[str, str]:
+        env: dict[str, str] = {}
+        raw_env = raw_env or {}
+        if not isinstance(raw_env, dict):
+            raise ValidationError("env 必须是对象")
+        for key, value in raw_env.items():
+            if key not in self.env_keys:
+                raise ValidationError(f"env 键不在白名单内：{key}")
+            if not isinstance(value, str) or CONTROL_CHAR.search(value):
+                raise ValidationError(f"env[{key}] 必须是可读字符串")
+            env[key] = value
+        return env
+
+
+class Limits:
+    """从配置文件加载限额、白名单与工作区，支持环境变量覆盖。"""
+
+    def __init__(self, config_path: str | os.PathLike[str] | None = None) -> None:
+        path = Path(config_path or os.environ.get("DOCS1_SERVICE_CONFIG") or DEFAULT_CONFIG)
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        self.version: str = raw.get("version", "0.0.0")
+        allow_items: dict[str, AllowItem] = {
+            name: AllowItem(name, item.get("desc", ""), item.get("example", ""))
+            for name, item in raw.get("allowlist", {}).items()
+        }
+        limits = dict(raw.get("limits", {}))
+        self.allowlist = Allowlist(
+            allow_items,
+            list(raw.get("env_allowlist", ["LC_ALL", "LANG", "TZ"])),
+            int(limits.get("args_max", 32)),
+            int(limits.get("arg_len_max", 256)),
+        )
+        self.max_concurrency = int(os.environ.get("DOCS1_MAX_CONCURRENCY", limits.get("max_concurrency", 4)))
+        self.timeout_max_s = int(os.environ.get("DOCS1_TIMEOUT_MAX_S", limits.get("timeout_max_s", 300)))
+        self.output_max_bytes = int(os.environ.get("DOCS1_OUTPUT_MAX_BYTES", limits.get("output_max_bytes", 1 << 20)))
+        self.keep = int(os.environ.get("DOCS1_KEEP", limits.get("keep", 50)))
+        self.workspace = Path(
+            os.environ.get("DOCS1_WORKSPACE") or raw.get("workspace", "/var/lib/docs1-tasks")
+        ).resolve()
+        self.workspace.mkdir(parents=True, exist_ok=True)
+
+    # ---- 对外快照 ----
+    def public(self) -> dict:
+        return {
+            "version": self.version,
+            "max_concurrency": self.max_concurrency,
+            "timeout_max_s": self.timeout_max_s,
+            "output_max_bytes": self.output_max_bytes,
+            "keep": self.keep,
+            "allowlist": [
+                {"name": self.allowlist.get(name).name,
+                 "desc": self.allowlist.get(name).desc,
+                 "example": self.allowlist.get(name).example}
+                for name in self.allowlist.names()
+            ],
+        }
+
+    # ---- 提交校验 ----
+    def validate_submit(self, payload: object) -> dict:
+        if not isinstance(payload, dict):
+            raise ValidationError("提交体必须是 JSON 对象")
+        command = self.allowlist.validate_command(payload)
+        args = self.allowlist.validate_args(payload.get("args", []))
 
         timeout_s = payload.get("timeout_s")
         if timeout_s is None:
@@ -114,16 +160,7 @@ class Limits:
 
         cwd = self.resolve_cwd(payload.get("cwd"))
 
-        env: dict[str, str] = {}
-        raw_env = payload.get("env") or {}
-        if not isinstance(raw_env, dict):
-            raise ValidationError("env 必须是对象")
-        for key, value in raw_env.items():
-            if key not in self.env_allowlist:
-                raise ValidationError(f"env 键不在白名单内：{key}")
-            if not isinstance(value, str) or CONTROL_CHAR.search(value):
-                raise ValidationError(f"env[{key}] 必须是可读字符串")
-            env[key] = value
+        env = self.allowlist.validate_env(payload.get("env"))
 
         return {"command": command, "args": args, "cwd": str(cwd), "timeout_s": float(timeout_s), "env": env}
 

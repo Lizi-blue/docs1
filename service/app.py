@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, urlparse
 
 from .executor import Executor
 from .limits import Limits, ValidationError
+from .stream import StreamHub
 from .registry import Registry, Task
 
 SERVICE_VERSION = "1.0.0"
@@ -163,13 +164,8 @@ class TaskHandler(BaseHTTPRequestHandler):
         if task is None:
             self._send_error_json(404, f"任务不存在：{task_id}")
             return
-        from_seq = 0
-        last_event_id = self.headers.get("Last-Event-ID") or ""
-        if last_event_id.isdigit():
-            from_seq = int(last_event_id)
-        params = parse_qs(query)
-        if params.get("from", [""])[0].isdigit():
-            from_seq = max(from_seq, int(params["from"][0]))
+        hub = self.server.stream_hub
+        from_seq = hub.resolve_cursor(self.headers.get("Last-Event-ID"), query)
 
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
@@ -178,7 +174,7 @@ class TaskHandler(BaseHTTPRequestHandler):
         self.send_header("X-Accel-Buffering", "no")
         self.end_headers()
 
-        subscriber, history = task.subscribe(from_seq)
+        subscriber, history = hub.open(task, from_seq)
         try:
             self._sse("status", None, {"id": task.id, "status": task.status, "from_seq": from_seq})
             for chunk in history:
@@ -187,9 +183,8 @@ class TaskHandler(BaseHTTPRequestHandler):
                 self._sse("end", None, task._end_payload_locked())
                 return
             while True:
-                try:
-                    item = subscriber.get(timeout=15)
-                except queue.Empty:
+                item = hub.next_event(subscriber)
+                if item is None:
                     self.wfile.write(b": keep-alive\n\n")
                     self.wfile.flush()
                     continue
@@ -201,7 +196,7 @@ class TaskHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
         finally:
-            task.unsubscribe(subscriber)
+            hub.close(task, subscriber)
 
     def _sse(self, event: str, seq: int | None, data: dict) -> None:
         lines = []
@@ -230,6 +225,8 @@ class TaskServer(ThreadingHTTPServer):
         self.limits = limits
         self.registry = registry
         self.executor = executor
+        # 组合：服务器持有流订阅中心，各请求共用同一实例。
+        self.stream_hub = StreamHub()
 
 
 def create_server(host: str = "127.0.0.1", port: int = 8787,

@@ -184,8 +184,12 @@ class Task:
         }
 
 
-class Registry:
-    """任务集合与保留策略。超出保留数时先淘汰最早的终态任务。"""
+class TaskRegistry:
+    """任务集合与保留策略。超出保留数时先淘汰最早的终态任务。
+
+    对象职责：保存任务、提供查询与淘汰。
+    对象边界：不做调度，不碰子进程，不做输出分发。
+    """
 
     def __init__(self, keep: int) -> None:
         self.keep = keep
@@ -225,3 +229,7 @@ class Registry:
                     break
             else:
                 return
+
+
+# 旧名保留为别名，避免调用方与文档同时改动。
+Registry = TaskRegistry

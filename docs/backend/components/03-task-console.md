@@ -61,6 +61,22 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 
 <DiagramFrame src="/diagrams/executor-lifecycle.html" title="任务从接单到收尾的服务端流转（Archify 交互图）" :height="520" />
 
+## 对象模型
+
+后端任务服务由七个对象组成。它们与三个继承类一起构成整体。
+
+| 对象 | 职责 | 状态 | 生命周期 |
+|---|---|---|---|
+| `Allowlist` | 命令白名单与参数校验 | 允许的命令集合 | 进程启动时读配置创建 |
+| `TaskRegistry` | 任务登记、查询与淘汰 | 任务表与顺序队列 | 进程级唯一 |
+| `OutputBuffer` | 输出分片、序号与截断 | 分片队列、序号、订阅者 | 随任务创建与销毁 |
+| `StreamHub` | 订阅生命周期、游标与心跳节奏 | 心跳间隔 | 进程级唯一，挂在服务器上 |
+| `Executor` | 线程池调度与并发名额 | 线程池、已占名额 | 进程启动时创建 |
+| `ChildProcess` | 一个任务的子进程与进程组 | pid、pgid | 任务开始时创建，收尾时回收 |
+| `MetricsSampler` | 读取 /proc 采样 | 时钟频率 | 随 `Executor` 创建 |
+
+另有 `Task` 承载单个任务的状态机与指标，由 `TaskRegistry` 保存。
+
 ## 对象层级
 
 本组件有三组真实继承。其余关系是持有。
