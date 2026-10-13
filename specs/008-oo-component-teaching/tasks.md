@@ -32,11 +32,11 @@ description: "Task list for 组件面向对象重构与教学"
 **Independent Test**: `python3 -m pytest tests/ -q` 全绿；源码中每个对象有独立类或模块。
 
 - [x] T006 [US1] `service/output.py` 抽出 `OutputBuffer`（缓冲、序号、截断、订阅分发），`Task` 改为持有并委托（覆盖 FR-004）
-- [ ] T007 [US1] `service/registry.py` 把 `Task` 拆为 `Task`（状态机与指标）+ 组合 `OutputBuffer`；`Registry` 改名 `TaskRegistry` 并保留别名（覆盖 FR-004、FR-005）
-- [ ] T008 [US1] `service/limits.py` 拆出 `Allowlist` 类（白名单与参数校验），`Limits` 只留限额（覆盖 FR-004）
-- [ ] T009 [US1] `service/executor.py` 拆出 `Executor`（线程池与名额）、`ChildProcess`（进程组与信号）、`MetricsSampler`（/proc 采样）三个对象（覆盖 FR-004、FR-010）
-- [ ] T010 [US1] `service/app.py` 拆出 `StreamHub`（SSE 订阅、续传、心跳）与 `TaskService`（组合根），路由只做参数与响应（覆盖 FR-004）
-- [ ] T011 [US1] 跑 `python3 -m pytest tests/ -q`，确认对象化重构未破坏行为；把对象清单写入 `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-006）
+- [x] T007 [US1] `service/registry.py` 把 `Task` 拆为 `Task`（状态机与指标）+ 组合 `OutputBuffer`；`Registry` 改名 `TaskRegistry` 并保留别名（覆盖 FR-004、FR-005）
+- [x] T008 [US1] `service/limits.py` 拆出 `Allowlist` 类（白名单与参数校验），`Limits` 只留限额（覆盖 FR-004）
+- [x] T009 [US1] `service/executor.py` 拆出 `Executor`（线程池与名额）、`ChildProcess`（进程组与信号）、`MetricsSampler`（/proc 采样）三个对象（覆盖 FR-004、FR-010）
+- [x] T010 [US1] `service/app.py` 拆出 `StreamHub`（SSE 订阅、续传、心跳）与 `TaskService`（组合根），路由只做参数与响应（覆盖 FR-004）
+- [x] T011 [US1] 跑 `python3 -m pytest tests/ -q`，确认对象化重构未破坏行为；把对象清单写入 `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-006）
 
 ## Phase 4: User Story 2 - 逐对象成节（Priority: P1）
 
@@ -44,22 +44,22 @@ description: "Task list for 组件面向对象重构与教学"
 
 **Independent Test**: 对象小节数 = 清单条数；每节含职责、持有、方法、边界。
 
-- [ ] T012 [US2] 在 `docs/backend/components/03-task-console.md` 重写「对象模型」节：对象清单表（对象｜职责｜状态｜生命周期）（覆盖 FR-001、FR-002）
+- [x] T012 [US2] 在 `docs/backend/components/03-task-console.md` 重写「对象模型」节：对象清单表（对象｜职责｜状态｜生命周期）（覆盖 FR-001、FR-002）
 - [ ] T013 [US2] 在 `docs/backend/components/03-task-console.md` 为 `Allowlist`、`TaskRegistry`、`OutputBuffer`、`StreamHub`、`Executor`、`ChildProcess`、`MetricsSampler` 各写一节，含职责、持有、方法、边界（覆盖 FR-003）
 - [ ] T014 [US2] 在 `docs/backend/components/03-task-console.md` 按对象重排「API 手册」，方法组名与对象名一致（覆盖 FR-006）
 - [ ] T015 [US2] 在 `docs/backend/components/03-task-console.md` 更新「对象实现」小节：按对象给出关键代码片段，与源码一致（覆盖 FR-004、FR-005）
 
 ## Phase 5: User Story 3 - 对象协作与流程（Priority: P1）
 
-- [ ] T016 [US3] 在 `docs/backend/components/03-task-console.md` 新增「对象协作与流程」节：对象关系用「持有／调用／回调」标注（覆盖 FR-007）
-- [ ] T017 [US3] 在 `docs/backend/components/03-task-console.md` 写「下发到完成」流程：步骤 ≥5，每步写调用方、被调方与数据形态（覆盖 FR-008）
-- [ ] T018 [US3] 在 `docs/backend/components/03-task-console.md` 写「取消与超时」流程：含失败路径与资源释放时机（覆盖 FR-009、FR-010）
+- [x] T016 [US3] 在 `docs/backend/components/03-task-console.md` 新增「对象协作与流程」节：对象关系用「持有／调用／回调」标注（覆盖 FR-007）
+- [x] T017 [US3] 在 `docs/backend/components/03-task-console.md` 写「下发到完成」流程：步骤 ≥5，每步写调用方、被调方与数据形态（覆盖 FR-008）
+- [x] T018 [US3] 在 `docs/backend/components/03-task-console.md` 写「取消与超时」流程：含失败路径与资源释放时机（覆盖 FR-009、FR-010）
 
 ## Phase 6: User Story 4 - 图解对应对象模型（Priority: P2）
 
-- [ ] T019 [P] [US4] 产出对象关系图（Archify 源在 `diagrams/src/`，产物在 `docs/public/diagrams/`），节点名与清单一致（覆盖 FR-011、FR-012）
-- [ ] T020 [P] [US4] 在 `diagrams/src/` 产出关键流程时序图（产物到 `docs/public/diagrams/`），步骤与流程小节编号一致（覆盖 FR-011、FR-012）
-- [ ] T021 [US4] 在 `docs/backend/components/03-task-console.md` 替换原「组合方式图解」为对象关系图 + 时序图，并写图注（覆盖 FR-013）
+- [x] T019 [P] [US4] 产出对象关系图（Archify 源在 `diagrams/src/`，产物在 `docs/public/diagrams/`），节点名与清单一致（覆盖 FR-011、FR-012）
+- [x] T020 [P] [US4] 在 `diagrams/src/` 产出关键流程时序图（产物到 `docs/public/diagrams/`），步骤与流程小节编号一致（覆盖 FR-011、FR-012）
+- [x] T021 [US4] 在 `docs/backend/components/03-task-console.md` 替换原「组合方式图解」为对象关系图 + 时序图，并写图注（覆盖 FR-013）
 
 ## Phase 7: User Story 5 - 知识点只登记一处（Priority: P2）
 
@@ -69,9 +69,9 @@ description: "Task list for 组件面向对象重构与教学"
 
 ## Phase 7b: 对象层级（继承与组合）
 
-- [ ] T029 [US2] 在 `docs/backend/components/03-task-console.md` 新增「对象层级」节：继承表（子类｜父类｜扩展或覆盖的方法）+ 组合表（持有者｜被持有者｜用途），三组真实继承全部登记（覆盖 FR-017、FR-019、SC-010）
-- [ ] T030 [P] [US4] 产出对象层级图：继承边用实线三角、组合边用菱形，节点名与对象清单一致（覆盖 FR-018、FR-020）
-- [ ] T031 [US5] 在 `scripts/check-component.mjs` 增 C9：组件的后端源码存在继承时，页面 MUST 含「对象层级」节，且表内子类名 MUST 出现在源码中（覆盖 FR-017、SC-011）
+- [x] T029 [US2] 在 `docs/backend/components/03-task-console.md` 新增「对象层级」节：继承表（子类｜父类｜扩展或覆盖的方法）+ 组合表（持有者｜被持有者｜用途），三组真实继承全部登记（覆盖 FR-017、FR-019、SC-010）
+- [x] T030 [P] [US4] 产出对象层级图：继承边用实线三角、组合边用菱形，节点名与对象清单一致（覆盖 FR-018、FR-020）
+- [x] T031 [US5] 在 `scripts/check-component.mjs` 增 C9：组件的后端源码存在继承时，页面 MUST 含「对象层级」节，且表内子类名 MUST 出现在源码中（覆盖 FR-017、SC-011）
 
 ## Phase 8: Polish
 

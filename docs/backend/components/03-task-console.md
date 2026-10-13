@@ -121,7 +121,12 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 
 ## 组合方式图解
 
-下图回答一个问题：一个任务从接单到收尾，服务端在哪些环节落状态与输出。
+两张图与上面的对象清单同名。第一张回答「对象之间谁持有谁、谁继承谁」。
+第二张回答「一次下发，对象按什么顺序互相调用」。第三张回答「状态在哪些环节落定」。
+
+<DiagramFrame src="/diagrams/task-service-objects.html" title="对象关系：实线是持有与创建，虚线是继承（Archify 交互图）" :height="560" />
+
+<DiagramFrame src="/diagrams/task-service-submit.html" title="下发到完成：八个参与对象的调用顺序（Archify 交互图）" :height="620" />
 
 <DiagramFrame src="/diagrams/executor-lifecycle.html" title="任务从接单到收尾的服务端流转（Archify 交互图）" :height="520" />
 

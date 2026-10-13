@@ -530,6 +530,34 @@ function checkInheritance(root, parsed, relative) {
   }
 }
 
+/**
+ * C10 图解与对象清单同名：页面引用的对象关系图里，必须能找到「对象模型」表中的对象名。
+ * 只对登记在迁移清单里的页面生效（迁移期约定，见契约 §2）。
+ */
+function checkDiagramBinding(root, parsed, relative) {
+  const body = parsed.content ?? ''
+  const model = /^##\s*对象模型\s*$([\s\S]*?)(?=^##\s)/m.exec(body)?.[1] ?? ''
+  if (!model) return
+  const names = [...model.matchAll(/`([A-Z][A-Za-z0-9_]*)`/g)].map((item) => item[1])
+  const unique = [...new Set(names)]
+  if (unique.length === 0) return
+  const frames = [...body.matchAll(/<DiagramFrame[^>]*src="([^"]+)"/g)].map((item) => item[1])
+  const product = frames.find((src) => /objects|hierarchy|对象/.test(src))
+  if (!product) return
+  const file = path.join(path.dirname(path.dirname(root)), 'docs', 'public', product.replace(/^\//, ''))
+  const candidates = [file, path.join(root, 'public', product.replace(/^\//, ''))]
+  const target = candidates.find((item) => fs.existsSync(item))
+  if (!target) {
+    warn('C10', relative, 1, `对象关系图产物不存在：${product}`, '运行 bash scripts/gen-diagrams.sh 生成图解')
+    return
+  }
+  const html = fs.readFileSync(target, 'utf8')
+  const missing = unique.filter((name) => !html.includes(name))
+  if (missing.length) {
+    fail('C10', relative, 1, `对象关系图缺少清单中的对象：${missing.join('、')}`, '让图解节点与「对象模型」表同名')
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const rootIndex = args.indexOf('--root')
@@ -557,6 +585,7 @@ function main() {
     checkReuseManifest(parsed, page.file, parsed.data, workspace, tree.linkMap, pagesByUrl)
     checkCrossLink(parsed, page, page.file, parsed.data, tree, pagesByUrl)
     checkInheritance(workspace, parsed, page.file)
+    checkDiagramBinding(rootDir, parsed, page.file)
   }
   checkStyleScope(rootDir)
 

@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "下发到完成：对象之间的调用顺序",
+    "output": "docs/public/diagrams/task-service-submit.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      660
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "handler",
+      "type": "backend",
+      "label": "TaskHandler",
+      "sublabel": "接口层"
+    },
+    {
+      "id": "allow",
+      "type": "backend",
+      "label": "Allowlist",
+      "sublabel": "校验"
+    },
+    {
+      "id": "exec",
+      "type": "backend",
+      "label": "Executor",
+      "sublabel": "调度与名额"
+    },
+    {
+      "id": "reg",
+      "type": "backend",
+      "label": "TaskRegistry",
+      "sublabel": "登记"
+    },
+    {
+      "id": "child",
+      "type": "backend",
+      "label": "ChildProcess",
+      "sublabel": "子进程"
+    },
+    {
+      "id": "task",
+      "type": "backend",
+      "label": "Task",
+      "sublabel": "状态机"
+    },
+    {
+      "id": "buf",
+      "type": "messagebus",
+      "label": "OutputBuffer",
+      "sublabel": "输出与序号"
+    },
+    {
+      "id": "hub",
+      "type": "backend",
+      "label": "StreamHub",
+      "sublabel": "订阅与心跳"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "handler",
+      "to": "allow",
+      "y": 170,
+      "label": "validate_submit(payload)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "allow",
+      "to": "handler",
+      "y": 204,
+      "label": "命令与参数合规",
+      "variant": "return"
+    },
+    {
+      "id": "m3",
+      "from": "handler",
+      "to": "exec",
+      "y": 238,
+      "label": "try_acquire_slot()"
+    },
+    {
+      "id": "m4",
+      "from": "exec",
+      "to": "handler",
+      "y": 272,
+      "label": "名额已占，否则 429",
+      "variant": "return"
+    },
+    {
+      "id": "m5",
+      "from": "exec",
+      "to": "reg",
+      "y": 306,
+      "label": "add(Task)"
+    },
+    {
+      "id": "m6",
+      "from": "exec",
+      "to": "child",
+      "y": 340,
+      "label": "spawn(Task)"
+    },
+    {
+      "id": "m7",
+      "from": "child",
+      "to": "task",
+      "y": 374,
+      "label": "pid 与 pgid 就位",
+      "variant": "return"
+    },
+    {
+      "id": "m8",
+      "from": "task",
+      "to": "buf",
+      "y": 408,
+      "label": "append_output(stdout)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m9",
+      "from": "buf",
+      "to": "hub",
+      "y": 442,
+      "label": "output 事件"
+    },
+    {
+      "id": "m10",
+      "from": "child",
+      "to": "task",
+      "y": 476,
+      "label": "finish(终态)",
+      "variant": "return"
+    },
+    {
+      "id": "m11",
+      "from": "task",
+      "to": "hub",
+      "y": 510,
+      "label": "end 事件",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "失败与取消",
+      "items": [
+        "取消：向进程组发 SIGTERM，宽限 3 秒再 SIGKILL",
+        "超时：到点走同一终止路径",
+        "出错：Executor 兜底落 failed 并释放名额"
+      ]
+    }
+  ]
+}

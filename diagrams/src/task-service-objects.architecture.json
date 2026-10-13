@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "任务服务的对象关系：继承与持有",
+    "output": "docs/public/diagrams/task-service-objects.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "handler",
+      "type": "backend",
+      "label": "TaskHandler",
+      "sublabel": "HTTP 处理",
+      "pos": [
+        40,
+        70
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "baseHandler",
+      "type": "messagebus",
+      "label": "BaseHTTPRequestHandler",
+      "sublabel": "标准库父类",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "TaskServer",
+      "sublabel": "HTTP 服务",
+      "pos": [
+        270,
+        70
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "baseServer",
+      "type": "messagebus",
+      "label": "ThreadingHTTPServer",
+      "sublabel": "标准库父类",
+      "pos": [
+        270,
+        170
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "limits",
+      "type": "backend",
+      "label": "Limits",
+      "sublabel": "限额",
+      "pos": [
+        510,
+        40
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "allowlist",
+      "type": "backend",
+      "label": "Allowlist",
+      "sublabel": "白名单与校验",
+      "pos": [
+        510,
+        140
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "backend",
+      "label": "TaskRegistry",
+      "sublabel": "任务登记",
+      "pos": [
+        700,
+        40
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "task",
+      "type": "backend",
+      "label": "Task",
+      "sublabel": "状态机与指标",
+      "pos": [
+        700,
+        140
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "output",
+      "type": "messagebus",
+      "label": "OutputBuffer",
+      "sublabel": "分片与订阅",
+      "pos": [
+        890,
+        140
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "streamhub",
+      "type": "backend",
+      "label": "StreamHub",
+      "sublabel": "订阅与心跳",
+      "pos": [
+        510,
+        240
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "executor",
+      "type": "backend",
+      "label": "Executor",
+      "sublabel": "线程池与名额",
+      "pos": [
+        700,
+        240
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "child",
+      "type": "backend",
+      "label": "ChildProcess",
+      "sublabel": "子进程与进程组",
+      "pos": [
+        890,
+        240
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "sampler",
+      "type": "backend",
+      "label": "MetricsSampler",
+      "sublabel": "读 /proc 采样",
+      "pos": [
+        890,
+        340
+      ],
+      "size": [
+        160,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "进程内的对象",
+      "wraps": [
+        "limits",
+        "allowlist",
+        "registry",
+        "task",
+        "output",
+        "streamhub",
+        "executor",
+        "child",
+        "sampler"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "标准库父类",
+      "wraps": [
+        "baseHandler",
+        "baseServer"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "handler-extends",
+      "from": "handler",
+      "to": "baseHandler",
+      "label": "继承",
+      "variant": "dashed"
+    },
+    {
+      "id": "server-extends",
+      "from": "server",
+      "to": "baseServer",
+      "label": "继承",
+      "variant": "dashed"
+    },
+    {
+      "id": "server-limits",
+      "from": "server",
+      "to": "limits",
+      "label": "持有",
+      "variant": "emphasis"
+    },
+    {
+      "id": "server-registry",
+      "from": "server",
+      "to": "registry",
+      "label": "持有",
+      "variant": "dashed"
+    },
+    {
+      "id": "server-streamhub",
+      "from": "server",
+      "to": "streamhub",
+      "label": "持有",
+      "variant": "dashed"
+    },
+    {
+      "id": "limits-allowlist",
+      "from": "limits",
+      "to": "allowlist",
+      "label": "持有",
+      "variant": "dashed"
+    },
+    {
+      "id": "registry-task",
+      "from": "registry",
+      "to": "task",
+      "label": "保存",
+      "variant": "dashed"
+    },
+    {
+      "id": "task-output",
+      "from": "task",
+      "to": "output",
+      "label": "持有",
+      "variant": "dashed"
+    },
+    {
+      "id": "executor-sampler",
+      "from": "executor",
+      "to": "sampler",
+      "label": "持有",
+      "variant": "dashed"
+    },
+    {
+      "id": "executor-child",
+      "from": "executor",
+      "to": "child",
+      "label": "创建",
+      "variant": "dashed"
+    },
+    {
+      "id": "child-task",
+      "from": "child",
+      "to": "task",
+      "label": "回调输出",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "怎么读这张图",
+      "items": [
+        "实线 = 持有或创建",
+        "虚线 = 继承或回传",
+        "对象名与页面清单一致"
+      ]
+    }
+  ]
+}
