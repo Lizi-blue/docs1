@@ -53,7 +53,43 @@
 门禁新增 **C10**：页面的对象关系图必须包含「对象模型」表中的全部对象名（负例已验证会判红）。
 生成过程中按 Archify 校验调过三处：卡片结构 `dot/items`、消息间距 ≥28px、画布 1080×660（小字号投影 ≥6px）。
 
-## 四、待完成
+## 四、第三轮（三页齐活 + 逐对象成节 + 前端对象化）
+
+### 后端页逐对象成节（T013–T015）
+
+- 「对象模型」加 7 个对象小节，每节固定四块（职责、持有、方法、边界）+ 两列（谁调用它、它调用谁）
+- 「API 手册」三组改名与对象同名：`TaskHandler`、`StreamHub`、`Executor`
+- 「核心源码」按对象分块：`TaskHandler`/`TaskServer`/`Allowlist`/`Task`/`TaskRegistry`/`OutputBuffer`/
+  `StreamHub`/`Executor`/`ChildProcess`/`MetricsSampler`，代码从 `service/*.py` 直接提取
+
+### 前端对象化（T025）
+
+- 新增 `docs/.vitepress/theme/components/task-console/api.ts`：`ApiClient`（请求、JSON 解析、错误体映射）
+- 新增 `…/task-console/stream.ts`：`EventStream`（建连、三类事件转发、关连接）
+- `TaskConsole.vue` 改为委托两个对象（调用点与响应式状态未动；`request`/`messageOf` 变薄封装）
+- 前端页补「对象模型（3 对象 + 逐对象三节）」「对象层级（无继承）」「对象协作与流程（提交到看到输出 / 服务不可用降级）」
+- 「API 手册」三组改名与对象同名：`TaskConsole`、`EventStream`、`ApiClient`
+
+### 队列页逐对象成节
+
+- 「对象模型」加 3 个对象小节（`SafeQueue`/`TaskResult`/`_worker`），每节同样四块 + 两列
+- 「API 手册」两组改名：`SafeQueue`、`TaskResult`
+
+### 门禁与迁移收口
+
+- 新增 **C8**：对象清单行数 MUST 等于对象小节数，且对象名 MUST 能在登记的源码里找到
+  （登记表 `scripts/data/component-objects.json`；负例：清单塞假对象 → 判红）
+- 迁移期清单 `scripts/data/oo-rollout.txt` 与门禁分支**已删除**：对象三节改为始终必需
+- 门禁自测正例夹具补上对象三节（G16 恢复通过）
+- 复用清单 `reuse/task-console/manifest.json` 升 1.1.0，补两个前端对象文件
+
+### 本轮验证
+
+- `pytest tests/ -q` → **57 passed / 3 skipped**；`pytest tests/test_reuse_manifest.py -q` → 11 passed
+- 十三条门禁 → **13/13 全绿**；`selftest:gates` 全部符合预期（含 G16 正例恢复）
+- 前端重构静态复核（产物 JS）：`EventSource` 13 处、`stream?from=` 1 处、`Last-Event-ID` 5 处、`aria-live` 1 处
+
+## 五、待完成
 
 页面按对象重写（对象模型 / 逐对象成节 / 协作与流程 / 图解 / 删除重复知识点节），
 契约章节表 16 → 15 节，门禁 C8 对象断言，另两个组件的对象化。

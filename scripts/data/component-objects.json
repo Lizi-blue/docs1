@@ -1,0 +1,21 @@
+{
+  "backend/components/03-task-console.md": {
+    "Allowlist": "service/limits.py",
+    "TaskRegistry": "service/registry.py",
+    "OutputBuffer": "service/output.py",
+    "StreamHub": "service/stream.py",
+    "Executor": "service/executor.py",
+    "ChildProcess": "service/process.py",
+    "MetricsSampler": "service/process.py"
+  },
+  "backend/components/01-safe-queue.md": {
+    "SafeQueue": "docs/backend/components/01-safe-queue.md",
+    "TaskResult": "docs/backend/components/01-safe-queue.md",
+    "_worker": "docs/backend/components/01-safe-queue.md"
+  },
+  "frontend/components/01-task-console.md": {
+    "ApiClient": "docs/.vitepress/theme/components/task-console/api.ts",
+    "EventStream": "docs/.vitepress/theme/components/task-console/stream.ts",
+    "TaskConsole": "docs/.vitepress/theme/components/TaskConsole.vue"
+  }
+}

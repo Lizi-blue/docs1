@@ -47,6 +47,47 @@ description: "把队列、哨兵与异常回传封成一个可复用的进程池
 | `_worker` | 进程入口：取任务、调用、回传 | 当前任务 | 随 `SafeQueue` 启动，收到哨兵退出 |
 
 
+每个对象单独一节。四块固定：职责、持有、方法、边界。另加两列调用关系。
+
+### SafeQueue
+
+源码位置：本页「核心源码」代码块。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 组装队列与 worker 进程，对外给出投递与收取 |
+| 持有 | 任务队列、结果队列、worker 进程句柄 |
+| 方法 | `__enter__()`、`__exit__(*exc)`、`submit(items)`、`drain(expected, timeout)` |
+| 边界 | 不执行任务函数，不解释结果内容 |
+| 谁调用它 | 使用组件的业务代码 |
+| 它调用谁 | worker 进程、任务队列与结果队列 |
+
+### TaskResult
+
+源码位置：本页「核心源码」代码块。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 承载一条任务的结果：成功值或异常文本 |
+| 持有 | ok 标记、value、error |
+| 方法 | 无（数据对象，构造由 `@dataclass` 提供） |
+| 边界 | 不判断成功，只记录 |
+| 谁调用它 | worker 进程在任务收尾处创建 |
+| 它调用谁 | 无 |
+
+### _worker
+
+源码位置：本页「核心源码」代码块。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 进程入口：取任务、调用任务函数、回传结果 |
+| 持有 | 当前任务与目标函数 |
+| 方法 | `_worker(func, tasks, results)`（模块级函数，进程入口） |
+| 边界 | 不投递任务，不收回结果，不管理生命周期 |
+| 谁调用它 | `SafeQueue.__enter__` 启动进程时 |
+| 它调用谁 | 任务函数、结果队列 |
+
 ## 对象层级
 
 源码没有继承，关系全是持有。
@@ -274,11 +315,11 @@ def enqueue():
 - [multiprocessing 官方文档](https://docs.python.org/3/library/multiprocessing.html) — 3.8 及以后可用，3.14 起 POSIX 默认 forkserver。
 - [concurrent.futures 官方文档](https://docs.python.org/3/library/concurrent.futures.html) — 3.8 及以后线程池默认上限为核数加四与 32 的较小值。
 
-### 构造与生命周期
+### SafeQueue
 
 <ApiTable :items='[{"name":"SafeQueue.__init__","rank":"必会","signature":"SafeQueue(func, workers=4, maxsize=0)","params":[{"name":"func","type":"callable","default":"必填","desc":"子进程要执行的函数"},{"name":"workers","type":"int","default":"4","desc":"worker 进程数"},{"name":"maxsize","type":"int","default":"0","desc":"任务队列上限，0 表示不限"}],"returns":"SafeQueue 实例","effect":"建任务队列与 worker 进程池，等待提交流水线","scenario":"把可并行的大批量数据交给多进程处理","example":"from safe_queue import SafeQueue\n\ndef square(value: int) -> int:\n    return value * value\n\nwith SafeQueue(square, workers=4) as queue:\n    queue.submit(range(100))","pitfall":"func 必须定义在模块顶层且可 pickle，lambda 与局部函数在 spawn 下直接报 PicklingError","raises":"ValueError"},{"name":"SafeQueue.__exit__","rank":"必会","signature":"with SafeQueue(...) as queue / __exit__()","params":[],"returns":"无","effect":"退出时按 worker 数投哨兵并回收子进程","scenario":"批处理结束后的统一清理","example":"with SafeQueue(square, workers=4) as queue:\n    queue.submit(range(10))\n    results = queue.drain(10)","pitfall":"不走上下文会留下子进程；哨兵数量必须等于 worker 数，少投一个就有 worker 永久阻塞","raises":""}]' />
 
-### 任务与结果
+### TaskResult
 
 <ApiTable :items='[{"name":"SafeQueue.submit","rank":"必会","signature":"submit(items)","params":[{"name":"items","type":"iterable","default":"必填","desc":"任务参数序列"}],"returns":"无","effect":"把每个元素作为一个任务投进队列，立即返回不等结果","scenario":"大批量投递后再统一收口","example":"with SafeQueue(square, workers=4) as queue:\n    queue.submit(range(100))","pitfall":"drain 的条数要与投递数一致，投多收少会让结果残留、投少收多会等到超时","raises":""},{"name":"SafeQueue.drain","rank":"必会","signature":"drain(count, timeout=None)","params":[{"name":"count","type":"int","default":"必填","desc":"要收集的结果条数"},{"name":"timeout","type":"float","default":"None","desc":"整体等待上限秒数"}],"returns":"结果对象列表，每项含 ok、value、error 与 traceback_text","effect":"阻塞收集指定条数的结果，子进程异常也作为结果返回","scenario":"批处理收口与失败归集","example":"with SafeQueue(square, workers=4) as queue:\n    queue.submit(range(10))\n    results = queue.drain(10)\nprint(sum(item.value for item in results if item.ok))","pitfall":"超时会抛 TimeoutError；异常不逃逸，必须在结果里判断 ok，否则失败会被静默吞掉","raises":"TimeoutError"}]' />
 

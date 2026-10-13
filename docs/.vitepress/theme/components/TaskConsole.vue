@@ -71,10 +71,11 @@ const autoScroll = ref(true)
 const notice = ref('')
 const outputEl = ref<HTMLElement | null>(null)
 
-let source: EventSource | null = null
+let events: EventStream | null = null
 let reconnectTimer: number | null = null
 let pollTimer: number | null = null
 const seenSeq = new Set<number>()
+const api = new ApiClient()
 
 const base = computed(() => props.apiBase.replace(/\/+$/, ''))
 const allowlist = computed(() => limits.value?.allowlist ?? [])
@@ -93,14 +94,8 @@ function byteLength(text: string): number {
 }
 
 function messageOf(data: unknown, fallback: string): string {
-  if (data && typeof data === 'object') {
-    const record = data as Record<string, unknown>
-    for (const key of ['detail', 'error', 'message']) {
-      const value = record[key]
-      if (typeof value === 'string' && value.trim()) return value.trim()
-    }
-  }
-  return fallback
+  // 委托给 ApiClient 的错误体映射。
+  return ApiClient.messageOf(data, fallback)
 }
 
 function formatSeconds(value?: number | null): string {
@@ -126,15 +121,9 @@ function canCancel(task: TaskSummary): boolean {
   return task.status === 'queued' || task.status === 'running'
 }
 
-async function request(path: string, init?: RequestInit): Promise<{ status: number; data: unknown }> {
-  const response = await fetch(path, init)
-  let data: unknown = null
-  try {
-    data = await response.json()
-  } catch {
-    data = null
-  }
-  return { status: response.status, data }
+function request(path: string, init?: RequestInit): Promise<{ status: number; data: unknown }> {
+  // 委托给 ApiClient：请求与 JSON 解析都由它负责。
+  return api.request(path, init)
 }
 
 /** 参数支持空格分隔，也支持每行一个。引号包住的片段算一个参数。 */
@@ -232,52 +221,52 @@ function closeStream(): void {
     window.clearTimeout(reconnectTimer)
     reconnectTimer = null
   }
-  if (source) {
-    source.close()
-    source = null
+  if (events) {
+    events.close()
+    events = null
   }
 }
 
 /** 打开某任务的输出流。from 是起始序号，用于断线续传。 */
 function openStream(id: string, from: number): void {
   closeStream()
-  const stream = new EventSource(`${base.value}/tasks/${id}/stream?from=${from}`)
-  source = stream
-  stream.onopen = () => {
-    online.value = true
-  }
-  stream.addEventListener('output', (event) => {
-    pushChunk((event as MessageEvent).data)
-  })
-  stream.addEventListener('status', (event) => {
-    try {
-      const payload = JSON.parse((event as MessageEvent).data) as { status?: TaskStatus }
-      if (payload.status) updateSelected(payload.status)
-    } catch {
-      notice.value = '收到无法解析的状态帧。'
-    }
-  })
-  stream.addEventListener('end', (event) => {
-    try {
-      const payload = JSON.parse((event as MessageEvent).data) as {
-        status?: TaskStatus
-        exit_code?: number | null
-        metrics?: TaskMetrics
+  events = new EventStream({
+    onOpen: () => {
+      online.value = true
+    },
+    onOutput: (raw) => pushChunk(raw),
+    onStatus: (raw) => {
+      try {
+        const payload = JSON.parse(raw) as { status?: TaskStatus }
+        if (payload.status) updateSelected(payload.status)
+      } catch {
+        notice.value = '收到无法解析的状态帧。'
       }
-      if (payload.status) updateSelected(payload.status, { exit_code: payload.exit_code ?? null, metrics: payload.metrics })
-    } catch {
-      notice.value = '收到无法解析的结束帧。'
-    }
-    closeStream()
-    void refresh()
+    },
+    onEnd: (raw) => {
+      try {
+        const payload = JSON.parse(raw) as {
+          status?: TaskStatus
+          exit_code?: number | null
+          metrics?: TaskMetrics
+        }
+        if (payload.status) updateSelected(payload.status, { exit_code: payload.exit_code ?? null, metrics: payload.metrics })
+      } catch {
+        notice.value = '收到无法解析的结束帧。'
+      }
+      closeStream()
+      void refresh()
+    },
+    onClosed: () => {
+      // 连接彻底断开时，按已收到的最大序号重建。
+      if (selectedId.value === id) {
+        reconnectTimer = window.setTimeout(() => openStream(id, lastSeq.value + 1), 2000)
+      }
+    },
   })
-  stream.onerror = () => {
-    // 浏览器会自动重连并带上 Last-Event-ID。连接被彻底关闭时，本组件按序号重建。
-    if (stream.readyState === EventSource.CLOSED && selectedId.value === id) {
-      reconnectTimer = window.setTimeout(() => openStream(id, lastSeq.value + 1), 2000)
-    }
-  }
+  events.open(`${base.value}/tasks/${id}/stream?from=${from}`)
 }
+
 
 function openTask(id: string): void {
   selectedId.value = id

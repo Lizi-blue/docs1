@@ -63,6 +63,100 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 另有 `Task` 承载单个任务的状态机与指标，由 `TaskRegistry` 保存。
 
 
+
+每个对象单独一节。四块固定：职责、持有、方法、边界。另加两列调用关系。
+
+### Allowlist
+
+源码位置：`service/limits.py`。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 判断命令是否放行，校验参数与环境 |
+| 持有 | 白名单条目、env 键列表、参数个数与长度上限 |
+| 方法 | `validate_command(payload)`、`validate_args(raw)`、`validate_env(raw)`、`names()`、`get(name)` |
+| 边界 | 不管并发、超时与工作区 |
+| 谁调用它 | `Limits.validate_submit` |
+| 它调用谁 | 无（纯校验） |
+
+### TaskRegistry
+
+源码位置：`service/registry.py`。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 保存任务、提供查询与按保留数淘汰 |
+| 持有 | 任务字典与顺序队列 |
+| 方法 | `add(task)`、`get(task_id)`、`list(limit)`、`running_count()` |
+| 边界 | 不做调度，不碰子进程，不做输出分发 |
+| 谁调用它 | `Executor.submit`、`TaskHandler._list_tasks` |
+| 它调用谁 | 保存 `Task` |
+
+### OutputBuffer
+
+源码位置：`service/output.py`。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 保存输出分片、维护序号、处理上限截断并分发事件 |
+| 持有 | 分片队列、序号、订阅者集合、字节数与行数 |
+| 方法 | `append(stream, text)`、`subscribe(from_seq)`、`unsubscribe(q)`、`notify(event, data)`、`snapshot()` |
+| 边界 | 不知道任务状态，不知道进程，不知道 HTTP |
+| 谁调用它 | `Task.append_output`、`Executor` 启动的管道读取线程 |
+| 它调用谁 | 推给订阅队列 |
+
+### StreamHub
+
+源码位置：`service/stream.py`。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 管理订阅生命周期、解析游标、决定心跳节奏 |
+| 持有 | 心跳间隔 |
+| 方法 | `resolve_cursor(last_event_id, query)`、`open(task, from_seq)`、`close(task, q)`、`next_event(q)` |
+| 边界 | 不写 HTTP 报文，不碰 socket |
+| 谁调用它 | `TaskHandler._stream` |
+| 它调用谁 | `Task.subscribe` 与 `Task.unsubscribe` |
+
+### Executor
+
+源码位置：`service/executor.py`。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 线程池调度与并发名额 |
+| 持有 | 线程池、已占名额、采样器 |
+| 方法 | `try_acquire_slot()`、`release_slot()`、`submit(task)`、`cancel(task)`、`shutdown(cancel_running)` |
+| 边界 | 不做参数校验，不写输出 |
+| 谁调用它 | `TaskHandler._submit`、`TaskHandler._cancel` |
+| 它调用谁 | `ChildProcess.spawn`、`MetricsSampler.update`、`Task.finish` |
+
+### ChildProcess
+
+源码位置：`service/process.py`。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 承载一个任务的子进程与进程组，负责终止 |
+| 持有 | 子进程句柄、pid、pgid |
+| 方法 | `spawn(task)`、`poll()`、`wait()`、`signal_group(signum)`、`terminate(sampler, task)` |
+| 边界 | 不决定任务终态 |
+| 谁调用它 | `Executor._run` |
+| 它调用谁 | `Task`（回调输出） |
+
+### MetricsSampler
+
+源码位置：`service/process.py`。
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 读取 /proc，采样 CPU 时间与峰值常驻内存 |
+| 持有 | 时钟频率 |
+| 方法 | `sample(pid)`、`update(task, pid)` |
+| 边界 | 不决定任务终态，不做超时判断 |
+| 谁调用它 | `Executor._run` 与 `ChildProcess.terminate` |
+| 它调用谁 | `Task.update_usage` |
+
 ## 对象层级
 
 本组件有三组真实继承。其余关系是持有。
@@ -132,72 +226,868 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 
 ## 核心源码
 
-下面四段是服务端的骨架。全文见 `service/` 目录。
+源码按对象分块。每块是该对象的完整类定义，直接从 `service/` 提取。
+文件清单与验收命令见「复用四件套」。
 
-提交入口先校验，再占名额。两项都在这一步完成。
+### TaskHandler
+
+来源：`service/app.py`。
 
 ```python
-def _submit(self) -> None:
+class TaskHandler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+    server_version = f"docs1-task-service/{SERVICE_VERSION}"
+
+    # ---- 工具 ----
+    def log_message(self, fmt: str, *args) -> None:
+        sys.stderr.write("%s - %s\n" % (time.strftime("%H:%M:%S"), fmt % args))
+
+    def _send_json(self, status: int, payload: dict) -> None:
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_error_json(self, status: int, message: str) -> None:
+        self._send_json(status, {"error": {"status": status, "message": message}})
+
+    def _read_body(self) -> bytes:
+        """无论处理器要不要用，都必须把请求体读完，否则 keep-alive 会串包。"""
+        if getattr(self, "_body_cache", None) is None:
+            length = int(self.headers.get("Content-Length") or 0)
+            self._body_cache = self.rfile.read(length) if length > 0 else b""
+        return self._body_cache
+
+    def _read_json(self) -> object:
+        raw = self._read_body()
+        if not raw:
+            return {}
+        try:
+            return json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise ValidationError(f"JSON 解析失败：{error}") from error
+
+    # ---- 路由 ----
+    def do_GET(self) -> None:  # noqa: N802 - 标准库命名
+        parsed = urlparse(self.path)
+        parts = [segment for segment in parsed.path.split("/") if segment]
+        if parts[:1] != ["api"]:
+            self._send_error_json(404, "未知路径")
+            return
+        rest = parts[1:]
+        if rest == ["health"]:
+            self._health()
+            return
+        if rest == ["tasks"]:
+            self._list_tasks(parsed.query)
+            return
+        if len(rest) == 2 and rest[0] == "tasks":
+            self._get_task(rest[1])
+            return
+        if len(rest) == 3 and rest[0] == "tasks" and rest[2] == "stream":
+            self._stream(rest[1], parsed.query)
+            return
+        self._send_error_json(404, "未知路径")
+
+    def do_POST(self) -> None:  # noqa: N802 - 标准库命名
+        self._body_cache = None
+        try:
+            self._read_body()
+        except (BrokenPipeError, ConnectionResetError):
+            return
+        parsed = urlparse(self.path)
+        parts = [segment for segment in parsed.path.split("/") if segment]
+        if parts[:1] != ["api"]:
+            self._send_error_json(404, "未知路径")
+            return
+        rest = parts[1:]
+        if rest == ["tasks"]:
+            self._submit()
+            return
+        if len(rest) == 3 and rest[0] == "tasks" and rest[2] == "cancel":
+            self._cancel(rest[1])
+            return
+        self._send_error_json(404, "未知路径")
+
+    # ---- 处理实现 ----
+    def _health(self) -> None:
+        self._send_json(200, {
+            "ok": True,
+            "service": "docs1-task-service",
+            "version": SERVICE_VERSION,
+            "running": self.server.registry.running_count(),
+            "limits": self.server.limits.public(),
+        })
+
+    def _list_tasks(self, query: str) -> None:
+        params = parse_qs(query)
+        try:
+            limit = min(int(params.get("limit", ["50"])[0]), self.server.limits.keep)
+        except ValueError:
+            limit = self.server.limits.keep
+        tasks = [task.summary() for task in self.server.registry.list(limit)]
+        self._send_json(200, {"tasks": tasks, "limits": self.server.limits.public()})
+
+    def _get_task(self, task_id: str) -> None:
+        task = self.server.registry.get(task_id)
+        if task is None:
+            self._send_error_json(404, f"任务不存在：{task_id}")
+            return
+        self._send_json(200, {"task": task.summary(), "metrics": task.metrics()})
+
+    def _submit(self) -> None:
+        try:
+            payload = self.server.limits.validate_submit(self._read_json())
+        except ValidationError as error:
+            self._send_error_json(error.status, error.message)
+            return
+        if not self.server.executor.try_acquire_slot():
+            self._send_error_json(429, f"并发已达上限 {self.server.limits.max_concurrency}，请稍后再试")
+            return
+        task = Task(payload["command"], payload["args"], payload["cwd"], payload["timeout_s"], payload["env"],
+                    self.server.limits.output_max_bytes)
+        self.server.registry.add(task)
+        self.server.executor.submit(task)
+        self._send_json(201, task.summary())
+
+    def _cancel(self, task_id: str) -> None:
+        task = self.server.registry.get(task_id)
+        if task is None:
+            self._send_error_json(404, f"任务不存在：{task_id}")
+            return
+        if not self.server.executor.cancel(task):
+            self._send_error_json(409, f"任务已结束，无法取消：{task.status}")
+            return
+        self._send_json(200, {"id": task.id, "status": task.status, "cancel_requested": True})
+
+    def _stream(self, task_id: str, query: str) -> None:
+        task = self.server.registry.get(task_id)
+        if task is None:
+            self._send_error_json(404, f"任务不存在：{task_id}")
+            return
+        hub = self.server.stream_hub
+        from_seq = hub.resolve_cursor(self.headers.get("Last-Event-ID"), query)
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+        self.send_header("Cache-Control", "no-cache, no-store")
+        self.send_header("Connection", "keep-alive")
+        self.send_header("X-Accel-Buffering", "no")
+        self.end_headers()
+
+        subscriber, history = hub.open(task, from_seq)
+        try:
+            self._sse("status", None, {"id": task.id, "status": task.status, "from_seq": from_seq})
+            for chunk in history:
+                self._sse("output", chunk["seq"], chunk)
+            if task.finished:
+                self._sse("end", None, task._end_payload_locked())
+                return
+            while True:
+                item = hub.next_event(subscriber)
+                if item is None:
+                    self.wfile.write(b": keep-alive\n\n")
+                    self.wfile.flush()
+                    continue
+                if item["event"] == "end":
+                    self._sse("end", None, item["data"])
+                    return
+                chunk = item["data"]
+                self._sse("output", chunk["seq"], chunk)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+        finally:
+            hub.close(task, subscriber)
+
+    def _sse(self, event: str, seq: int | None, data: dict) -> None:
+        lines = []
+        if seq is not None:
+            lines.append(f"id: {seq}")
+        lines.append(f"event: {event}")
+        lines.append(f"data: {json.dumps(data, ensure_ascii=False)}")
+        payload = ("\n".join(lines) + "\n\n").encode("utf-8")
+        self.wfile.write(payload)
+        self.wfile.flush()
+
+    def handle_one_request(self) -> None:
+        # 客户端提前断开是常态（浏览器切页、curl 超时），不当成服务异常
+        try:
+            super().handle_one_request()
+        except (BrokenPipeError, ConnectionResetError):
+            self.close_connection = True
+```
+
+### TaskServer
+
+来源：`service/app.py`。
+
+```python
+class TaskServer(ThreadingHTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+    def __init__(self, address, handler, limits: Limits, registry: Registry, executor: Executor) -> None:
+        super().__init__(address, handler)
+        self.limits = limits
+        self.registry = registry
+        self.executor = executor
+        # 组合：服务器持有流订阅中心，各请求共用同一实例。
+        self.stream_hub = StreamHub()
+
+
+def create_server(host: str = "127.0.0.1", port: int = 8787,
+                  config_path: str | os.PathLike[str] | None = None) -> tuple[TaskServer, Limits, Registry, Executor]:
+    limits, registry, executor = build_components(config_path)
+    server = TaskServer((host, port), TaskHandler, limits, registry, executor)
+    return server, limits, registry, executor
+
+
+def main() -> int:
+    host = os.environ.get("DOCS1_HOST", "127.0.0.1")
+    port = int(os.environ.get("DOCS1_PORT", "8787"))
+    server, limits, _registry, executor = create_server(host, port)
+    stop_event = threading.Event()
+
+    def handle_signal(signum, _frame):
+        sys.stderr.write(f"[task-service] 收到信号 {signum}，开始退出\n")
+        stop_event.set()
+        threading.Thread(target=server.shutdown, daemon=True).start()
+
+    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
+    sys.stderr.write(
+        f"[task-service] 监听 http://{host}:{port}，并发上限 {limits.max_concurrency}，"
+        f"工作区 {limits.workspace}\n"
+    )
     try:
-        payload = self.server.limits.validate_submit(self._read_json())
-    except ValidationError as error:
-        self._send_error_json(error.status, error.message)
-        return
-    if not self.server.executor.try_acquire_slot():
-        self._send_error_json(429, f"并发已达上限 {self.server.limits.max_concurrency}")
-        return
-    task = Task(payload["command"], payload["args"], payload["cwd"], payload["timeout_s"],
-                payload["env"], self.server.limits.output_max_bytes)
-    self.server.registry.add(task)
-    self.server.executor.submit(task)
-    self._send_json(201, task.summary())
+        server.serve_forever(poll_interval=0.5)
+    finally:
+        executor.shutdown(cancel_running=True)
+        server.server_close()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
 ```
 
-子进程自建进程组。取消与超时因此能作用到整组。
+### Allowlist
+
+来源：`service/limits.py`。
 
 ```python
-proc = subprocess.Popen(
-    [task.command, *task.args],
-    cwd=task.cwd,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
-    env=env,
-    start_new_session=True,
-)
-task.pid = proc.pid
-task.pgid = os.getpgid(proc.pid)
+class Allowlist:
+    """命令白名单与参数校验。
+
+    对象职责：判断命令是否放行，校验参数与环境变量的形态。
+    对象边界：不管并发、超时与工作区，那些属于 Limits。
+    被谁持有：Limits 持有唯一实例。
+    """
+
+    def __init__(self, items: dict[str, "AllowItem"], env_keys: list[str],
+                 args_max: int, arg_len_max: int) -> None:
+        self.items = items
+        self.env_keys = env_keys
+        self.args_max = args_max
+        self.arg_len_max = arg_len_max
+
+    def names(self) -> list[str]:
+        return sorted(self.items)
+
+    def get(self, name: str) -> "AllowItem | None":
+        return self.items.get(name)
+
+    def validate_command(self, payload: dict) -> str:
+        command = payload.get("command")
+        if not isinstance(command, str) or not command:
+            raise ValidationError("缺少 command 字段")
+        if command not in self.items:
+            raise ValidationError(f"命令不在白名单内：{command}")
+        return command
+
+    def validate_args(self, raw_args: object) -> list[str]:
+        if raw_args is None:
+            raw_args = []
+        if not isinstance(raw_args, list):
+            raise ValidationError("args 必须是字符串数组")
+        if len(raw_args) > self.args_max:
+            raise ValidationError(f"参数个数超过上限 {self.args_max}")
+        args: list[str] = []
+        for item in raw_args:
+            if not isinstance(item, str):
+                raise ValidationError("args 里每一项都必须是字符串")
+            if len(item) > self.arg_len_max:
+                raise ValidationError(f"单个参数长度超过上限 {self.arg_len_max}")
+            if CONTROL_CHAR.search(item):
+                raise ValidationError("参数包含控制字符")
+            hit = FORBIDDEN_ARG_CHARS.intersection(item)
+            if hit:
+                raise ValidationError(f"参数包含被禁止的字符：{''.join(sorted(hit))}")
+            args.append(item)
+        return args
+
+    def validate_env(self, raw_env: object) -> dict[str, str]:
+        env: dict[str, str] = {}
+        raw_env = raw_env or {}
+        if not isinstance(raw_env, dict):
+            raise ValidationError("env 必须是对象")
+        for key, value in raw_env.items():
+            if key not in self.env_keys:
+                raise ValidationError(f"env 键不在白名单内：{key}")
+            if not isinstance(value, str) or CONTROL_CHAR.search(value):
+                raise ValidationError(f"env[{key}] 必须是可读字符串")
+            env[key] = value
+        return env
 ```
 
-先发 SIGTERM，宽限期后再发 SIGKILL。
+### Task
+
+来源：`service/registry.py`。
 
 ```python
-def _terminate(self, task: Task, proc: subprocess.Popen) -> None:
-    self._signal_group(task.pgid, signal.SIGTERM)
-    deadline = time.monotonic() + GRACE_SECONDS
-    while proc.poll() is None and time.monotonic() < deadline:
-        time.sleep(SAMPLE_INTERVAL / 2)
-    if proc.poll() is None:
-        self._signal_group(task.pgid, signal.SIGKILL)
+class Task:
+    """单个任务的状态、指标与输出缓冲。所有公开方法都加锁。"""
+
+    def __init__(self, command: str, args: list[str], cwd: str, timeout_s: float, env: dict[str, str],
+                 output_max_bytes: int) -> None:
+        self.id = uuid.uuid4().hex[:12]
+        self.command = command
+        self.args = list(args)
+        self.cwd = cwd
+        self.timeout_s = timeout_s
+        self.env = dict(env)
+        self._output = OutputBuffer(output_max_bytes)
+
+        self.status = QUEUED
+        self.reason: str | None = None
+        self.created_at = time.time()
+        self.started_at: float | None = None
+        self.finished_at: float | None = None
+        self.exit_code: int | None = None
+        self.signal: int | None = None
+        self.pid: int | None = None
+        self.pgid: int | None = None
+        self.cancel_requested = False
+
+        self.cpu_s = 0.0
+        self.max_rss_kb = 0
+
+        # 可重入：summary() 会在持锁期间取 metrics()
+        self._lock = threading.RLock()
+        self._finished = threading.Event()
+
+    # ---- 状态 ----
+    def transition(self, new_status: str) -> bool:
+        with self._lock:
+            if new_status in TRANSITIONS[self.status]:
+                self.status = new_status
+                return True
+            return False
+
+    def mark_running(self) -> None:
+        if not self.transition(RUNNING):
+            raise RuntimeError(f"任务 {self.id} 无法进入 running：当前 {self.status}")
+        with self._lock:
+            self.started_at = time.time()
+
+    def finish(self, status: str, exit_code: int | None, signal: int | None, reason: str | None = None) -> None:
+        with self._lock:
+            self.status = status
+            self.exit_code = exit_code
+            self.signal = signal
+            if reason:
+                self.reason = reason
+            self.finished_at = time.time()
+            payload = self._end_payload_locked()
+        # 通知交给 OutputBuffer：订阅者集合由它持有。
+        self._output.notify("end", payload)
+        self._finished.set()
+
+    def wait_finished(self, timeout: float | None = None) -> bool:
+        return self._finished.wait(timeout)
+
+    @property
+    def finished(self) -> bool:
+        return self.status in TERMINAL
+
+    # ---- 输出（委托给 OutputBuffer）----
+    @property
+    def output_max_bytes(self) -> int:
+        return self._output.max_bytes
+
+    @property
+    def truncated(self) -> bool:
+        return self._output.truncated
+
+    @property
+    def bytes_out(self) -> int:
+        return self._output.bytes_out
+
+    @property
+    def lines(self) -> int:
+        return self._output.lines
+
+    def append_output(self, stream: str, text: str) -> None:
+        self._output.append(stream, text)
+
+    def subscribe(self, from_seq: int = 0) -> tuple[queue.Queue, list[dict]]:
+        return self._output.subscribe(from_seq)
+
+    def unsubscribe(self, subscriber: queue.Queue) -> None:
+        self._output.unsubscribe(subscriber)
+
+    def update_usage(self, cpu_s: float | None = None, max_rss_kb: int | None = None) -> None:
+        with self._lock:
+            if cpu_s is not None:
+                self.cpu_s = max(self.cpu_s, cpu_s)
+            if max_rss_kb is not None:
+                self.max_rss_kb = max(self.max_rss_kb, max_rss_kb)
+
+    # ---- 快照 ----
+    def metrics(self) -> dict:
+        with self._lock:
+            duration = None
+            if self.started_at:
+                end = self.finished_at or time.time()
+                duration = round(end - self.started_at, 3)
+            return {
+                "duration_s": duration,
+                "cpu_s": round(self.cpu_s, 3),
+                "max_rss_kb": self.max_rss_kb,
+                "bytes_out": self.bytes_out,
+                "lines": self.lines,
+                "truncated": self.truncated,
+            }
+
+    def summary(self) -> dict:
+        with self._lock:
+            return {
+                "id": self.id,
+                "command": self.command,
+                "args": list(self.args),
+                "cwd": self.cwd,
+                "status": self.status,
+                "reason": self.reason,
+                "created_at": self.created_at,
+                "started_at": self.started_at,
+                "finished_at": self.finished_at,
+                "exit_code": self.exit_code,
+                "signal": self.signal,
+                "pid": self.pid,
+                "timeout_s": self.timeout_s,
+                "metrics": self.metrics(),
+            }
+
+    def _end_payload_locked(self) -> dict:
+        end = self.finished_at or time.time()
+        start = self.started_at or self.created_at
+        return {
+            "id": self.id,
+            "status": self.status,
+            "reason": self.reason,
+            "exit_code": self.exit_code,
+            "signal": self.signal,
+            "metrics": {
+                "duration_s": round(end - start, 3),
+                "cpu_s": round(self.cpu_s, 3),
+                "max_rss_kb": self.max_rss_kb,
+                "bytes_out": self.bytes_out,
+                "lines": self.lines,
+                "truncated": self.truncated,
+            },
+        }
 ```
 
-续传先取序号，再补历史分片，最后进推送循环。
+### TaskRegistry
+
+来源：`service/registry.py`。
 
 ```python
-from_seq = 0
-last_event_id = self.headers.get("Last-Event-ID") or ""
-if last_event_id.isdigit():
-    from_seq = int(last_event_id)
-if params.get("from", [""])[0].isdigit():
-    from_seq = max(from_seq, int(params["from"][0]))
+class TaskRegistry:
+    """任务集合与保留策略。超出保留数时先淘汰最早的终态任务。
 
-subscriber, history = task.subscribe(from_seq)
-self._sse("status", None, {"id": task.id, "status": task.status, "from_seq": from_seq})
-for chunk in history:
-    self._sse("output", chunk["seq"], chunk)
-if task.finished:
-    self._sse("end", None, task._end_payload_locked())
+    对象职责：保存任务、提供查询与淘汰。
+    对象边界：不做调度，不碰子进程，不做输出分发。
+    """
+
+    def __init__(self, keep: int) -> None:
+        self.keep = keep
+        # 可重入：summary() 会在持锁期间取 metrics()
+        self._lock = threading.RLock()
+        self._tasks: dict[str, Task] = {}
+        self._order: deque[str] = deque()
+
+    def add(self, task: Task) -> Task:
+        with self._lock:
+            self._tasks[task.id] = task
+            self._order.append(task.id)
+            self._evict_locked()
+        return task
+
+    def get(self, task_id: str) -> Task | None:
+        with self._lock:
+            return self._tasks.get(task_id)
+
+    def list(self, limit: int = 50) -> list[Task]:
+        with self._lock:
+            ids = list(self._order)[-limit:]
+        tasks = [self._tasks[task_id] for task_id in reversed(ids) if task_id in self._tasks]
+        return tasks
+
+    def running_count(self) -> int:
+        with self._lock:
+            return sum(1 for task in self._tasks.values() if task.status in (QUEUED, RUNNING))
+
+    def _evict_locked(self) -> None:
+        while len(self._order) > self.keep:
+            for index, task_id in enumerate(self._order):
+                task = self._tasks.get(task_id)
+                if task is not None and task.finished:
+                    self._order.remove(task_id)
+                    self._tasks.pop(task_id, None)
+                    break
+            else:
+                return
+
+
+# 旧名保留为别名，避免调用方与文档同时改动。
+Registry = TaskRegistry
 ```
 
+### OutputBuffer
+
+来源：`service/output.py`。
+
+```python
+class OutputBuffer:
+    """单个任务的输出缓冲。所有公开方法都加锁。"""
+
+    def __init__(self, max_bytes: int) -> None:
+        self.max_bytes = max_bytes
+        self.bytes_out = 0
+        self.lines = 0
+        self.truncated = False
+
+        self._lock = threading.RLock()
+        self._seq = 0
+        self._chunks: deque[dict] = deque()
+        self._subscribers: set[queue.Queue] = set()
+
+    @property
+    def last_seq(self) -> int:
+        with self._lock:
+            return self._seq
+
+    def append(self, stream: str, text: str) -> dict | None:
+        """追加一段输出。返回新分片；超限时返回 None 并置截断标记。"""
+        if not text:
+            return None
+        raw = text.encode("utf-8", errors="replace")
+        subscribers: list[queue.Queue] = []
+        with self._lock:
+            remaining = self.max_bytes - self.bytes_out
+            if remaining <= 0:
+                self.truncated = True
+                return None
+            if len(raw) > remaining:
+                raw = raw[:remaining]
+                text = raw.decode("utf-8", errors="ignore") + TRUNCATION_NOTICE
+                self.truncated = True
+            else:
+                text = raw.decode("utf-8", errors="replace")
+            self.bytes_out += len(raw)
+            self.lines += text.count("\n")
+            self._seq += 1
+            chunk = {"seq": self._seq, "stream": stream, "text": text, "ts": time.time()}
+            self._chunks.append(chunk)
+            subscribers = list(self._subscribers)
+        for subscriber in subscribers:
+            subscriber.put({"event": "output", "data": chunk})
+        return chunk
+
+    def chunks_since(self, from_seq: int) -> list[dict]:
+        with self._lock:
+            return [chunk for chunk in self._chunks if chunk["seq"] > from_seq]
+
+    def subscribe(self, from_seq: int = 0) -> tuple[queue.Queue, list[dict]]:
+        """返回订阅队列与需要补发的历史块（序号大于 from_seq）。"""
+        subscriber: queue.Queue = queue.Queue()
+        with self._lock:
+            history = [chunk for chunk in self._chunks if chunk["seq"] > from_seq]
+            self._subscribers.add(subscriber)
+        return subscriber, history
+
+    def unsubscribe(self, subscriber: queue.Queue) -> None:
+        with self._lock:
+            self._subscribers.discard(subscriber)
+
+    def notify(self, event: str, data: dict) -> None:
+        """向所有订阅者推送非输出事件（状态与结束）。"""
+        with self._lock:
+            subscribers = list(self._subscribers)
+        for subscriber in subscribers:
+            subscriber.put({"event": event, "data": data})
+
+    def snapshot(self) -> dict:
+        with self._lock:
+            return {
+                "bytes_out": self.bytes_out,
+                "lines": self.lines,
+                "truncated": self.truncated,
+                "last_seq": self._seq,
+            }
+```
+
+### StreamHub
+
+来源：`service/stream.py`。
+
+```python
+class StreamHub:
+    """订阅入口。订阅者来自 OutputBuffer，本对象只做生命周期与节奏。"""
+
+    def __init__(self, keepalive_seconds: float = 15.0) -> None:
+        self.keepalive_seconds = keepalive_seconds
+
+    def resolve_cursor(self, last_event_id: str | None, query: str) -> int:
+        """按 Last-Event-ID 与 ?from= 求起始序号，取较大者。"""
+        from_seq = 0
+        if last_event_id and last_event_id.isdigit():
+            from_seq = int(last_event_id)
+        params = parse_qs(query)
+        raw = (params.get("from") or [""])[0]
+        if raw.isdigit():
+            from_seq = max(from_seq, int(raw))
+        return from_seq
+
+    def open(self, task, from_seq: int = 0) -> tuple[queue.Queue, list[dict]]:
+        """订阅任务输出，返回订阅队列与需要补发的历史块。"""
+        return task.subscribe(from_seq)
+
+    def close(self, task, subscriber: queue.Queue) -> None:
+        task.unsubscribe(subscriber)
+
+    def next_event(self, subscriber: queue.Queue) -> dict | None:
+        """取下一个事件。超时返回 None，由调用方发心跳帧。"""
+        try:
+            return subscriber.get(timeout=self.keepalive_seconds)
+        except queue.Empty:
+            return None
+```
+
+### Executor
+
+来源：`service/executor.py`。
+
+```python
+class Executor:
+    """提交即排队，线程池并发受 max_concurrency 限制。"""
+
+    def __init__(self, registry: Registry, limits) -> None:
+        self.registry = registry
+        self.limits = limits
+        self.pool = ThreadPoolExecutor(max_workers=limits.max_concurrency, thread_name_prefix="task")
+        # 组合：Executor 持有采样器，任务级子进程由 ChildProcess 承担。
+        self._sampler = MetricsSampler()
+        self._lock = threading.Lock()
+        self._slots = 0
+
+    # ---- 并发配额 ----
+    def try_acquire_slot(self) -> bool:
+        with self._lock:
+            if self._slots >= self.limits.max_concurrency:
+                return False
+            self._slots += 1
+            return True
+
+    def release_slot(self) -> None:
+        with self._lock:
+            self._slots = max(0, self._slots - 1)
+
+    # ---- 生命周期 ----
+    def submit(self, task: Task) -> None:
+        self.pool.submit(self._run, task)
+
+    def cancel(self, task: Task) -> bool:
+        """请求取消。已结束返回 False；否则向进程组发 SIGTERM。"""
+        if task.finished:
+            return False
+        task.cancel_requested = True
+        if task.status == RUNNING and task.pgid:
+            signal_group(task.pgid, signal.SIGTERM)
+        return True
+
+    def shutdown(self, cancel_running: bool = True) -> None:
+        if cancel_running:
+            for task in self.registry.list(self.limits.keep):
+                if task.status in (QUEUED, RUNNING):
+                    self.cancel(task)
+        self.pool.shutdown(wait=False, cancel_futures=True)
+
+    # ---- 内部 ----
+    def _run(self, task: Task) -> None:
+        try:
+            if task.cancel_requested:
+                task.finish(CANCELED, None, None, "提交后立即取消")
+                return
+            child = ChildProcess.spawn(task)
+            # 先起进程再置 running：读方看到 running 时 pid 必须已经可用
+            task.pid = child.pid
+            task.pgid = child.pgid
+            task.mark_running()
+            pumps = [
+                threading.Thread(target=self._pump, args=(task, child.proc.stdout, "stdout"), daemon=True),
+                threading.Thread(target=self._pump, args=(task, child.proc.stderr, "stderr"), daemon=True),
+            ]
+            for pump in pumps:
+                pump.start()
+
+            # 先采一次：短命进程在循环开始前就可能退出
+            self._sampler.update(task, child.pid)
+            deadline = time.monotonic() + task.timeout_s
+            while child.poll() is None:
+                self._sampler.update(task, child.pid)
+                if task.cancel_requested:
+                    child.terminate(self._sampler, task)
+                    break
+                if time.monotonic() > deadline:
+                    task.reason = "超时"
+                    child.terminate(self._sampler, task)
+                    break
+                time.sleep(SAMPLE_INTERVAL)
+
+            child.wait()
+            for pump in pumps:
+                pump.join(timeout=2)
+            self._sampler.update(task, child.pid)
+
+            returncode = child.returncode if child.returncode is not None else -1
+            exit_code = returncode if returncode >= 0 else None
+            signum = -returncode if returncode < 0 else None
+            if task.reason == "超时":
+                status, reason = TIMEOUT, "超时"
+            elif task.cancel_requested:
+                status, reason = CANCELED, task.reason or "用户取消"
+            elif returncode == 0:
+                status, reason = SUCCEEDED, None
+            else:
+                status, reason = FAILED, task.reason or f"退出码 {returncode}"
+            task.finish(status, exit_code, signum, reason)
+        except Exception as error:  # 兜底：异常也要落终态，避免任务永久挂起
+            task.finish(FAILED, None, None, f"执行器异常：{error}")
+        finally:
+            self.release_slot()
+
+    def _pump(self, task: Task, stream, name: str) -> None:
+        if stream is None:
+            return
+        try:
+            while True:
+                chunk = os.read(stream.fileno(), 65536)
+                if not chunk:
+                    break
+                task.append_output(name, chunk.decode("utf-8", errors="replace"))
+        except (OSError, ValueError):
+            pass
+        finally:
+            try:
+                stream.close()
+            except OSError:
+                pass
+```
+
+### ChildProcess
+
+来源：`service/process.py`。
+
+```python
+class ChildProcess:
+    """一个任务的子进程。构造交给 spawn，信号交给 signal_group 与 terminate。"""
+
+    def __init__(self, proc: subprocess.Popen, pgid: int) -> None:
+        self.proc = proc
+        self.pid = proc.pid
+        self.pgid = pgid
+
+    @classmethod
+    def spawn(cls, task) -> "ChildProcess":
+        """按任务参数起子进程。环境只带白名单键，另加任务自带变量。"""
+        env = {key: os.environ[key] for key in SAFE_ENV_KEYS if key in os.environ}
+        env.update(task.env)
+        proc = subprocess.Popen(  # noqa: S603 - 白名单与参数校验已在 limits 层完成
+            [task.command, *task.args],
+            cwd=task.cwd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            start_new_session=True,
+        )
+        return cls(proc, os.getpgid(proc.pid))
+
+    @property
+    def returncode(self) -> int | None:
+        return self.proc.returncode
+
+    def poll(self) -> int | None:
+        return self.proc.poll()
+
+    def wait(self) -> None:
+        self.proc.wait()
+
+    def signal_group(self, signum: int) -> None:
+        signal_group(self.pgid, signum)
+
+    def terminate(self, sampler: MetricsSampler, task, grace_seconds: float = GRACE_SECONDS) -> None:
+        """先 SIGTERM，宽限期内不退再 SIGKILL。宽限期内继续采样。"""
+        if not self.pgid:
+            return
+        self.signal_group(signal.SIGTERM)
+        deadline = time.monotonic() + grace_seconds
+        while self.poll() is None and time.monotonic() < deadline:
+            sampler.update(task, self.pid)
+            time.sleep(0.125)
+        if self.poll() is None:
+            self.signal_group(signal.SIGKILL)
+```
+
+### MetricsSampler
+
+来源：`service/process.py`。
+
+```python
+class MetricsSampler:
+    """读 /proc 采样。进程已退出时返回 (None, None)。"""
+
+    def __init__(self, clock_ticks: int = CLOCK_TICKS) -> None:
+        self.clock_ticks = clock_ticks
+
+    def sample(self, pid: int) -> tuple[float | None, int | None]:
+        cpu_s: float | None = None
+        max_rss_kb: int | None = None
+        try:
+            stat = open(f"/proc/{pid}/stat", encoding="utf-8").read()
+            tail = stat.rsplit(")", 1)[1].split()
+            utime, stime = float(tail[11]), float(tail[12])
+            cpu_s = (utime + stime) / self.clock_ticks
+        except (OSError, IndexError, ValueError):
+            pass
+        try:
+            with open(f"/proc/{pid}/status", encoding="utf-8") as handle:
+                for line in handle:
+                    if line.startswith("VmHWM:"):
+                        max_rss_kb = int(line.split()[1])
+                        break
+        except (OSError, ValueError):
+            pass
+        return cpu_s, max_rss_kb
+
+    def update(self, task, pid: int) -> None:
+        """采一次并写回任务的指标（任务取最大值）。"""
+        task.update_usage(*self.sample(pid))
+```
 ## 设计说明
 
 - 校验与限额合在一层。命令、参数、工作目录与超时都在 `Limits.validate_submit` 里判。
@@ -310,15 +1200,15 @@ return task.summary(), 201
 
 ## API 手册：任务服务
 
-### 任务生命周期端点
+### TaskHandler
 
 <ApiTable :items='[{"name":"POST /api/tasks","rank":"必会","signature":"POST /api/tasks","params":[{"name":"command","type":"string","default":"必填","desc":"白名单里的命令名"},{"name":"args","type":"string[]","default":"[]","desc":"参数列表，拒绝元字符"},{"name":"cwd","type":"string","default":"工作区","desc":"限定在工作区内"},{"name":"timeout_s","type":"int","default":"300","desc":"不超过限额上限"}],"returns":"201 任务摘要；400 参数错误，429 并发超限","effect":"校验命令与参数，建任务并交线程池","scenario":"页面点一次下发","example":"curl -s -X POST http://127.0.0.1:8787/api/tasks \\\n  -d &#39;{\"command\": \"cp\", \"args\": [\"a\", \"b\"], \"timeout_s\": 60}&#39;","exampleLang":"bash","pitfall":"并发到上限时返回 429。调用方要等一个任务结束再试。"},{"name":"POST /api/tasks/{id}/cancel","rank":"必会","signature":"POST /api/tasks/{id}/cancel","params":[{"name":"id","type":"string","default":"必填","desc":"任务标识"}],"returns":"200 {id, status, cancel_requested}；409 已结束，404 不存在","effect":"向任务进程组发 SIGTERM，宽限 3 秒后发 SIGKILL","scenario":"长任务提前停止","example":"curl -s -X POST http://127.0.0.1:8787/api/tasks/t001/cancel","exampleLang":"bash","pitfall":"任务已到终态时返回 409。取消是请求，不阻塞等结果。"},{"name":"GET /api/tasks","rank":"常用","signature":"GET /api/tasks?limit=50","params":[{"name":"limit","type":"int","default":"50","desc":"返回条数上限"}],"returns":"{tasks, limits}","effect":"按时间倒序返回任务摘要与当前限额","scenario":"页面轮询任务列表","example":"curl -s &#39;http://127.0.0.1:8787/api/tasks?limit=20&#39;","exampleLang":"bash","pitfall":"只保留最近 keep 个任务，更早的任务已被丢弃。"},{"name":"GET /api/tasks/{id}","rank":"常用","signature":"GET /api/tasks/{id}","params":[{"name":"id","type":"string","default":"必填","desc":"任务标识"}],"returns":"{task, metrics}","effect":"取单个任务的状态与指标快照","scenario":"刷新详情或事后对账","example":"curl -s http://127.0.0.1:8787/api/tasks/t001","exampleLang":"bash","pitfall":"任务被环形缓冲淘汰后返回 404。"}]' />
 
-### 输出流与探活
+### StreamHub
 
 <ApiTable :items='[{"name":"GET /api/tasks/{id}/stream","rank":"必会","signature":"GET /api/tasks/{id}/stream?from=N","params":[{"name":"from","type":"int","default":"0","desc":"起始分片序号"},{"name":"Last-Event-ID","type":"header","default":"空","desc":"重连时的续传序号"}],"returns":"text/event-stream：status / output / end","effect":"先补历史分片，再持续推送新分片","scenario":"实时查看 stdout 与 stderr","example":"curl -N &#39;http://127.0.0.1:8787/api/tasks/t001/stream?from=0&#39;","exampleLang":"bash","pitfall":"from 与 Last-Event-ID 取较大值，序号更小的分片不重发。"},{"name":"GET /api/health","rank":"常用","signature":"GET /api/health","params":[],"returns":"{ok, service, version, running, limits}","effect":"报告服务版本、并发占用与限额","scenario":"探活与容量查看","example":"curl -s http://127.0.0.1:8787/api/health","exampleLang":"bash","pitfall":"running 计数包含排队中的任务。"}]' />
 
-### 调度与限额内部接口
+### Executor
 
 <ApiTable :items='[{"name":"Executor.submit","rank":"必会","signature":"Executor.submit(task)","params":[{"name":"task","type":"Task","default":"必填","desc":"已通过校验的任务"}],"returns":"无","effect":"把任务交给线程池，占用一个并发名额","scenario":"收到合法下发请求后调度","example":"executor.submit(task)","exampleLang":"python","pitfall":"名额由 try_acquire_slot 先占。并发满时返回 429，别把任务压进池子。"},{"name":"Executor.cancel","rank":"必会","signature":"Executor.cancel(task) -&gt; bool","params":[{"name":"task","type":"Task","default":"必填","desc":"目标任务"}],"returns":"True 表示已受理；False 表示已结束","effect":"置取消标记，运行中则向进程组发 SIGTERM","scenario":"接口层处理取消请求","example":"if not executor.cancel(task):\n    return 409","exampleLang":"python","pitfall":"排队中的任务不发信号。工作线程取到后直接置为已取消。"},{"name":"Limits.validate_submit","rank":"必会","signature":"Limits.validate_submit(payload) -&gt; dict","params":[{"name":"payload","type":"dict","default":"必填","desc":"下发请求体"}],"returns":"校验通过的下发参数","effect":"校验命令、参数、工作目录与超时","scenario":"所有下发请求的唯一入口","example":"payload = limits.validate_submit(body)","exampleLang":"python","pitfall":"参数里的元字符与控制字符一律拒绝，不做转义。"},{"name":"Registry.list","rank":"常用","signature":"Registry.list(limit=50) -&gt; list[Task]","params":[{"name":"limit","type":"int","default":"50","desc":"返回条数"}],"returns":"任务列表，新的在前","effect":"读环形缓冲里的任务摘要","scenario":"列表接口与自检","example":"for task in registry.list(20):\n    print(task.id, task.status)","exampleLang":"python","pitfall":"超出 keep 的旧任务已被丢弃，列表不会返回。"}]' />
 

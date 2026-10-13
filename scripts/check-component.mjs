@@ -49,15 +49,7 @@ const REQUIRED_SECTIONS = [
   '## 下一讲衔接',
 ]
 
-/** 迁移期：只有登记在清单里的页面才强制要求三个对象节。 */
-const OO_ROLLOUT_REL = 'scripts/data/oo-rollout.txt'
-const OO_SECTIONS = ['## 对象模型', '## 对象层级', '## 对象协作与流程']
-
-function ooRollout(rootDir) {
-  const listPath = path.join(path.dirname(rootDir), OO_ROLLOUT_REL)
-  if (!fs.existsSync(listPath)) return []
-  return fs.readFileSync(listPath, 'utf8').split('\n').map((line) => line.trim()).filter((line) => line && !line.startsWith('#'))
-}
+/** 对象三节：三个组件页均已迁移，因此始终必需（迁移期清单已移除）。 */
 
 /** 方向纯净词表（契约 §3）。 */
 const PURITY_RULES = {
@@ -210,13 +202,11 @@ function checkMetadata(page, relative) {
 
 /* ------------------------------------------------------------------- C2 */
 
-function checkSections(page, relative, data, rootDirForSections) {
+function checkSections(page, relative, data) {
   const h2 = headingLines(page.content).filter((item) => item.level === 2)
   const names = h2.map((item) => item.body)
   const hasCrossLink = Boolean(data.cross_link)
-  const migrated = ooRollout(rootDirForSections).includes(relative)
   const expected = REQUIRED_SECTIONS.filter((section) => section !== '## 对应另一端' || hasCrossLink)
-    .filter((section) => migrated || !OO_SECTIONS.includes(section))
   const bare = (section) => section.replace(/^#+\s*/, '')
   const matchIndex = (section) =>
     names.findIndex((name) => name === bare(section) || (bare(section).endsWith('：') && name.startsWith(bare(section))))
@@ -225,12 +215,7 @@ function checkSections(page, relative, data, rootDirForSections) {
   for (const section of missing) {
     fail('C2', relative, 1, `缺必需章节：${section}`, '按 component-page-contract §2 的 18 节顺序补齐')
   }
-  if (!migrated) {
-    const pending = OO_SECTIONS.filter((section) => matchIndex(section) < 0)
-    if (pending.length) {
-      warn('C2', relative, 1, `对象节待补齐（迁移期）：${pending.join('、')}`, '按 008 迁移计划补齐后登记进 scripts/data/oo-rollout.txt')
-    }
-  }
+
 
   const found = []
   for (const section of expected) {
@@ -558,6 +543,54 @@ function checkDiagramBinding(root, parsed, relative) {
   }
 }
 
+/**
+ * C8 对象清单与源码一致：清单行数 MUST 等于对象小节数，且每个对象名 MUST 能在登记的源码里找到。
+ * 登记表见 scripts/data/component-objects.json（008 T004/T005）。
+ */
+const OBJECT_MAP_REL = 'scripts/data/component-objects.json'
+
+function checkObjectModel(rootDir, parsed, relative) {
+  const mapPath = path.join(path.dirname(rootDir), OBJECT_MAP_REL)
+  if (!fs.existsSync(mapPath)) return
+  let map
+  try {
+    map = JSON.parse(fs.readFileSync(mapPath, 'utf8'))
+  } catch {
+    return
+  }
+  const expected = map[relative]
+  if (!expected) return
+  const body = parsed.content ?? ''
+  const model = /^##\s*对象模型\s*$([\s\S]*?)(?=^##\s)/m.exec(body)?.[1] ?? ''
+  if (!model) return
+  const rows = [...model.matchAll(/^\|\s*`([A-Za-z_][\w]*)`\s*\|/gm)].map((item) => item[1])
+  const subs = [...model.matchAll(/^###\s*([A-Za-z_][\w]*)\s*$/gm)].map((item) => item[1])
+  if (rows.length !== subs.length) {
+    fail('C8', relative, 1, `对象清单 ${rows.length} 行与对象小节 ${subs.length} 个不一致`, '每个对象一行，且各自成节')
+  }
+  const missingSub = rows.filter((name) => !subs.includes(name))
+  if (missingSub.length) {
+    fail('C8', relative, 1, `缺少对象小节：${missingSub.join('、')}`, '为每个对象补一节')
+  }
+  for (const [name, file] of Object.entries(expected)) {
+    if (!rows.includes(name)) {
+      fail('C8', relative, 1, `对象清单缺 ${name}`, '按 scripts/data/component-objects.json 补一行')
+      continue
+    }
+    const src = path.join(path.dirname(rootDir), file)
+    if (!fs.existsSync(src)) {
+      fail('C8', relative, 1, `对象源码不存在：${file}`, '检查登记路径')
+      continue
+    }
+    const text = fs.readFileSync(src, 'utf8')
+    const pattern = new RegExp(`(class|def|function)\\s+${name}\\b`)
+    const found = pattern.test(text) || path.basename(src).startsWith(name)
+    if (!found) {
+      fail('C8', relative, 1, `源码里找不到对象 ${name}`, '让对象名与源码一致')
+    }
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const rootIndex = args.indexOf('--root')
@@ -579,13 +612,14 @@ function main() {
     if (!fs.existsSync(file)) continue
     const parsed = readPage(file)
     checkMetadata(parsed, page.file)
-    checkSections(parsed, page.file, parsed.data, rootDir)
+    checkSections(parsed, page.file, parsed.data)
     checkPurity(parsed, page.file, parsed.data)
     checkKnowledgeIndex(parsed, page.file, parsed.data, tree, outlines)
     checkReuseManifest(parsed, page.file, parsed.data, workspace, tree.linkMap, pagesByUrl)
     checkCrossLink(parsed, page, page.file, parsed.data, tree, pagesByUrl)
     checkInheritance(workspace, parsed, page.file)
     checkDiagramBinding(rootDir, parsed, page.file)
+    checkObjectModel(rootDir, parsed, page.file)
   }
   checkStyleScope(rootDir)
 

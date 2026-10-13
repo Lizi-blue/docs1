@@ -265,8 +265,14 @@ function componentPageFixture({ domain, direction, crossLink, omitCounterpart, i
   blocks.push('## 组件简介', '', '夹具组件，只讲本方向实现。', '')
   if (crossLink && !omitCounterpart) blocks.push('## 对应另一端', '', `对端：[另一端](${crossLink})`, '')
   blocks.push('## 依赖的知识域与知识点', '', '<KnowledgeIndex />', '')
-  blocks.push('## 涉及的知识点', '', '| 知识点 | 对应学习页面 | 在本组件中的作用 |', '|---|---|---|',
-    '| 夹具一 | [夹具一](/backend/learn/kd/p1) | 夹具作用说明 |', '')
+  // 契约 §2 的对象三节（宪法 XII）：清单 + 逐对象成节 + 协作与流程。
+  blocks.push('## 对象模型', '', '| 对象 | 职责 | 状态 | 生命周期 |', '|---|---|---|---|',
+    '| `Fixture` | 夹具备注 | 无 | 随调用创建 |', '',
+    '### Fixture', '', '| 项 | 内容 |', '|---|---|', '| 职责 | 夹具备注 |', '| 持有 | 无 |',
+    '| 方法 | `fixture.call` |', '| 边界 | 夹具 |', '| 谁调用它 | 夹具 |', '| 它调用谁 | 夹具 |', '')
+  blocks.push('## 对象层级', '', '源码没有继承，关系全是持有。', '')
+  blocks.push('## 对象协作与流程', '', '### 流程一：夹具', '', '1. 夹具收到调用。', '2. 夹具校验入参。',
+    '3. 夹具调用对象。', '4. 夹具落终态。', '5. 夹具回事件。', '')
   blocks.push('## 组合方式图解', '', '<DiagramFrame src="/diagrams/fixture.html" title="夹具图" />', '')
   blocks.push('## 核心源码', '', '```python', 'print("fixture")', '```', '')
   if (injectFrontendWord) blocks.push('界面部分见 TaskConsole.vue。', '')

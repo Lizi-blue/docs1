@@ -16,14 +16,14 @@ description: "Task list for 组件面向对象重构与教学"
 
 ## Phase 1: Setup
 
-- [ ] T001 在 `specs/004-component-hub-console/contracts/component-page-contract.md` 起草新章节表（16 → 15 节）：删除「涉及的知识点」，新增「对象模型」与「对象协作与流程」两节，并把「核心源码」改名为「对象实现」（覆盖 FR-015）
-- [ ] T002 [P] 在 `specs/008-oo-component-teaching/checklists/local-baseline.md` 建证据文件（覆盖 SC-001…SC-009）
+- [x] T001 在 `specs/004-component-hub-console/contracts/component-page-contract.md` 起草新章节表（16 → 15 节）：删除「涉及的知识点」，新增「对象模型」与「对象协作与流程」两节，并把「核心源码」改名为「对象实现」（覆盖 FR-015）
+- [x] T002 [P] 在 `specs/008-oo-component-teaching/checklists/local-baseline.md` 建证据文件（覆盖 SC-001…SC-009）
 
 ## Phase 2: Foundational
 
-- [ ] T003 更新 `scripts/check-component.mjs` 的 C2 章节顺序为 15 节新表（覆盖 FR-015）
-- [ ] T004 在 `scripts/check-component.mjs` 增 C8：对象清单表的行数 MUST 等于对象小节数，且对象名与源码中的类名一致（覆盖 FR-003、FR-005）
-- [ ] T005 [P] 在 `scripts/data/` 建组件对象清单登记（对象名 → 源码位置），供门禁比对（覆盖 FR-005）
+- [x] T003 更新 `scripts/check-component.mjs` 的 C2 章节顺序为 15 节新表（覆盖 FR-015）
+- [x] T004 在 `scripts/check-component.mjs` 增 C8：对象清单表的行数 MUST 等于对象小节数，且对象名与源码中的类名一致（覆盖 FR-003、FR-005）
+- [x] T005 [P] 在 `scripts/data/` 建组件对象清单登记（对象名 → 源码位置），供门禁比对（覆盖 FR-005）
 
 ## Phase 3: User Story 1 - 对象模型先行（Priority: P1）
 
@@ -45,9 +45,9 @@ description: "Task list for 组件面向对象重构与教学"
 **Independent Test**: 对象小节数 = 清单条数；每节含职责、持有、方法、边界。
 
 - [x] T012 [US2] 在 `docs/backend/components/03-task-console.md` 重写「对象模型」节：对象清单表（对象｜职责｜状态｜生命周期）（覆盖 FR-001、FR-002）
-- [ ] T013 [US2] 在 `docs/backend/components/03-task-console.md` 为 `Allowlist`、`TaskRegistry`、`OutputBuffer`、`StreamHub`、`Executor`、`ChildProcess`、`MetricsSampler` 各写一节，含职责、持有、方法、边界（覆盖 FR-003）
-- [ ] T014 [US2] 在 `docs/backend/components/03-task-console.md` 按对象重排「API 手册」，方法组名与对象名一致（覆盖 FR-006）
-- [ ] T015 [US2] 在 `docs/backend/components/03-task-console.md` 更新「对象实现」小节：按对象给出关键代码片段，与源码一致（覆盖 FR-004、FR-005）
+- [x] T013 [US2] 在 `docs/backend/components/03-task-console.md` 为 `Allowlist`、`TaskRegistry`、`OutputBuffer`、`StreamHub`、`Executor`、`ChildProcess`、`MetricsSampler` 各写一节，含职责、持有、方法、边界（覆盖 FR-003）
+- [x] T014 [US2] 在 `docs/backend/components/03-task-console.md` 按对象重排「API 手册」，方法组名与对象名一致（覆盖 FR-006）
+- [x] T015 [US2] 在 `docs/backend/components/03-task-console.md` 更新「对象实现」小节：按对象给出关键代码片段，与源码一致（覆盖 FR-004、FR-005）
 
 ## Phase 5: User Story 3 - 对象协作与流程（Priority: P1）
 
@@ -63,9 +63,9 @@ description: "Task list for 组件面向对象重构与教学"
 
 ## Phase 7: User Story 5 - 知识点只登记一处（Priority: P2）
 
-- [ ] T022 [US5] 删除 `docs/backend/components/03-task-console.md`、`docs/backend/components/01-safe-queue.md`、`docs/frontend/components/01-task-console.md` 的「涉及的知识点」一节，只保留 frontmatter 驱动的索引（覆盖 FR-014）
-- [ ] T023 [US5] 更新 `reuse/task-console/manifest.json` 的 `files[]` 与 `reuse/README.md` 约定（覆盖 FR-014）
-- [ ] T024 [US5] 跑 `scripts/check-component.mjs` 与 `scripts/check-content.mjs`，确认新章节表与单一事实源生效（覆盖 FR-015、SC-005）
+- [x] T022 [US5] 删除 `docs/backend/components/03-task-console.md`、`docs/backend/components/01-safe-queue.md`、`docs/frontend/components/01-task-console.md` 的「涉及的知识点」一节，只保留 frontmatter 驱动的索引（覆盖 FR-014）
+- [x] T023 [US5] 更新 `reuse/task-console/manifest.json` 的 `files[]` 与 `reuse/README.md` 约定（覆盖 FR-014）
+- [x] T024 [US5] 跑 `scripts/check-component.mjs` 与 `scripts/check-content.mjs`，确认新章节表与单一事实源生效（覆盖 FR-015、SC-005）
 
 ## Phase 7b: 对象层级（继承与组合）
 
@@ -75,7 +75,7 @@ description: "Task list for 组件面向对象重构与教学"
 
 ## Phase 8: Polish
 
-- [ ] T025 把同一套对象化做法复制到 `docs/frontend/components/01-task-console.md` 与 `TaskConsole.vue`（覆盖 SC-001）
-- [ ] T026 把同一套做法复制到 `docs/backend/components/01-safe-queue.md` 与页面内源码（覆盖 SC-001）
-- [ ] T027 十三条门禁全绿；证据写入 `specs/008-oo-component-teaching/checklists/local-baseline.md` `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-007）
+- [x] T025 把同一套对象化做法复制到 `docs/frontend/components/01-task-console.md` 与 `TaskConsole.vue`（覆盖 SC-001）
+- [x] T026 把同一套做法复制到 `docs/backend/components/01-safe-queue.md` 与页面内源码（覆盖 SC-001）
+- [x] T027 十三条门禁全绿；证据写入 `specs/008-oo-component-teaching/checklists/local-baseline.md` `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-007）
 - [ ] T028 部署验收：内网与公网发布成功，抽查三个组件页；结论写入 `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-008）
