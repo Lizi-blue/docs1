@@ -102,8 +102,8 @@ CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 
 ## 7. 布局档位（006）
 
-- 两档：`taste`（优化后，默认）与 `classic`（改造前）。
-- 构建期选择：`DOCS1_LAYOUT=taste|classic`（非法值直接报错）。运行期可在顶栏切换，选择写入 localStorage。
+- 三档：`teek`（主题版，默认）、`taste`（优化版）与 `classic`（改造前）。
+- 构建期选择：`DOCS1_LAYOUT=teek|taste|classic`（非法值直接报错）。运行期可在顶栏切换，选择写入 localStorage。
 - 样式分层：`styles/classic.css` 逐字冻结（指纹在 `scripts/data/classic-css.sha256`）、
   `styles/taste.css` 是优化层且全部规则限定在 `html.layout-taste` 之下、`styles/custom.css` 只做入口。
 - 改样式前先读 `specs/006-layout-taste/reference/taste-skill-digest.md`（参照规则与档位取值）。

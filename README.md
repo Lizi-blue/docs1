@@ -90,11 +90,12 @@ npm run check:nav           # 导航层级 N1–N5（构建后）
 
 ## 布局档位（优化版 / 经典版）
 
-站点有两套布局档位，默认 `taste`（优化后）。顶栏可随时切换，选择记在本地。
+站点有三套布局档位，默认 `teek`（主题版）。顶栏可随时切换，选择记在本地。
 
 ```bash
-npm run build                      # 优化版（默认）
-DOCS1_LAYOUT=classic npm run build # 经典版
+npm run build                      # 主题版（默认）
+DOCS1_LAYOUT=taste npm run build   # 优化版（方案 A）
+DOCS1_LAYOUT=classic npm run build # 经典版（改造前）
 npm run check:layout               # 布局门禁：冻结未被破坏、断点标准、顶栏上限、作用域
 ```
 

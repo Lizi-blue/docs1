@@ -116,10 +116,10 @@ for (const domain of tree.domains) {
   }
 }
 
-// 布局档位：taste（优化后，默认）或 classic（改造前）。运行期可切换，见 006 契约。
+// 布局档位：teek（主题版，默认）/ taste（优化版）/ classic（改造前）。运行期可切换。
 const LAYOUTS = ['taste', 'classic', 'teek']
 function resolveLayout(): string {
-  const raw = process.env.DOCS1_LAYOUT ?? 'taste'
+  const raw = process.env.DOCS1_LAYOUT ?? 'teek'
   if (!LAYOUTS.includes(raw)) {
     throw new Error(`DOCS1_LAYOUT 只允许 ${LAYOUTS.join(' 或 ')}，当前：${raw}`)
   }
