@@ -89,7 +89,21 @@
 - 十三条门禁 → **13/13 全绿**；`selftest:gates` 全部符合预期（含 G16 正例恢复）
 - 前端重构静态复核（产物 JS）：`EventSource` 13 处、`stream?from=` 1 处、`Last-Event-ID` 5 处、`aria-live` 1 处
 
-## 五、待完成
+## 五、闭环验收（2026-10-14 01:xx）
+
+| 项 | 结果 |
+|---|---|
+| 内网流水线 | Gitea CI **#4783** 全绿（构建 + 部署） |
+| 三页对象内容 | 后端任务服务、进程安全队列、前端控制台：对象模型 / 对象层级 / 对象协作与流程 各 1 处；「涉及的知识点」**0** 处 |
+| 对象小节 | 线上锚点已生成：`#apiclient`、`#eventstream`、`#taskconsole`（侧栏可见），后端页含 7 个对象锚点 |
+| 图解 | `/diagrams/task-service-objects.html`、`/diagrams/task-service-submit.html` 均 200 |
+| 服务端到端 | `/health` 200；`sha256sum` 任务 `succeeded`（退出码 0、80 字节）；SSE 首帧 `event: status` |
+| 公网 | 首页 200；后端页对象模型内容已同步（镜像链路正常） |
+| 门禁 | 十三条 13/13；`selftest:gates` 全部符合预期（G16 正例恢复） |
+| 单测 | `pytest tests/ -q` → 57 passed / 3 skipped |
+
+**T028 部署验收完成，008 三页对象化全部落地。**
+
 
 页面按对象重写（对象模型 / 逐对象成节 / 协作与流程 / 图解 / 删除重复知识点节），
 契约章节表 16 → 15 节，门禁 C8 对象断言，另两个组件的对象化。

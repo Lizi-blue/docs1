@@ -78,4 +78,4 @@ description: "Task list for 组件面向对象重构与教学"
 - [x] T025 把同一套对象化做法复制到 `docs/frontend/components/01-task-console.md` 与 `TaskConsole.vue`（覆盖 SC-001）
 - [x] T026 把同一套做法复制到 `docs/backend/components/01-safe-queue.md` 与页面内源码（覆盖 SC-001）
 - [x] T027 十三条门禁全绿；证据写入 `specs/008-oo-component-teaching/checklists/local-baseline.md` `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-007）
-- [ ] T028 部署验收：内网与公网发布成功，抽查三个组件页；结论写入 `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-008）
+- [x] T028 部署验收：内网与公网发布成功，抽查三个组件页；结论写入 `specs/008-oo-component-teaching/checklists/local-baseline.md`（覆盖 SC-008）
