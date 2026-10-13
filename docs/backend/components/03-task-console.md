@@ -46,21 +46,6 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 
 <KnowledgeIndex />
 
-## 涉及的知识点
-
-| 知识点 | 对应学习页面 | 在本组件中的作用 |
-|---|---|---|
-| 任务编排与线程池 | [任务编排与线程池](/backend/learn/concurrency/executor-pools) | 任务入队、并发名额与状态迁移 |
-| 子进程与信号 | [子进程与信号](/backend/learn/concurrency/subprocess-signals) | 进程组启动与取消信号 |
-| 同步原语与死锁 | [同步原语与死锁](/backend/learn/concurrency/sync-primitives) | 注册表与分片缓冲的加锁边界 |
-| 套接字与流 | [套接字与流](/backend/learn/communication/socket-and-streams) | SSE 长连接与分片推送 |
-
-## 组合方式图解
-
-下图回答一个问题：一个任务从接单到收尾，服务端在哪些环节落状态与输出。
-
-<DiagramFrame src="/diagrams/executor-lifecycle.html" title="任务从接单到收尾的服务端流转（Archify 交互图）" :height="520" />
-
 ## 对象模型
 
 后端任务服务由七个对象组成。它们与三个继承类一起构成整体。
@@ -76,6 +61,7 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 | `MetricsSampler` | 读取 /proc 采样 | 时钟频率 | 随 `Executor` 创建 |
 
 另有 `Task` 承载单个任务的状态机与指标，由 `TaskRegistry` 保存。
+
 
 ## 对象层级
 
@@ -93,9 +79,51 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 
 | 持有者 | 被持有者 | 用途 |
 |---|---|---|
-| `TaskServer` | `Limits`、`Registry`、`Executor` | 请求处理时取限额、注册表与调度器 |
-| `Task` | `OutputBuffer` | 输出分片、序号与订阅分发 |
-| `Executor` | 线程池、`Popen` | 调度任务与拉子进程 |
+| `TaskServer` | `Limits`、`TaskRegistry`、`Executor`、`StreamHub` | 请求处理时按需取用 |
+| `Limits` | `Allowlist` | 校验下发请求 |
+| `Task` | `OutputBuffer` | 输出分片与订阅 |
+| `Executor` | `MetricsSampler` | 采样任务指标 |
+
+
+## 对象协作与流程
+
+### 对象关系
+
+| 关系 | 从 | 到 | 说明 |
+|---|---|---|---|
+| 持有 | `TaskServer` | `Limits`、`TaskRegistry`、`Executor`、`StreamHub` | 请求处理时按需取用 |
+| 调用 | `TaskHandler` | `Allowlist` | 下发请求先过校验 |
+| 创建 | `Executor` | `ChildProcess` | 每个任务一个子进程 |
+| 回调 | `ChildProcess` | `Task` | 输出经管道回到 `OutputBuffer` |
+
+### 流程一：下发到完成
+
+1. `TaskHandler` 收到下发请求，调 `Allowlist` 校验命令与参数。
+2. `Executor` 先取并发名额。名额满则回 429。
+3. `Executor` 创建 `Task`，交给 `TaskRegistry` 保存。
+4. 线程池取出任务，`Executor` 创建 `ChildProcess`。子进程自建进程组。
+5. `Task` 置 running。两条管道由线程读入 `OutputBuffer`。
+6. `OutputBuffer` 追加分片，并推给 `StreamHub` 的订阅者。
+7. 子进程退出，`Executor` 决定终态，调 `Task.finish`。
+8. `OutputBuffer` 推结束事件。订阅者收到后关闭连接。
+
+### 流程二：取消与超时
+
+1. `TaskHandler` 收到取消请求，调 `Executor.cancel`。
+2. 任务已结束则回 409。否则置取消标记。
+3. 任务在排队时，工作线程取到后直接落已取消，不发信号。
+4. 任务在收尾时，`ChildProcess` 向进程组发 SIGTERM。
+5. 宽限 3 秒未退出，再发 SIGKILL。
+6. 宽限期内，`MetricsSampler` 继续更新指标。
+7. `Task.finish` 落终态，`OutputBuffer` 推结束事件。
+8. 失败路径：子进程出错不逃逸。`Executor` 兜底落 failed，并释放并发名额。
+
+
+## 组合方式图解
+
+下图回答一个问题：一个任务从接单到收尾，服务端在哪些环节落状态与输出。
+
+<DiagramFrame src="/diagrams/executor-lifecycle.html" title="任务从接单到收尾的服务端流转（Archify 交互图）" :height="520" />
 
 ## 核心源码
 

@@ -36,13 +36,61 @@ description: "把队列、哨兵与异常回传封成一个可复用的进程池
 
 <KnowledgeIndex />
 
-## 涉及的知识点
+## 对象模型
 
-| 知识点 | 对应学习页面 | 在本组件中的作用 |
+组件由两个类与一个进程入口组成。
+
+| 对象 | 职责 | 状态 | 生命周期 |
+|---|---|---|---|
+| `SafeQueue` | 组装队列与 worker，对外给出投递与收取 | worker 列表、任务队列 | 由调用方用 `with` 创建与关闭 |
+| `TaskResult` | 承载成功值或异常文本 | ok、value、error | worker 完成后创建 |
+| `_worker` | 进程入口：取任务、调用、回传 | 当前任务 | 随 `SafeQueue` 启动，收到哨兵退出 |
+
+
+## 对象层级
+
+源码没有继承，关系全是持有。
+
+| 子类 | 父类 | 扩展或覆盖 |
 |---|---|---|
-| 生产者消费者模型 | [Queue 通信](/backend/learn/concurrency/queue-pipe) | 队列缓冲与哨兵结束 |
-| 进程池与序列化 | [多进程基础](/backend/learn/concurrency/process-basics) | worker 进程与结果回收 |
-| 线程同步 | [多线程基础](/backend/learn/concurrency/thread-basics) | 单进程模式的线程 worker |
+| 无 | 无 | 本组件没有继承 |
+
+| 持有者 | 被持有者 | 用途 |
+|---|---|---|
+| `SafeQueue` | 任务队列、结果队列 | 投递与收取 |
+| `SafeQueue` | worker 进程 | 并发处理任务 |
+
+
+## 对象协作与流程
+
+### 对象关系
+
+| 关系 | 从 | 到 | 说明 |
+|---|---|---|---|
+| 持有 | `SafeQueue` | 任务队列 | 投递入口 |
+| 持有 | `SafeQueue` | worker 进程 | 每个 worker 一个进程 |
+| 调用 | `SafeQueue.submit` | 任务队列 | 逐条投递任务 |
+| 回调 | `_worker` | 结果队列 | 回传 `TaskResult` |
+
+### 流程一：投递到收取
+
+1. 调用方用 `with SafeQueue(func, workers=N)` 创建组件。
+2. `__enter__` 起 N 个 worker 进程。
+3. `submit(items)` 把每条任务放进任务队列。
+4. worker 取出任务，调用任务函数。
+5. 结果包成 `TaskResult`，放进结果队列。
+6. `drain(expected)` 按条数收回结果。
+7. `__exit__` 按 worker 数投哨兵。
+8. worker 收到哨兵退出，队列关闭。
+
+### 流程二：失败与超时
+
+1. 子进程里的异常不逃逸。worker 包成 `TaskResult(ok=False)`。
+2. 结果里带异常文本。调用方按 `ok` 分支处理。
+3. 哨兵少投一个，对应 worker 会一直等队列。
+4. `drain` 超过超时会抛 `TimeoutError`。
+5. 启动方式为 spawn 时，任务函数必须可 pickle。
+
 
 ## 组合方式图解
 

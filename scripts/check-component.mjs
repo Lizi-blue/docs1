@@ -27,12 +27,14 @@ const SKIP_DIRS = new Set(['.vitepress', 'public', 'node_modules', '.git', 'diag
 const DIRECTIONS = ['backend', 'frontend', 'fullstack']
 const DIRECTION_BY_SEGMENT = { backend: 'backend', frontend: 'frontend', 'cross-domain': 'fullstack' }
 
-/** 契约 §2 的 16 个必需章节，顺序即数组顺序。 */
+/** 契约 §2 的 18 个必需章节，顺序即数组顺序。 */
 const REQUIRED_SECTIONS = [
   '## 组件简介',
   '## 对应另一端',
   '## 依赖的知识域与知识点',
-  '## 涉及的知识点',
+  '## 对象模型',
+  '## 对象层级',
+  '## 对象协作与流程',
   '## 组合方式图解',
   '## 核心源码',
   '## 设计说明',
@@ -46,6 +48,16 @@ const REQUIRED_SECTIONS = [
   '## 与其他组件的关系',
   '## 下一讲衔接',
 ]
+
+/** 迁移期：只有登记在清单里的页面才强制要求三个对象节。 */
+const OO_ROLLOUT_REL = 'scripts/data/oo-rollout.txt'
+const OO_SECTIONS = ['## 对象模型', '## 对象层级', '## 对象协作与流程']
+
+function ooRollout(rootDir) {
+  const listPath = path.join(path.dirname(rootDir), OO_ROLLOUT_REL)
+  if (!fs.existsSync(listPath)) return []
+  return fs.readFileSync(listPath, 'utf8').split('\n').map((line) => line.trim()).filter((line) => line && !line.startsWith('#'))
+}
 
 /** 方向纯净词表（契约 §3）。 */
 const PURITY_RULES = {
@@ -198,18 +210,26 @@ function checkMetadata(page, relative) {
 
 /* ------------------------------------------------------------------- C2 */
 
-function checkSections(page, relative, data) {
+function checkSections(page, relative, data, rootDirForSections) {
   const h2 = headingLines(page.content).filter((item) => item.level === 2)
   const names = h2.map((item) => item.body)
   const hasCrossLink = Boolean(data.cross_link)
+  const migrated = ooRollout(rootDirForSections).includes(relative)
   const expected = REQUIRED_SECTIONS.filter((section) => section !== '## 对应另一端' || hasCrossLink)
+    .filter((section) => migrated || !OO_SECTIONS.includes(section))
   const bare = (section) => section.replace(/^#+\s*/, '')
   const matchIndex = (section) =>
     names.findIndex((name) => name === bare(section) || (bare(section).endsWith('：') && name.startsWith(bare(section))))
 
   const missing = expected.filter((section) => matchIndex(section) < 0)
   for (const section of missing) {
-    fail('C2', relative, 1, `缺必需章节：${section}`, '按 component-page-contract §2 的 16 节顺序补齐')
+    fail('C2', relative, 1, `缺必需章节：${section}`, '按 component-page-contract §2 的 18 节顺序补齐')
+  }
+  if (!migrated) {
+    const pending = OO_SECTIONS.filter((section) => matchIndex(section) < 0)
+    if (pending.length) {
+      warn('C2', relative, 1, `对象节待补齐（迁移期）：${pending.join('、')}`, '按 008 迁移计划补齐后登记进 scripts/data/oo-rollout.txt')
+    }
   }
 
   const found = []
@@ -531,7 +551,7 @@ function main() {
     if (!fs.existsSync(file)) continue
     const parsed = readPage(file)
     checkMetadata(parsed, page.file)
-    checkSections(parsed, page.file, parsed.data)
+    checkSections(parsed, page.file, parsed.data, rootDir)
     checkPurity(parsed, page.file, parsed.data)
     checkKnowledgeIndex(parsed, page.file, parsed.data, tree, outlines)
     checkReuseManifest(parsed, page.file, parsed.data, workspace, tree.linkMap, pagesByUrl)
