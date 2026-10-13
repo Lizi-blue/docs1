@@ -8,6 +8,8 @@ from __future__ import annotations
 import queue
 import threading
 import time
+
+from .output import OutputBuffer
 import uuid
 from collections import deque
 
@@ -40,7 +42,7 @@ class Task:
         self.cwd = cwd
         self.timeout_s = timeout_s
         self.env = dict(env)
-        self.output_max_bytes = output_max_bytes
+        self._output = OutputBuffer(output_max_bytes)
 
         self.status = QUEUED
         self.reason: str | None = None
@@ -52,18 +54,12 @@ class Task:
         self.pid: int | None = None
         self.pgid: int | None = None
         self.cancel_requested = False
-        self.truncated = False
 
         self.cpu_s = 0.0
         self.max_rss_kb = 0
-        self.bytes_out = 0
-        self.lines = 0
 
         # 可重入：summary() 会在持锁期间取 metrics()
         self._lock = threading.RLock()
-        self._seq = 0
-        self._chunks: deque[dict] = deque()
-        self._subscribers: set[queue.Queue] = set()
         self._finished = threading.Event()
 
     # ---- 状态 ----
@@ -89,9 +85,8 @@ class Task:
                 self.reason = reason
             self.finished_at = time.time()
             payload = self._end_payload_locked()
-            subscribers = list(self._subscribers)
-        for subscriber in subscribers:
-            subscriber.put({"event": "end", "data": payload})
+        # 通知交给 OutputBuffer：订阅者集合由它持有。
+        self._output.notify("end", payload)
         self._finished.set()
 
     def wait_finished(self, timeout: float | None = None) -> bool:
@@ -101,42 +96,31 @@ class Task:
     def finished(self) -> bool:
         return self.status in TERMINAL
 
-    # ---- 输出 ----
+    # ---- 输出（委托给 OutputBuffer）----
+    @property
+    def output_max_bytes(self) -> int:
+        return self._output.max_bytes
+
+    @property
+    def truncated(self) -> bool:
+        return self._output.truncated
+
+    @property
+    def bytes_out(self) -> int:
+        return self._output.bytes_out
+
+    @property
+    def lines(self) -> int:
+        return self._output.lines
+
     def append_output(self, stream: str, text: str) -> None:
-        if not text:
-            return
-        raw = text.encode("utf-8", errors="replace")
-        with self._lock:
-            remaining = self.output_max_bytes - self.bytes_out
-            if remaining <= 0:
-                self.truncated = True
-                return
-            if len(raw) > remaining:
-                raw = raw[:remaining]
-                text = raw.decode("utf-8", errors="ignore") + "\n[输出超过上限，已截断]\n"
-                self.truncated = True
-            else:
-                text = raw.decode("utf-8", errors="replace")
-            self.bytes_out += len(raw)
-            self.lines += text.count("\n")
-            self._seq += 1
-            chunk = {"seq": self._seq, "stream": stream, "text": text, "ts": time.time()}
-            self._chunks.append(chunk)
-            subscribers = list(self._subscribers)
-        for subscriber in subscribers:
-            subscriber.put({"event": "output", "data": chunk})
+        self._output.append(stream, text)
 
     def subscribe(self, from_seq: int = 0) -> tuple[queue.Queue, list[dict]]:
-        """返回订阅队列与需要补发的历史块（序号大于 from_seq）。"""
-        subscriber: queue.Queue = queue.Queue()
-        with self._lock:
-            history = [chunk for chunk in self._chunks if chunk["seq"] > from_seq]
-            self._subscribers.add(subscriber)
-        return subscriber, history
+        return self._output.subscribe(from_seq)
 
     def unsubscribe(self, subscriber: queue.Queue) -> None:
-        with self._lock:
-            self._subscribers.discard(subscriber)
+        self._output.unsubscribe(subscriber)
 
     def update_usage(self, cpu_s: float | None = None, max_rss_kb: int | None = None) -> None:
         with self._lock:
