@@ -11,7 +11,7 @@
  * L5 档位切换机制齐备（构建期变量、根类名、localStorage 键、控件组件、脚本别名）
  * L6 禁止 flex 百分比栅格写法
  * L7 宽内容外扩（代码、表格、图框）且窄屏归零
- * L8 组件页双栏：网格声明、窄屏单列、侧栏卡片化
+ * L8 组件页单栏：display: block、引用栏不吸顶且卡片化
  * L9 入口主卡与知识域卡分级
  * L10 右栏目录不得为空（页面数据 headers 判空）
  * L11 宽内容外扩必须与右栏复位成对出现
@@ -127,14 +127,15 @@ function ruleL7() {
 
 function ruleL8() {
   const taste = read(TASTE) ?? ''
-  if (!/html\.layout-taste \.cmp-grid\s*\{[^}]*grid-template-columns/.test(taste)) {
-    fail('L8', TASTE, '组件页双栏未使用网格声明', '在优化层给 .cmp-grid 声明 grid-template-columns')
+  // 007 方案 A：组件页单栏，正文与「其他项目如何引用」上下排列。
+  if (!/html\.layout-taste \.cmp-grid\s*\{[^}]*display:\s*block/.test(taste)) {
+    fail('L8', TASTE, '组件页不是单栏布局', '在优化层把 .cmp-grid 设为 display: block（正文与引用方式上下排列）')
   }
-  if (!/\.cmp-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/.test(taste)) {
-    fail('L8', TASTE, '组件页双栏没有窄屏单列折叠', '在 ≤1024px 折叠为单列')
+  if (!/html\.layout-taste \.cmp-aside\s*\{[^}]*position:\s*static/.test(taste)) {
+    fail('L8', TASTE, '引用栏仍为吸顶定位，会与正文重叠', '把 .cmp-aside 改为 position: static')
   }
   if (!/html\.layout-taste \.cmp-aside\s*\{[^}]*border-radius:\s*var\(--docs1-radius/.test(taste)) {
-    fail('L8', TASTE, '侧栏未卡片化', '给 .cmp-aside 圆角与描边，减少分隔线堆叠')
+    fail('L8', TASTE, '引用栏未卡片化', '给 .cmp-aside 圆角与描边，减少分隔线堆叠')
   }
 }
 

@@ -15,7 +15,7 @@ html.layout-taste {
   --docs1-layout-max: 1600px;
   --vp-layout-max-width: var(--docs1-layout-max);
   /* 正文列宽：约 65–75 字符 */
-  --docs1-content-measure: 46rem;
+  --docs1-content-measure: 48rem;
   /* 顶栏毛玻璃与悬停位移：效果值也走令牌，避免裸 px */
   --docs1-blur: 8px;
   --docs1-lift: -2px;
@@ -69,11 +69,10 @@ html.layout-taste .VPDoc.has-aside .content-container {
   max-width: var(--docs1-content-measure);
 }
 
-/* 组件页自带双栏（cmp-grid）：外层容器必须放宽到「正文栏 + 侧栏 + 间距」，
- * 否则正文会被外层阅读栏与内层侧栏二次挤压。 */
+/* 组件页改为单栏（007 方案 A）：外层容器回到阅读栏宽度，不再为侧栏留位。 */
 html.layout-taste .VPDoc .content-container:has(.cmp-grid),
 html.layout-taste .VPDoc.has-aside .content-container:has(.cmp-grid) {
-  max-width: calc(var(--docs1-content-measure) + 22rem + var(--docs1-space-8));
+  max-width: var(--docs1-content-measure);
 }
 
 /* ---------- 骨架：入口页首屏留白收紧 ---------- */
@@ -224,11 +223,10 @@ html.layout-taste .vp-doc .cmp-aside .diagram-frame {
 
 /* ---------- 组件页双栏：主栏守阅读栏，侧栏卡片化 ---------- */
 
+/* 组件页单栏：正文在上，「其他项目如何引用」顺排在下方（007 方案 A）。
+ * 不再并列，正文因此拿满阅读栏，也不会被侧栏挤压。 */
 html.layout-taste .cmp-grid {
-  /* 主栏锁在可读区间（46rem），侧栏 18–22rem，余量放在中间 */
-  grid-template-columns: minmax(0, var(--docs1-content-measure)) minmax(18rem, 22rem);
-  justify-content: space-between;
-  gap: var(--docs1-space-7);
+  display: block;
 }
 
 html.layout-taste .cmp-main {
@@ -236,11 +234,11 @@ html.layout-taste .cmp-main {
 }
 
 html.layout-taste .cmp-aside {
-  position: sticky;
-  top: calc(var(--docs1-nav-height) + var(--docs1-space-6));
+  position: static;
+  top: auto;
+  margin-top: var(--docs1-space-8);
   padding: var(--docs1-space-5);
   border: 1px solid var(--docs1-color-border);
-  border-left: 1px solid var(--docs1-color-border);
   border-radius: var(--docs1-radius-lg);
   background: var(--docs1-color-surface);
 }
