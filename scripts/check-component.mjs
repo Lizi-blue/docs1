@@ -463,6 +463,53 @@ function checkCrossLink(parsed, node, relative, data, tree, pagesByUrl) {
 
 /* ------------------------------------------------------------------ 主流程 */
 
+/**
+ * C9 对象层级：组件绑定的后端源码里若存在继承，页面 MUST 有「对象层级」节，
+ * 且该节列出的子类名 MUST 能在源码中找到（宪法 XII 与 008 FR-017…FR-020）。
+ */
+function checkInheritance(root, parsed, relative) {
+  const body = parsed.content ?? ''
+  const manifestRel = (parsed.data ?? {}).reuse_manifest
+  if (!manifestRel) return
+  const manifestPath = path.join(root, manifestRel)
+  if (!fs.existsSync(manifestPath)) return
+  let manifest
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+  } catch {
+    return
+  }
+  // 只扫该页方向对应的那一侧：前端页不应因同一清单里的后端文件而被要求写继承节。
+  const direction = (parsed.data ?? {}).direction
+  const sides = manifest.sides ?? {}
+  const scoped = direction && sides[direction] ? { [direction]: sides[direction] } : sides
+  const pyFiles = []
+  for (const side of Object.values(scoped)) {
+    for (const entry of side.files ?? []) {
+      if (String(entry.path).endsWith('.py')) pyFiles.push(path.join(root, entry.path))
+    }
+  }
+  const subclasses = new Set()
+  for (const file of pyFiles) {
+    if (!fs.existsSync(file)) continue
+    const text = fs.readFileSync(file, 'utf8')
+    for (const matched of text.matchAll(/^class\s+(\w+)\(([^)]+)\)/gm)) {
+      const parents = matched[2].split(',').map((item) => item.trim())
+      if (parents.some((parent) => parent && parent !== 'object')) subclasses.add(matched[1])
+    }
+  }
+  if (subclasses.size === 0) return
+  if (!/^##\s*对象层级/m.test(body)) {
+    fail('C9', relative, 1, `源码存在 ${subclasses.size} 个继承类，但页面缺少「## 对象层级」节`, '补「对象层级」节：继承表与组合表分开列出（宪法 XII）')
+    return
+  }
+  const section = body.split(/^##\s*对象层级/m)[1]?.split(/^##\s/m)[0] ?? ''
+  const missing = [...subclasses].filter((name) => !section.includes(name))
+  if (missing.length) {
+    fail('C9', relative, 1, `对象层级节缺少子类：${missing.join('、')}`, '把源码里所有继承类登记进继承表')
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const rootIndex = args.indexOf('--root')
@@ -489,6 +536,7 @@ function main() {
     checkKnowledgeIndex(parsed, page.file, parsed.data, tree, outlines)
     checkReuseManifest(parsed, page.file, parsed.data, workspace, tree.linkMap, pagesByUrl)
     checkCrossLink(parsed, page, page.file, parsed.data, tree, pagesByUrl)
+    checkInheritance(workspace, parsed, page.file)
   }
   checkStyleScope(rootDir)
 

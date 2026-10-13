@@ -277,3 +277,145 @@ html.layout-teek .VPDoc .content {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- 主题版加深（一）：首页品牌区与动作按钮 ---------- */
+
+html.layout-teek .VPHero {
+  padding: var(--docs1-space-9) var(--docs1-space-6) var(--docs1-space-8);
+}
+
+html.layout-teek .VPHero .name,
+html.layout-teek .VPHero .text {
+  letter-spacing: -0.02em;
+}
+
+html.layout-teek .VPHero .text {
+  color: var(--docs1-color-accent);
+}
+
+html.layout-teek .VPHero .tagline {
+  color: var(--docs1-color-muted);
+}
+
+html.layout-teek .VPHero .actions .VPButton {
+  border-radius: var(--docs1-radius-pill);
+  font-weight: 600;
+}
+
+html.layout-teek .VPHero .actions .VPButton.brand {
+  background: var(--docs1-color-accent);
+  border-color: var(--docs1-color-accent);
+}
+
+html.layout-teek .VPHero .actions .VPButton.alt {
+  border-color: var(--docs1-color-border);
+  background: var(--docs1-color-surface);
+}
+
+html.layout-teek .VPHero .actions .VPButton:focus-visible {
+  outline: var(--docs1-focus-ring);
+  outline-offset: var(--docs1-focus-offset);
+}
+
+html.layout-teek .VPHome .VPFeatures .VPFeature {
+  border: 1px solid var(--docs1-color-border);
+  border-radius: var(--docs1-radius-lg);
+  background: var(--vp-c-bg);
+  box-shadow: var(--docs1-shadow-1);
+}
+
+/* ---------- 主题版加深（二）：代码块头部（语言标签 + 复制按钮） ---------- */
+
+html.layout-teek .vp-doc div[class*='language-'] {
+  position: relative;
+}
+
+html.layout-teek .vp-doc div[class*='language-'] > span.lang {
+  position: absolute;
+  top: var(--docs1-space-2);
+  left: var(--docs1-space-4);
+  font-size: var(--docs1-font-xs);
+  color: var(--docs1-color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+html.layout-teek .vp-doc div[class*='language-'] > button.copy {
+  position: absolute;
+  top: var(--docs1-space-2);
+  right: var(--docs1-space-2);
+  width: var(--docs1-space-9);
+  height: var(--docs1-space-7);
+  border: 1px solid var(--docs1-color-border);
+  border-radius: var(--docs1-radius-sm);
+  background: var(--docs1-color-surface);
+  opacity: 1;
+}
+
+html.layout-teek .vp-doc div[class*='language-'] > button.copy:hover {
+  background: var(--docs1-state-hover);
+}
+
+html.layout-teek .vp-doc div[class*='language-'] > button.copy:focus-visible {
+  outline: var(--docs1-focus-ring);
+  outline-offset: var(--docs1-focus-offset);
+}
+
+html.layout-teek .vp-doc div[class*='language-'] > button.copy.copied {
+  border-color: var(--docs1-color-accent);
+}
+
+/* ---------- 主题版加深（三）：提示块分组与行内代码 ---------- */
+
+html.layout-teek .vp-doc .custom-block {
+  padding: var(--docs1-space-5);
+}
+
+html.layout-teek .vp-doc .custom-block.tip {
+  border-color: var(--docs1-color-accent-soft);
+}
+
+html.layout-teek .vp-doc .custom-block-title {
+  color: var(--docs1-color-accent);
+  font-weight: 600;
+}
+
+html.layout-teek .vp-doc h3 + div[class*='language-'],
+html.layout-teek .vp-doc h4 + div[class*='language-'] {
+  margin-top: var(--docs1-space-4);
+}
+
+/* ---------- 主题版加深（四）：卡片网格与标签节奏 ---------- */
+
+html.layout-teek .cmp-list,
+html.layout-teek .entry-cards,
+html.layout-teek .kd-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--docs1-space-6);
+}
+
+html.layout-teek .cmp-group-title {
+  font-size: var(--docs1-font-xl);
+}
+
+html.layout-teek .cmp-filter-btn,
+html.layout-teek .layout-switch-btn {
+  border-radius: var(--docs1-radius-pill);
+}
+
+html.layout-teek .meta-row,
+html.layout-teek .cmp-card-meta {
+  color: var(--docs1-color-muted);
+}
+
+@media (max-width: 768px) {
+  html.layout-teek .VPHero {
+    padding: var(--docs1-space-8) var(--docs1-space-4) var(--docs1-space-6);
+  }
+  html.layout-teek .cmp-list,
+  html.layout-teek .entry-cards,
+  html.layout-teek .kd-groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -58,14 +58,20 @@ description: "Task list for 组件面向对象重构与教学"
 ## Phase 6: User Story 4 - 图解对应对象模型（Priority: P2）
 
 - [ ] T019 [P] [US4] 产出对象关系图（Archify 源在 `diagrams/src/`，产物在 `docs/public/diagrams/`），节点名与清单一致（覆盖 FR-011、FR-012）
-- [ ] T020 [P] [US4] 产出关键流程时序图，步骤与流程小节编号一致（覆盖 FR-011、FR-012）
+- [ ] T020 [P] [US4] 在 `diagrams/src/` 产出关键流程时序图（产物到 `docs/public/diagrams/`），步骤与流程小节编号一致（覆盖 FR-011、FR-012）
 - [ ] T021 [US4] 在 `docs/backend/components/03-task-console.md` 替换原「组合方式图解」为对象关系图 + 时序图，并写图注（覆盖 FR-013）
 
 ## Phase 7: User Story 5 - 知识点只登记一处（Priority: P2）
 
 - [ ] T022 [US5] 删除 `docs/backend/components/03-task-console.md`、`docs/backend/components/01-safe-queue.md`、`docs/frontend/components/01-task-console.md` 的「涉及的知识点」一节，只保留 frontmatter 驱动的索引（覆盖 FR-014）
 - [ ] T023 [US5] 更新 `reuse/task-console/manifest.json` 的 `files[]` 与 `reuse/README.md` 约定（覆盖 FR-014）
-- [ ] T024 [US5] 跑 `check:component` 与 `check:content`，确认新章节表与单一事实源生效（覆盖 FR-015、SC-005）
+- [ ] T024 [US5] 跑 `scripts/check-component.mjs` 与 `scripts/check-content.mjs`，确认新章节表与单一事实源生效（覆盖 FR-015、SC-005）
+
+## Phase 7b: 对象层级（继承与组合）
+
+- [ ] T029 [US2] 在 `docs/backend/components/03-task-console.md` 新增「对象层级」节：继承表（子类｜父类｜扩展或覆盖的方法）+ 组合表（持有者｜被持有者｜用途），三组真实继承全部登记（覆盖 FR-017、FR-019、SC-010）
+- [ ] T030 [P] [US4] 产出对象层级图：继承边用实线三角、组合边用菱形，节点名与对象清单一致（覆盖 FR-018、FR-020）
+- [ ] T031 [US5] 在 `scripts/check-component.mjs` 增 C9：组件的后端源码存在继承时，页面 MUST 含「对象层级」节，且表内子类名 MUST 出现在源码中（覆盖 FR-017、SC-011）
 
 ## Phase 8: Polish
 

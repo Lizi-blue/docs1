@@ -61,6 +61,26 @@ description: "Python 标准库任务服务：进程组取消、限额与 SSE 推
 
 <DiagramFrame src="/diagrams/executor-lifecycle.html" title="任务从接单到收尾的服务端流转（Archify 交互图）" :height="520" />
 
+## 对象层级
+
+本组件有三组真实继承。其余关系是持有。
+
+### 继承
+
+| 子类 | 父类 | 扩展或覆盖 |
+|---|---|---|
+| `TaskHandler` | `BaseHTTPRequestHandler` | 覆盖 `do_GET` 与 `do_POST`，加 SSE 分支 |
+| `TaskServer` | `ThreadingHTTPServer` | 覆盖 `__init__`，注入限额、注册表与调度器 |
+| `ValidationError` | `ValueError` | 加 `status` 字段，携带 HTTP 状态码 |
+
+### 组合（持有）
+
+| 持有者 | 被持有者 | 用途 |
+|---|---|---|
+| `TaskServer` | `Limits`、`Registry`、`Executor` | 请求处理时取限额、注册表与调度器 |
+| `Task` | `OutputBuffer` | 输出分片、序号与订阅分发 |
+| `Executor` | 线程池、`Popen` | 调度任务与拉子进程 |
+
 ## 核心源码
 
 下面四段是服务端的骨架。全文见 `service/` 目录。
