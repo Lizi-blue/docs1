@@ -29,7 +29,8 @@ function kdItems(kd: KnowledgeDomainNode, kdIndex: number, fallbackLink?: string
     items.push({
       text: `${kdIndex}.${index + 1} ${page.title}${suffix}`,
       link: page.url,
-      collapsed: false,
+      // 默认展开到 x.x；页内方法组（x.x.x）默认折叠。
+      collapsed: true,
       items: groups.map((group, groupIndex) => ({
         text: `${kdIndex}.${index + 1}.${groupIndex + 1} ${group.text}`,
         link: `${page.url}#${group.slug}`,
@@ -39,7 +40,8 @@ function kdItems(kd: KnowledgeDomainNode, kdIndex: number, fallbackLink?: string
   kd.subtopics.forEach((sub, subIndex) => {
     items.push({
       text: `${sub.icon} ${kdIndex}.${subIndex + 1} ${sub.name}`,
-      collapsed: false,
+      // 子主题同理：x.x 可见，x.x.x 折叠。
+      collapsed: true,
       items: sub.pages.map((page, pageIndex) => ({
         text: `${kdIndex}.${subIndex + 1}.${pageIndex + 1} ${page.title}`,
         link: page.url,
@@ -75,7 +77,8 @@ function componentEntry(page: { title: string; url: string; outline?: { level: n
   return {
     text: `${icon} ${page.title}`,
     link: page.url,
-    collapsed: false,
+    // 组件页页内小节（x.x.x）默认折叠，与导航同一约定。
+    collapsed: true,
     items: groups.map((group) => ({ text: group.text, link: `${page.url}#${group.slug}` })),
   }
 }

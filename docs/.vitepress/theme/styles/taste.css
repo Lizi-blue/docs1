@@ -53,6 +53,13 @@ html.layout-taste .VPDoc.has-aside .content-container {
   max-width: var(--docs1-content-measure);
 }
 
+/* 组件页自带双栏（cmp-grid）：外层容器必须放宽到「正文栏 + 侧栏 + 间距」，
+ * 否则正文会被外层阅读栏与内层侧栏二次挤压。 */
+html.layout-taste .VPDoc .content-container:has(.cmp-grid),
+html.layout-taste .VPDoc.has-aside .content-container:has(.cmp-grid) {
+  max-width: calc(var(--docs1-content-measure) + 22rem + var(--docs1-space-8));
+}
+
 /* ---------- 骨架：入口页首屏留白收紧 ---------- */
 
 html.layout-taste .VPHome .VPHero,
@@ -286,11 +293,30 @@ html.layout-taste .layout-switch-btn {
 
 /* ---------- 三档折叠（每段就地声明） ---------- */
 
+/* 常见笔记本宽度（≤1440）改单列：组件页正文拿满阅读栏，避免被内层侧栏挤窄。 */
+@media (max-width: 1440px) {
+  html.layout-taste .VPDoc .content-container:has(.cmp-grid),
+  html.layout-taste .VPDoc.has-aside .content-container:has(.cmp-grid) {
+    max-width: var(--docs1-content-measure);
+  }
+}
+
 @media (max-width: 1280px) {
   html.layout-taste {
     --docs1-container-max: 1200px;
   }
+  /* 笔记本宽度改单列：正文拿满阅读栏，侧栏落到正文下方 */
+  html.layout-taste .cmp-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--docs1-space-6);
+  }
+  html.layout-taste .cmp-aside {
+    position: static;
+  }
   html.layout-taste .VPDoc.has-aside .content-container {
+    max-width: 42rem;
+  }
+  html.layout-taste .VPDoc.has-aside .content-container:has(.cmp-grid) {
     max-width: 42rem;
   }
 }
