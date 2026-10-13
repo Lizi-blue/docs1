@@ -12,3 +12,5 @@ date	iteration	scope	decision	reason	review
 2026-10-12	005-github-pages-deploy	新增 GitHub Pages 发布：base 可注入 + 产物门禁 + 双链路独立	no-writeback	技能未变（仅平台与配置层）；判据见 005 契约	-
 2026-10-13	006-layout-taste	006 布局/目录/内容布局优化立项（参照 taste-skill 95,033★）	writeback	技能待补布局规则与回滚判据，规则摘要落 specs/006/reference	-
 2026-10-13	006-layout-taste	006 修编排自检 S6 在浅克隆下的日期误判	no-writeback	门禁环境无关性修复，技能判据未变	-
+2026-10-13	008-oo-component-teaching	宪法 1.6.0 新增原则 XII：组件以对象建模并逐对象讲解	writeback	技能待补对象建模判据（对象清单、逐对象节、协作流程、图解对应）；组件页契约章节表待由 16 节改 15 节	-
+2026-10-13	007-layout-refactor	布局专题立项：不改内容重构布局（利用率、空列、重叠、可回退）	no-writeback	仅布局层改动，技能判据不变；沿用 006 双档与回滚能力	-
