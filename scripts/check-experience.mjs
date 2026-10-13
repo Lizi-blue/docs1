@@ -212,7 +212,11 @@ function checkRawValues(file, css) {
   const body = stripComments(css)
   const fileRelative = relative(file)
   for (const matched of body.matchAll(/(#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\))/g)) {
-    const line = body.slice(0, matched.index).split('\n').length
+    // 令牌定义本身允许字面量：属性名以 --docs1- 开头即视为定义（与 px 规则同一原则）。
+    const before = body.slice(0, matched.index)
+    const property = /([a-z0-9-]+)\s*:\s*[^:;{}]*$/.exec(before)?.[1] ?? ''
+    if (/^--docs1-/.test(property)) continue
+    const line = before.split('\n').length
     fail('X3', fileRelative, line, `出现原始色值：${matched[1]}`, '改用 --docs1-* 令牌')
   }
   // 去掉 @media / @supports 前置，避免把断点当作裸 px

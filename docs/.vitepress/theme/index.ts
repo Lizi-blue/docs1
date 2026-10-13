@@ -15,6 +15,7 @@ import KnowledgeIndex from './components/KnowledgeIndex.vue'
 import LayoutSwitch from './components/LayoutSwitch.vue'
 import './styles/tokens.css'
 import './styles/custom.css'
+import './styles/teek.css'
 
 export default {
   extends: DefaultTheme,

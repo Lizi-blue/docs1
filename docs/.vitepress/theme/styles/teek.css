@@ -1,0 +1,279 @@
+/* 第三档：主题版（teek profile）—— 借鉴成熟 VitePress 主题的视觉语言（007 方案 C 的效果预览）。
+ *
+ * 目的：让读者在右上角切换里直接对比「优化版 / 经典版 / 主题版」三种观感。
+ * 边界：这是**纯样式预览**，不引入任何第三方依赖，也不改内容与 DOM 结构。
+ * 全部规则限定在 html.layout-teek 之下；经典版与优化版不受影响。
+ * 版式度量来源与区间见 specs/006-layout-taste/reference/oss-theme-layout-notes.md。
+ */
+
+html.layout-teek {
+  /* 令牌覆盖：更冷的强调色与更柔和的表面（--docs1-* 是本仓唯一允许写字面量的地方） */
+  --docs1-color-accent: #0f766e;
+  --docs1-color-accent-soft: #14b8a6;
+  --docs1-color-surface: #f5f7f8;
+  --docs1-color-border: #dfe5e7;
+  --docs1-radius-md: 10px;
+  --docs1-radius-lg: 14px;
+  --docs1-radius-pill: 999px;
+  --docs1-shadow-1: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --docs1-shadow-2: 0 6px 20px rgba(15, 23, 42, 0.08);
+  /* 版式度量：比优化版更宽一点 */
+  --docs1-nav-height: 72px;
+  --docs1-content-measure: 52rem;
+  --docs1-doc-max: 84rem;
+  --docs1-layout-max: 1680px;
+  --vp-nav-height: var(--docs1-nav-height);
+  --vp-layout-max-width: var(--docs1-layout-max);
+}
+
+html.layout-teek.dark {
+  --docs1-color-surface: #1b2124;
+  --docs1-color-border: #2c3437;
+  --docs1-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --docs1-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- 顶栏：更高、无下边框、用柔和阴影分层 ---------- */
+
+html.layout-teek .VPNav {
+  border-bottom: 0;
+  box-shadow: var(--docs1-shadow-1);
+  background: var(--vp-c-bg);
+}
+
+html.layout-teek .VPNavBarTitle .title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+html.layout-teek .VPNavBarSearch .DocSearch-Button,
+html.layout-teek .VPNavBarSearch .VPLocalSearchBox {
+  border-radius: var(--docs1-radius-pill);
+  border: 1px solid var(--docs1-color-border);
+  background: var(--docs1-color-surface);
+}
+
+html.layout-teek .VPNavBarMenuLink {
+  border-radius: var(--docs1-radius-md);
+  padding-inline: var(--docs1-space-3);
+}
+
+html.layout-teek .VPNavBarMenuLink:hover,
+html.layout-teek .VPNavBarMenuLink.active {
+  background: var(--docs1-color-surface);
+  color: var(--docs1-color-accent);
+}
+
+/* ---------- 侧栏：选中态用胶囊底色，不用左侧强调条 ---------- */
+
+html.layout-teek .VPSidebar {
+  padding-top: var(--docs1-space-6);
+}
+
+html.layout-teek .VPSidebarItem.level-1 > .item .text {
+  font-weight: 600;
+}
+
+html.layout-teek .VPSidebarItem.level-2 > .item,
+html.layout-teek .VPSidebarItem.level-3 > .item {
+  padding-left: var(--docs1-space-3);
+  border-radius: var(--docs1-radius-md);
+}
+
+html.layout-teek .VPSidebarItem.level-3 > .item .text {
+  font-size: var(--docs1-font-sm);
+  color: var(--docs1-color-muted);
+}
+
+html.layout-teek .VPSidebarItem.is-active > .item {
+  border-left: 0;
+  background: var(--docs1-color-surface);
+}
+
+html.layout-teek .VPSidebarItem.is-active > .item .text {
+  color: var(--docs1-color-accent);
+  font-weight: 600;
+}
+
+html.layout-teek .VPSidebarItem .link:hover .text {
+  color: var(--docs1-color-accent);
+}
+
+html.layout-teek .VPSidebarItem .link:focus-visible,
+html.layout-teek .VPDocAsideOutline .outline-link:focus-visible,
+html.layout-teek .VPNavBarMenuLink:focus-visible {
+  outline: var(--docs1-focus-ring);
+  outline-offset: var(--docs1-focus-offset);
+  border-radius: var(--docs1-radius-sm);
+}
+
+/* ---------- 正文：标题左侧强调条替代上边框，块级内容卡片化 ---------- */
+
+html.layout-teek .vp-doc {
+  line-height: 1.8;
+}
+
+html.layout-teek .vp-doc h2 {
+  margin-top: var(--docs1-space-9);
+  padding-top: 0;
+  padding-left: var(--docs1-space-4);
+  border-top: 0;
+  border-left: var(--docs1-border-3) solid var(--docs1-color-accent);
+  font-size: var(--docs1-font-2xl);
+}
+
+html.layout-teek .vp-doc h3 {
+  margin-top: var(--docs1-space-8);
+  font-size: var(--docs1-font-xl);
+}
+
+html.layout-teek .vp-doc p,
+html.layout-teek .vp-doc li {
+  font-size: var(--docs1-font-lg);
+}
+
+/* 代码块、提示块、表格统一卡片化 */
+html.layout-teek .vp-doc div[class*='language-'],
+html.layout-teek .vp-doc .custom-block,
+html.layout-teek .vp-doc table,
+html.layout-teek .diagram-frame,
+html.layout-teek .code-tabs,
+html.layout-teek .api-table {
+  border: 1px solid var(--docs1-color-border);
+  border-radius: var(--docs1-radius-lg);
+  box-shadow: var(--docs1-shadow-1);
+  overflow: hidden;
+  background: var(--docs1-color-surface);
+}
+
+html.layout-teek .vp-doc table {
+  display: table;
+  width: 100%;
+}
+
+html.layout-teek .vp-doc thead th {
+  background: var(--docs1-color-surface);
+}
+
+html.layout-teek .vp-doc :not(pre) > code {
+  border-radius: var(--docs1-radius-sm);
+  background: var(--docs1-color-surface);
+}
+
+html.layout-teek .vp-doc a {
+  color: var(--docs1-color-accent);
+}
+
+/* 组件页：主题版同样单栏（与优化版一致，避免再出现挤压） */
+html.layout-teek .cmp-grid {
+  display: block;
+}
+
+html.layout-teek .cmp-main {
+  max-width: var(--docs1-content-measure);
+}
+
+html.layout-teek .cmp-aside {
+  position: static;
+  margin-top: var(--docs1-space-8);
+  padding: var(--docs1-space-5);
+  border: 1px solid var(--docs1-color-border);
+  border-radius: var(--docs1-radius-lg);
+  background: var(--docs1-color-surface);
+}
+
+/* ---------- 卡片与入口：更大的圆角与柔和阴影 ---------- */
+
+html.layout-teek .entry-card,
+html.layout-teek .cmp-card,
+html.layout-teek .kd-card {
+  border-radius: var(--docs1-radius-lg);
+  border: 1px solid var(--docs1-color-border);
+  background: var(--vp-c-bg);
+  box-shadow: var(--docs1-shadow-1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+html.layout-teek .entry-card:hover,
+html.layout-teek .cmp-card:hover,
+html.layout-teek .kd-card:hover {
+  transform: translateY(var(--docs1-lift));
+  box-shadow: var(--docs1-shadow-2);
+  border-color: var(--docs1-color-accent-soft);
+}
+
+html.layout-teek .entry-card:focus-visible,
+html.layout-teek .cmp-card:focus-visible {
+  outline: var(--docs1-focus-ring);
+  outline-offset: var(--docs1-focus-offset);
+}
+
+html.layout-teek .badge {
+  border-radius: var(--docs1-radius-sm);
+  border-color: var(--docs1-color-border);
+  background: var(--docs1-color-surface);
+}
+
+/* ---------- 页内目录与容器 ---------- */
+
+html.layout-teek .VPDocAsideOutline .outline-link.active {
+  color: var(--docs1-color-accent);
+  font-weight: 600;
+}
+
+html.layout-teek .VPContent .container {
+  max-width: var(--docs1-layout-max);
+  margin-inline: auto;
+}
+
+html.layout-teek .VPDoc .container,
+html.layout-teek .VPDoc .content {
+  max-width: var(--docs1-doc-max);
+}
+
+/* ---------- 折叠：三档逐段声明 ---------- */
+
+@media (max-width: 1280px) {
+  html.layout-teek {
+    --docs1-content-measure: 48rem;
+    --docs1-doc-max: 72rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  html.layout-teek {
+    --docs1-nav-height: 64px;
+  }
+  html.layout-teek .VPNavBarMenuLink {
+    font-size: var(--docs1-font-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  html.layout-teek {
+    --docs1-content-measure: 100%;
+  }
+  html.layout-teek .vp-doc table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  html.layout-teek {
+    --docs1-nav-height: 56px;
+  }
+  html.layout-teek .vp-doc h2 {
+    padding-left: var(--docs1-space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.layout-teek *,
+  html.layout-teek *::before,
+  html.layout-teek *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

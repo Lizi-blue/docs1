@@ -15,6 +15,7 @@
  * L9 入口主卡与知识域卡分级
  * L10 右栏目录不得为空（页面数据 headers 判空）
  * L11 宽内容外扩必须与右栏复位成对出现
+ * L12 第三档作用域限定且切换器提供三档
  */
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
@@ -204,6 +205,28 @@ function ruleL11() {
   }
 }
 
+/** L12 第三档（主题版）必须与优化版同样受约束：作用域限定 + 切换器提供三档。 */
+function ruleL12() {
+  const teek = read(`${STYLE_DIR}/teek.css`)
+  if (teek === null) return
+  const stripped = teek
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/@media[^{]*\{/g, '')
+    .replace(/@keyframes[^{]*\{/g, '')
+  const offenders = stripped
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.endsWith('{') && !line.startsWith('@') && !line.startsWith('html.layout-teek'))
+  if (offenders.length) {
+    fail('L12', `${STYLE_DIR}/teek.css`, `有 ${offenders.length} 条规则未限定在 html.layout-teek 之下（首条：${offenders[0]}）`, '给第三档的每条规则加上 html.layout-teek 前缀')
+  }
+  const switcher = read('docs/.vitepress/theme/components/LayoutSwitch.vue') ?? ''
+  const count = (switcher.match(/value: '/g) ?? []).length
+  if (count < 3) {
+    fail('L12', 'docs/.vitepress/theme/components/LayoutSwitch.vue', `布局切换只有 ${count} 档`, '在切换器里提供三档：优化版 / 经典版 / 主题版')
+  }
+}
+
 function ruleL6() {
   for (const rel of [TASTE, CLASSIC]) {
     const text = read(rel)
@@ -230,6 +253,7 @@ function main() {
   ruleL9()
   ruleL10()
   ruleL11()
+  ruleL12()
 
   if (asJson) {
     console.log(JSON.stringify({ ok: errors.length === 0, errors }, null, 2))

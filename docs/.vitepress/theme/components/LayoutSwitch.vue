@@ -9,13 +9,14 @@ const KEY = 'docs1-layout'
 const OPTIONS = [
   { value: 'taste', label: '优化版' },
   { value: 'classic', label: '经典版' },
+  { value: 'teek', label: '主题版' },
 ] as const
 
 const current = ref<string>('taste')
 
 function apply(value: string) {
   const root = document.documentElement
-  root.classList.remove('layout-taste', 'layout-classic')
+  root.classList.remove('layout-taste', 'layout-classic', 'layout-teek')
   root.classList.add(`layout-${value}`)
   try {
     localStorage.setItem(KEY, value)
@@ -26,7 +27,8 @@ function apply(value: string) {
 }
 
 onMounted(() => {
-  current.value = document.documentElement.classList.contains('layout-classic') ? 'classic' : 'taste'
+  const root = document.documentElement
+  current.value = OPTIONS.find((option) => root.classList.contains(`layout-${option.value}`))?.value ?? 'taste'
 })
 </script>
 

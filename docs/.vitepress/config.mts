@@ -117,7 +117,7 @@ for (const domain of tree.domains) {
 }
 
 // 布局档位：taste（优化后，默认）或 classic（改造前）。运行期可切换，见 006 契约。
-const LAYOUTS = ['taste', 'classic']
+const LAYOUTS = ['taste', 'classic', 'teek']
 function resolveLayout(): string {
   const raw = process.env.DOCS1_LAYOUT ?? 'taste'
   if (!LAYOUTS.includes(raw)) {
@@ -156,7 +156,7 @@ export default defineConfig({
       'script',
       {},
       // 首屏前定档：运行期选择优先于构建期默认，localStorage 不可用时回退默认档。
-      `(function(){try{var k='docs1-layout';var v=localStorage.getItem(k);var d='${layout}';var m=(v==='classic'||v==='taste')?v:d;var e=document.documentElement;e.classList.remove('layout-taste','layout-classic');e.classList.add('layout-'+m);}catch(err){document.documentElement.classList.add('layout-${layout}');}})();`,
+      `(function(){try{var k='docs1-layout';var v=localStorage.getItem(k);var d='${layout}';var m=(v==='classic'||v==='taste'||v==='teek')?v:d;var e=document.documentElement;e.classList.remove('layout-taste','layout-classic','layout-teek');e.classList.add('layout-'+m);}catch(err){document.documentElement.classList.add('layout-${layout}');}})();`,
     ],
   ],
   markdown: {
