@@ -13,6 +13,8 @@
  * L7 宽内容外扩（代码、表格、图框）且窄屏归零
  * L8 组件页双栏：网格声明、窄屏单列、侧栏卡片化
  * L9 入口主卡与知识域卡分级
+ * L10 右栏目录不得为空（页面数据 headers 判空）
+ * L11 宽内容外扩必须与右栏复位成对出现
  */
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
@@ -149,6 +151,58 @@ function ruleL9() {
  * L6 只拦「纯百分比算术凑栅格」（摘要里点名的 calc(33% - 1rem) 写法）。
  * 引用 --docs1-* 令牌的百分比算式属于有意为之的外扩，不判错。
  */
+/**
+ * L10 右栏目录不得「渲染了容器但页面数据里没有任何标题」。
+ *
+ * 背景：VitePress 只在 markdown.headers 显式开启时才注册 headersPlugin；
+ * 未开启时页面数据 headers 恒为 []，右栏目录全站为空（曾长期如此）。
+ * 只关 outline 不关 aside 也会留下空容器。这里对「有右栏容器的页面」判空。
+ */
+function ruleL10() {
+  const dist = path.join(REPO_ROOT, 'docs/.vitepress/dist')
+  const assets = path.join(dist, 'assets')
+  if (!fs.existsSync(assets)) return
+
+  const htmlFiles = []
+  const walkHtml = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) walkHtml(full)
+      else if (entry.name.endsWith('.html')) htmlFiles.push(full)
+    }
+  }
+  walkHtml(dist)
+
+  const offenders = []
+  for (const file of htmlFiles) {
+    const html = fs.readFileSync(file, 'utf8')
+    if (!html.includes('VPDocAside')) continue
+    // 由相对路径推出页面数据 chunk：backend/learn/x.md → backend_learn_x.md.<hash>.js
+    const rel = path.relative(dist, file)
+    const key = rel.replace(/index\.html$/, 'index.md').replace(/\.html$/, '.md').replace(/[/\\]/g, '_')
+    const chunk = fs.readdirSync(assets).find((name) => name.startsWith(`${key}.`) && !name.includes('.lean.'))
+    if (!chunk) continue
+    const data = fs.readFileSync(path.join(assets, chunk), 'utf8')
+    const matched = /"headers":\s*\[([^\]]*)\]/.exec(data)
+    if (matched && matched[1].trim() === '') offenders.push(rel)
+  }
+  for (const file of offenders.slice(0, 5)) {
+    fail('L10', `docs/.vitepress/dist/${file}`, '右栏目录容器存在但页面标题数据为空（空列白占宽度）', '开启 markdown.headers；或对该页类型设置 aside: false')
+  }
+  if (offenders.length > 5) fail('L10', TASTE, `另有 ${offenders.length - 5} 个页面右栏为空`, '同类页面统一处理')
+}
+
+/** L11 外扩必须与「右栏复位」成对出现，否则右栏内容会压住主栏。 */
+function ruleL11() {
+  const taste = read(TASTE) ?? ''
+  const bleed = /\.vp-doc table\s*\{[^}]*width:\s*calc\(100% \+ var\(--docs1-bleed\)\)/.test(taste)
+  if (!bleed) return
+  const reset = /\.cmp-aside\s+(div\[class\*='language-'\]|pre|table)/.test(taste)
+  if (!reset) {
+    fail('L11', TASTE, '宽内容外扩没有配套的右栏复位规则', '给 .cmp-aside 内的代码块与表格加 margin-inline: 0; width: 100%')
+  }
+}
+
 function ruleL6() {
   for (const rel of [TASTE, CLASSIC]) {
     const text = read(rel)
@@ -173,6 +227,8 @@ function main() {
   ruleL7()
   ruleL8()
   ruleL9()
+  ruleL10()
+  ruleL11()
 
   if (asJson) {
     console.log(JSON.stringify({ ok: errors.length === 0, errors }, null, 2))

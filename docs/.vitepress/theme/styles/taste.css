@@ -8,8 +8,12 @@
 html.layout-taste {
   /* 顶栏高度上限：单行、不侵占阅读区 */
   --docs1-nav-height: 64px;
-  /* 整页容器限宽居中 */
-  --docs1-container-max: 1440px;
+  /* 整页容器限宽居中（宽屏利用率：1600 上限 + 文档区 78rem） */
+  --docs1-container-max: 1600px;
+  --docs1-doc-max: 78rem;
+  /* VitePress 用它做整页布局定宽，走本仓令牌命名空间 */
+  --docs1-layout-max: 1600px;
+  --vp-layout-max-width: var(--docs1-layout-max);
   /* 正文列宽：约 65–75 字符 */
   --docs1-content-measure: 46rem;
   /* 顶栏毛玻璃与悬停位移：效果值也走令牌，避免裸 px */
@@ -47,6 +51,18 @@ html.layout-taste .VPNavBarMenuLink.active {
 html.layout-taste .VPContent .container {
   max-width: var(--docs1-container-max);
   margin-inline: auto;
+}
+
+/* 右栏目录为空时自动收起：无论目录由服务端还是客户端渲染，都不白占约 224px。 */
+html.layout-taste .VPDoc .aside:has(.VPDocOutlineItem:empty) {
+  display: none;
+}
+
+/* VitePress 的父级（.container / .content）默认上限 1104px，会把内层放宽全部吃掉。
+ * 组件页需要「正文栏 + 侧栏」，这里一并放宽到 --docs1-doc-max。 */
+html.layout-taste .VPDoc .container,
+html.layout-taste .VPDoc .content {
+  max-width: var(--docs1-doc-max);
 }
 
 html.layout-taste .VPDoc.has-aside .content-container {
@@ -192,11 +208,27 @@ html.layout-taste .vp-doc table {
   width: calc(100% + var(--docs1-bleed));
 }
 
+/* 外扩只属于主栏。组件页右栏（.cmp-aside）内的代码块、表格必须复位，
+ * 否则会向左伸出并压住主栏（实测每块左侵 11px，共 12 处重叠）。 */
+html.layout-taste .vp-doc .cmp-aside div[class*='language-'],
+html.layout-taste .vp-doc .cmp-aside pre,
+html.layout-taste .vp-doc .cmp-aside table,
+html.layout-taste .vp-doc .cmp-aside .custom-block,
+html.layout-taste .vp-doc .cmp-aside .code-tabs,
+html.layout-taste .vp-doc .cmp-aside .diagram-frame {
+  margin-inline: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 /* ---------- 组件页双栏：主栏守阅读栏，侧栏卡片化 ---------- */
 
 html.layout-taste .cmp-grid {
-  grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
-  gap: var(--docs1-space-8);
+  /* 主栏锁在可读区间（46rem），侧栏 18–22rem，余量放在中间 */
+  grid-template-columns: minmax(0, var(--docs1-content-measure)) minmax(18rem, 22rem);
+  justify-content: space-between;
+  gap: var(--docs1-space-7);
 }
 
 html.layout-taste .cmp-main {

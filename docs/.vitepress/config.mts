@@ -160,6 +160,9 @@ export default defineConfig({
     ],
   ],
   markdown: {
+    // headers 未显式开启时 VitePress 不注册 headersPlugin，页面 headers 恒为空数组，
+    // 右栏「本页目录」因此全站为空。这里显式开启，与 themeConfig.outline 的层级保持一致。
+    headers: { level: [2, 3] },
     config: (md) => {
       md.use(cmpSplit)
     },
@@ -193,8 +196,18 @@ export default defineConfig({
       if (node.level) frontmatter.level ??= node.level
     }
     if (!frontmatter.description && node?.description) frontmatter.description = node.description
-    // 布局切换：组件页是双栏（正文 + 引用方式），关掉默认右栏目录避免三栏拥挤
-    if (node && (node.type === 'component' || node.type === 'cross-component')) frontmatter.outline ??= false
+    // 组件页自带双栏（cmp-split：正文 + 引用方式）。
+    // 必须同时关掉 outline 与 aside：只关 outline 时目录为空但容器仍占宽，白占约 224px。
+    if (node && (node.type === 'component' || node.type === 'cross-component')) {
+      frontmatter.outline ??= false
+      frontmatter.aside ??= false
+    }
+    // landing 页（领域首页、学习入口、组件索引）正文由组件构成，目录实测为空。
+    // 空目录容器仍占约 224px，宽屏下纯浪费，这里一并关闭（需要时可在页面显式写 aside: true）。
+    if (frontmatter.type === 'landing') {
+      frontmatter.outline ??= false
+      frontmatter.aside ??= false
+    }
   },
   themeConfig: {
     nav: [

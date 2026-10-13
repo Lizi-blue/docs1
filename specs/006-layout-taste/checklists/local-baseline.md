@@ -54,7 +54,49 @@
 
 **门禁**：十三条命令本地全绿（含 L1–L9）。
 
-## 五、待人工复核
+## 五、布局严重问题修复（2026-10-13 晚，方案 A）
+
+**实测手段**：Playwright 打开线上页 `https://docs1.minilab.uzibird.cn/backend/components/safe-queue`，视口 1560×766。
+
+### 修复前实测
+
+| 测量项 | 实测 |
+|---|---|
+| `.cmp-main`（正文） | **360px**（≈37 字符） |
+| `.cmp-aside` | 352px（与正文 1:1） |
+| VitePress 右栏容器 | **224px、内容为空** |
+| 元素重叠 | **12 处**，右栏代码块/表格左侵主栏 **11px**（`margin-left:-48px; width:422px`） |
+| `.content-container` | computed `max-width:1112px`，实际只有 **784px**（被父级卡住） |
+
+### 根因与修复
+
+| # | 根因 | 修复 |
+|---|---|---|
+| R1 | 宽内容外扩选择器命中 `.cmp-aside`，右栏块被撑大并左移 | 新增 `.cmp-aside` 内 `pre/table/code-tabs/diagram` 复位（`margin-inline:0; width:100%`，特异性更高）；`check:layout` 增 **L11** 断言外扩与复位成对出现 |
+| R2 | 组件页只关 `outline` 未关 `aside` → 空列 224px；landing 页同理 | 引擎对 `component`/`cross-component` 与 `type: landing` 同时设 `aside: false`；新增 CSS `:has(.VPDocOutlineItem:empty)` 空目录自动收起 |
+| R3 | VitePress 父级 `.container`/`.content` 默认上限 1104px，内层放宽无效 | 优化层放宽父级到 `--docs1-doc-max: 78rem`，`--docs1-layout-max: 1600px` 映射 `--vp-layout-max-width` |
+| R4 | 双栏比例 `minmax(0,1fr) minmax(16rem,22rem)`，正文与侧栏等宽 | 改 `minmax(0, var(--docs1-content-measure)) minmax(18rem, 22rem)` + `justify-content: space-between` |
+| R5 | **`markdown.headers` 未显式开启 → VitePress 的 `headersPlugin` 不注册，页面 headers 恒为 `[]`，全站右栏目录为空**（基线构建同样为空，属长期缺陷） | `config.mts` 显式 `headers: { level: [2,3] }`；`check:layout` **L10** 改为「有右栏容器但页面标题数据为空」判空 |
+
+补充：`cmp-split` 的 core 规则原先两处 `return false`（markdown-it 中会中断 core 链）。
+实测 `config(md)` 在 VitePress 插件注册之后执行，故该返回值并非本次空目录的成因；
+已改为 `return true` 以免将来插件顺序变化时再次踩坑。
+
+### 修复后复核（静态 + DOM）
+
+| 项 | 结果 |
+|---|---|
+| 十三条门禁 | **全绿**（含 L1–L11） |
+| 组件页右栏容器 | `VPDocAside` **0** 次（空列消失） |
+| landing 页右栏容器 | `VPDocAside` **0** 次 |
+| 知识点页 headers | 非空（此前恒为 `[]`） |
+| 空目录自动收起规则 | 已进产物 CSS |
+| 父级放宽与令牌 | `--docs1-doc-max:78rem`、`--docs1-layout-max:1600px` 已进产物 |
+
+**未完成**：Playwright 在本次复核阶段无法启动浏览器（缺 `libglib-2.0.so.0`），
+故「修复后主栏宽度、重叠数、利用率」三项需在有浏览器的环境量取（见第六节脚本）。
+
+## 六、待人工复核
 
 - 浏览器内 375 / 768 / 1280 三档观感与深色模式；顶栏切换控件的实际点击与刷新保持。
 - 004 遗留的键盘流程复核。

@@ -21,7 +21,8 @@
     "check:component": "node scripts/check-component.mjs",
     "check:experience": "node scripts/check-experience.mjs",
     "check:pages": "node scripts/check-pages-artifact.mjs",
-    "check:layout": "node scripts/check-layout.mjs"
+    "check:layout": "node scripts/check-layout.mjs",
+    "audit:layout": "node scripts/audit-layout.mjs"
   },
   "devDependencies": {
     "gray-matter": "^4.0.3",
