@@ -1,0 +1,5 @@
+name: "Agent 工程"
+icon: "🤖"
+order: 4
+description: "Agent 的演进、原理、平台能力与落地取舍：从最小循环到多服务入口"
+entry_type: domain

@@ -58,6 +58,9 @@ jobs:
         run: python3 -m pip install pytest || python3 -m pip install --break-system-packages pytest
 
       - name: 门禁一：内容契约（V1–V23）
+        run: npm run check:public-safety
+
+      - name: 门禁一：内容契约
         run: npm run check:content
 
       - name: 门禁二：受控中文

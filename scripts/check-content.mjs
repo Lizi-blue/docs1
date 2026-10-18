@@ -97,6 +97,9 @@ const OFFICIAL_DOC_HOSTS = [
   'docs.python.org', 'peps.python.org', 'developer.mozilla.org', 'nodejs.org', 'npmjs.com',
   'docs.npmjs.com', 'tc39.es', 'ecma-international.org', 'vitejs.dev', 'vite.dev',
   'rollupjs.org', 'esbuild.github.io', 'vitepress.dev', 'vuejs.org',
+  // Agent 方向的官方来源：模型厂商文档、协议规范与开源项目权威页
+  'platform.openai.com', 'docs.anthropic.com', 'ai.google.dev', 'modelcontextprotocol.io',
+  'github.com', 'docs.langchain.com', 'microsoft.github.io',
 ]
 
 const errors = []

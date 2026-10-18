@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "note": "数据来自公开接口与官方文档；每条必须带 fetchedAt 与 source，禁止无来源数字。",
+  "topics": {
+    "agent-frameworks": [
+      {
+        "name": "langchain-ai/langgraph",
+        "url": "https://github.com/langchain-ai/langgraph",
+        "license": "MIT",
+        "activity": {
+          "lastCommit": "2026-10-18",
+          "archived": false
+        },
+        "scenario": "有状态多步流程编排，图式控制流",
+        "cost": "概念多、抽象层厚",
+        "decision": "reference",
+        "reason": "编排能力成熟，可作为工作台内部流程的参考实现",
+        "fetchedAt": "2026-10-18",
+        "source": "https://api.github.com/repos/langchain-ai/langgraph"
+      },
+      {
+        "name": "microsoft/autogen",
+        "url": "https://github.com/microsoft/autogen",
+        "license": "CC-BY-4.0",
+        "activity": {
+          "lastCommit": "2026-10-16",
+          "archived": false
+        },
+        "scenario": "多 agent 对话式协作",
+        "cost": "对话式协作的收敛与成本控制需要额外设计",
+        "decision": "reference",
+        "reason": "协同拓扑与消息模型值得对照",
+        "fetchedAt": "2026-10-18",
+        "source": "https://api.github.com/repos/microsoft/autogen"
+      },
+      {
+        "name": "crewAIInc/crewAI",
+        "url": "https://github.com/crewAIInc/crewAI",
+        "license": "MIT",
+        "activity": {
+          "lastCommit": "2026-10-17",
+          "archived": false
+        },
+        "scenario": "角色分工式团队编排",
+        "cost": "角色抽象偏业务化，通用场景需评估",
+        "decision": "reference",
+        "reason": "角色分工模型可对照主从拓扑",
+        "fetchedAt": "2026-10-18",
+        "source": "https://api.github.com/repos/crewAIInc/crewAI"
+      }
+    ]
+  }
+}

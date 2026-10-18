@@ -1,0 +1,15 @@
+name: "服务入口与权限"
+icon: "🚪"
+order: 4
+description: "每个服务一个入口：地址、角色权限、审计与三层记忆归属"
+teach:
+  audience: "读过本方向前面知识域、准备落地或面试的开发者"
+  prerequisites:
+    - "了解 agent 的基本循环与工具调用"
+  outcomes:
+    - "能给每个服务设计独立入口与权限矩阵"
+    - "能说清上下文与记忆的三层归属"
+    - "能写出声明式接入步骤"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

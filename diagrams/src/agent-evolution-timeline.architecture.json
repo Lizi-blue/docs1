@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Agent 演进时间线：每一段解决了什么、带来了什么新问题",
+    "output": "docs/public/diagrams/agent-evolution-timeline.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "s1",
+      "type": "backend",
+      "label": "单轮问答",
+      "sublabel": "一次生成",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "s2",
+      "type": "backend",
+      "label": "上下文与提示",
+      "sublabel": "历史与资料",
+      "pos": [
+        330,
+        150
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "s3",
+      "type": "backend",
+      "label": "工具调用",
+      "sublabel": "改变外部状态",
+      "pos": [
+        620,
+        150
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "s4",
+      "type": "backend",
+      "label": "规划与循环",
+      "sublabel": "多轮决策",
+      "pos": [
+        910,
+        150
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "s5",
+      "type": "messagebus",
+      "label": "多 agent 与平台",
+      "sublabel": "分工与治理",
+      "pos": [
+        1200,
+        150
+      ],
+      "size": [
+        180,
+        70
+      ]
+    },
+    {
+      "id": "p1",
+      "type": "messagebus",
+      "label": "新问题：无状态",
+      "sublabel": "每次都从零开始",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "p2",
+      "type": "messagebus",
+      "label": "新问题：上下文变长",
+      "sublabel": "成本与干扰",
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "p3",
+      "type": "messagebus",
+      "label": "新问题：校验与授权",
+      "sublabel": "越权与误用",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "p4",
+      "type": "messagebus",
+      "label": "新问题：终止与预算",
+      "sublabel": "死循环与成本",
+      "pos": [
+        910,
+        300
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "p5",
+      "type": "messagebus",
+      "label": "新问题：协同与权限",
+      "sublabel": "入口与记忆归属",
+      "pos": [
+        1200,
+        300
+      ],
+      "size": [
+        180,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "能力演进",
+      "wraps": [
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "每段带来的新问题",
+      "wraps": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "c1",
+      "from": "s1",
+      "to": "s2",
+      "label": "需要更多信息",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c2",
+      "from": "s2",
+      "to": "s3",
+      "label": "需要改变外部状态",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c3",
+      "from": "s3",
+      "to": "s4",
+      "label": "需要多次决策",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c4",
+      "from": "s4",
+      "to": "s5",
+      "label": "需要分工与治理",
+      "variant": "emphasis"
+    },
+    {
+      "id": "q1",
+      "from": "s1",
+      "to": "p1",
+      "label": "留下",
+      "variant": "dashed"
+    },
+    {
+      "id": "q2",
+      "from": "s2",
+      "to": "p2",
+      "label": "留下",
+      "variant": "dashed"
+    },
+    {
+      "id": "q3",
+      "from": "s3",
+      "to": "p3",
+      "label": "留下",
+      "variant": "dashed"
+    },
+    {
+      "id": "q4",
+      "from": "s4",
+      "to": "p4",
+      "label": "留下",
+      "variant": "dashed"
+    },
+    {
+      "id": "q5",
+      "from": "s5",
+      "to": "p5",
+      "label": "留下",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "怎么读这张图",
+      "items": [
+        "上排是每一段新增的能力",
+        "下排是这一段留下的新问题",
+        "虚线表示问题被后一段继承",
+        "选型时先看自己卡在哪一段"
+      ]
+    }
+  ]
+}

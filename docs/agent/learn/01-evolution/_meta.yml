@@ -1,0 +1,24 @@
+name: "Agent 演进与定义"
+icon: "🧭"
+order: 1
+description: "从基础问答到工具调用，讲清 agent 是什么、最小实现长什么样"
+teach:
+  audience: "用过聊天式大模型、想弄清 agent 边界的中高级开发者"
+  prerequisites:
+    - "用过对话式大模型完成问答或写作"
+    - "能读懂 Python 函数与 HTTP 请求"
+  outcomes:
+    - "能按阶段说出 agent 演进解决了什么、带来什么新问题"
+    - "能用判据区分 agent 与带工具的聊天"
+    - "能写出最小 agent 的循环、终止条件与失败处理"
+  path:
+    - from: "01-from-qa-to-tools"
+      to: "03-minimal-agent"
+      label: "从问答到最小循环"
+  lessons:
+    - slug: "from-qa-to-tools"
+      goal: "讲清问答、上下文与工具调用三个阶段的分界"
+    - slug: "planning-and-loop"
+      goal: "讲清循环的终止条件、轮数与预算"
+    - slug: "minimal-agent"
+      goal: "讲清最小 agent 的四部分划分与失败回退"

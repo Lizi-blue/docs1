@@ -1,0 +1,15 @@
+name: "落地实践"
+icon: "🛠️"
+order: 6
+description: "vibe coding 工作流与自建集群里的 agent 用法（公开口径）"
+teach:
+  audience: "读过本方向前面知识域、准备落地或面试的开发者"
+  prerequisites:
+    - "了解 agent 的基本循环与工具调用"
+  outcomes:
+    - "能把一个需求拆成 agent 与人的分工"
+    - "能指出哪些做法不建议做"
+    - "能登记待评估的项目"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

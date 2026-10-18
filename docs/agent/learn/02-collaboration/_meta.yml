@@ -1,0 +1,15 @@
+name: "协同与并发"
+icon: "🤝"
+order: 2
+description: "多 agent 协作拓扑，以及并发、隔离、限额与熔断"
+teach:
+  audience: "读过本方向前面知识域、准备落地或面试的开发者"
+  prerequisites:
+    - "了解 agent 的基本循环与工具调用"
+  outcomes:
+    - "能区分主从、对等与流水线三类协同拓扑"
+    - "能按场景选择进程、线程或异步并发"
+    - "能给出成本上限与熔断做法"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

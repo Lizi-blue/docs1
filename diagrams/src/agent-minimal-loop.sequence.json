@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "最小 agent 循环：一轮里的调用顺序",
+    "output": "docs/public/diagrams/agent-minimal-loop.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      660
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "caller",
+      "type": "backend",
+      "label": "调用方",
+      "sublabel": "发起任务"
+    },
+    {
+      "id": "ctl",
+      "type": "backend",
+      "label": "控制器",
+      "sublabel": "轮次与预算"
+    },
+    {
+      "id": "dec",
+      "type": "backend",
+      "label": "决策器",
+      "sublabel": "只出意图"
+    },
+    {
+      "id": "tools",
+      "type": "backend",
+      "label": "工具表",
+      "sublabel": "校验与动作"
+    },
+    {
+      "id": "ctx",
+      "type": "messagebus",
+      "label": "上下文",
+      "sublabel": "历史与结果"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "caller",
+      "to": "ctl",
+      "y": 170,
+      "label": "run(task)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "ctl",
+      "to": "ctx",
+      "y": 204,
+      "label": "放入任务与工具声明"
+    },
+    {
+      "id": "m3",
+      "from": "ctl",
+      "to": "dec",
+      "y": 238,
+      "label": "decide(context)"
+    },
+    {
+      "id": "m4",
+      "from": "dec",
+      "to": "ctl",
+      "y": 272,
+      "label": "返回意图或答案",
+      "variant": "return"
+    },
+    {
+      "id": "m5",
+      "from": "ctl",
+      "to": "tools",
+      "y": 306,
+      "label": "execute(decision)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m6",
+      "from": "tools",
+      "to": "ctx",
+      "y": 340,
+      "label": "结果或可读错误",
+      "variant": "return"
+    },
+    {
+      "id": "m7",
+      "from": "ctl",
+      "to": "ctx",
+      "y": 374,
+      "label": "记录动作"
+    },
+    {
+      "id": "m8",
+      "from": "ctl",
+      "to": "dec",
+      "y": 408,
+      "label": "下一轮或判终止"
+    },
+    {
+      "id": "m9",
+      "from": "ctl",
+      "to": "caller",
+      "y": 442,
+      "label": "最终结果与结束原因",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "三类终止条件",
+      "items": [
+        "目标达成：结果通过校验",
+        "资源用尽：轮数或预算到顶",
+        "外部中止：人工取消或依赖不可用"
+      ]
+    }
+  ]
+}
