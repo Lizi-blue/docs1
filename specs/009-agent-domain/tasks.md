@@ -24,21 +24,21 @@ description: "Task list for Agent 方向（演进、原理、平台与落地实�
 
 ## Phase 1: Setup（共享骨架）
 
-- [ ] T001 新建领域元数据 `docs/agent/_meta.yml`，字段按 `specs/009-agent-domain/contracts/domain-metadata-contract.md`：名称、图标、顺序、描述、入口类型（覆盖 FR-001、FR-050）
-- [ ] T002 [P] 新建 6 个知识域目录与各自 `docs/agent/<域>/_meta.yml`（evolution / collaboration / platform / service-entry / landscape / practice），未开写的域标大纲态（覆盖 FR-051、FR-019）
-- [ ] T003 [P] 在 `docs/agent/index.md` 建术语表小节（≥12 个术语，可锚点跳转）（覆盖 FR-004）
-- [ ] T004 读基准方向 `docs/backend/learn/**` 提取四段式、教学要素与官方依据格式，落成写作模板 `specs/009-agent-domain/checklists/lesson-template.md`（覆盖 FR-052、FR-053）
-- [ ] T005 [P] 建调研登记文件 `scripts/data/research-registry.json`，字段按 `specs/009-agent-domain/contracts/research-entry-contract.md`（覆盖 FR-036、FR-037）
-- [ ] T006 [P] 建公开安全禁词表 `scripts/data/public-safety-banned.json`，规则按 `specs/009-agent-domain/contracts/public-release-safety-contract.md`（覆盖 FR-044、FR-048）
+- [x] T001 新建领域元数据 `docs/agent/_meta.yml`，字段按 `specs/009-agent-domain/contracts/domain-metadata-contract.md`：名称、图标、顺序、描述、入口类型（覆盖 FR-001、FR-050）
+- [x] T002 [P] 新建 6 个知识域目录与各自 `docs/agent/<域>/_meta.yml`（evolution / collaboration / platform / service-entry / landscape / practice），未开写的域标大纲态（覆盖 FR-051、FR-019）
+- [x] T003 [P] 在 `docs/agent/index.md` 建术语表小节（≥12 个术语，可锚点跳转）（覆盖 FR-004）
+- [x] T004 读基准方向 `docs/backend/learn/**` 提取四段式、教学要素与官方依据格式，落成写作模板 `specs/009-agent-domain/checklists/lesson-template.md`（覆盖 FR-052、FR-053）
+- [x] T005 [P] 建调研登记文件 `scripts/data/research-registry.json`，字段按 `specs/009-agent-domain/contracts/research-entry-contract.md`（覆盖 FR-036、FR-037）
+- [x] T006 [P] 建公开安全禁词表 `scripts/data/public-safety-banned.json`，规则按 `specs/009-agent-domain/contracts/public-release-safety-contract.md`（覆盖 FR-044、FR-048）
 
 ## Phase 2: Foundational（阻塞项，先于所有故事）
 
-- [ ] T007 实现门禁 `scripts/check-public-safety.mjs`：扫描 `docs/**`、`specs/**`、`schemas/**` 与根文件，命中禁词即失败并给修复提示（覆盖 FR-048、SC-021）
-- [ ] T008 [P] 在 `package.json` 注册 `check:public-safety` 命令，并在 `AGENTS.md` §2 命令清单增补说明（覆盖 FR-048）
-- [ ] T009 [P] 在两条发布链路接入新门禁（`scripts/check-public-safety.mjs`）：`.gitea/workflows/ci.yaml` 与 `.github/workflows/pages.yml`（覆盖 SC-021）
-- [ ] T010 用原生 HTTPS 取一轮公开数据并落实测记录（含抓取日期与来源）到 `specs/009-agent-domain/research.md` 附录（覆盖 FR-035、FR-037）
-- [ ] T011 确认公开镜像可见范围（整仓还是仅站点产物），结论写入 `specs/009-agent-domain/research.md` 的 R3 与 `specs/009-agent-domain/checklists/local-baseline.md`（覆盖 FR-044）
-- [ ] T012 依 T011 结论决定历史文件脱敏组（T049）是否执行，判定依据记入 `specs/009-agent-domain/research.md`，并把判定写入 `specs/009-agent-domain/checklists/local-baseline.md`（覆盖 FR-044）
+- [x] T007 实现门禁 `scripts/check-public-safety.mjs`：扫描 `docs/**`、`specs/**`、`schemas/**` 与根文件，命中禁词即失败并给修复提示（覆盖 FR-048、SC-021）
+- [x] T008 [P] 在 `package.json` 注册 `check:public-safety` 命令，并在 `AGENTS.md` §2 命令清单增补说明（覆盖 FR-048）
+- [x] T009 [P] 在两条发布链路接入新门禁（`scripts/check-public-safety.mjs`）：`.gitea/workflows/ci.yaml` 与 `.github/workflows/pages.yml`（覆盖 SC-021）
+- [x] T010 用原生 HTTPS 取一轮公开数据并落实测记录（含抓取日期与来源）到 `specs/009-agent-domain/research.md` 附录（覆盖 FR-035、FR-037）
+- [x] T011 确认公开镜像可见范围（整仓还是仅站点产物），结论写入 `specs/009-agent-domain/research.md` 的 R3 与 `specs/009-agent-domain/checklists/local-baseline.md`（覆盖 FR-044）
+- [x] T012 依 T011 结论决定历史文件脱敏组（T049）是否执行，判定依据记入 `specs/009-agent-domain/research.md`，并把判定写入 `specs/009-agent-domain/checklists/local-baseline.md`（覆盖 FR-044）
 
 ## Phase 3: User Story 1 - 从基础问答走到 agent 的主线（Priority: P1）🎯 MVP
 
@@ -46,13 +46,13 @@ description: "Task list for Agent 方向（演进、原理、平台与落地实�
 
 **Independent Test**: 打开领域首页按主线读完，任一阶段页四要素齐全。
 
-- [ ] T013 [US1] 写讲 A1 `docs/agent/evolution/01-from-qa-to-tools.md`（基础问答 → 上下文与提示 → 工具调用）（覆盖 FR-002、FR-003）
-- [ ] T014 [P] [US1] 写讲 A2 `docs/agent/evolution/02-planning-and-loop.md`（规划与循环；含 agent 与「带工具的聊天」分界判据）（覆盖 FR-003、FR-006）
-- [ ] T015 [P] [US1] 写讲 A3 `docs/agent/evolution/03-minimal-agent.md`（最小 agent：循环、工具、终止条件、失败处理；示例或伪代码）（覆盖 FR-007）
-- [ ] T016 [US1] 在 `docs/agent/index.md` 排学习路径，主线阶段按先后排列且 ≥5（覆盖 FR-002）
-- [ ] T017 [US1] 产图解演进时间线：源 `diagrams/src/agent-evolution-timeline.architecture.json`，产物 `docs/public/diagrams/agent-evolution-timeline.html`（覆盖 FR-022）
-- [ ] T018 [US1] 三讲补齐官方依据（每讲 ≥2 条带适用版本）与面试追问链（3–5 条）：`docs/agent/evolution/01-from-qa-to-tools.md`、`docs/agent/evolution/02-planning-and-loop.md`、`docs/agent/evolution/03-minimal-agent.md`（覆盖 FR-053、FR-052）
-- [ ] T019 [US1] 跑 `npm run check:content`、`npm run check:zh`、`npm run check:nav` 并记录结果到 `specs/009-agent-domain/checklists/local-baseline.md`（覆盖 SC-009）
+- [x] T013 [US1] 写讲 A1 `docs/agent/evolution/01-from-qa-to-tools.md`（基础问答 → 上下文与提示 → 工具调用）（覆盖 FR-002、FR-003）
+- [x] T014 [P] [US1] 写讲 A2 `docs/agent/evolution/02-planning-and-loop.md`（规划与循环；含 agent 与「带工具的聊天」分界判据）（覆盖 FR-003、FR-006）
+- [x] T015 [P] [US1] 写讲 A3 `docs/agent/evolution/03-minimal-agent.md`（最小 agent：循环、工具、终止条件、失败处理；示例或伪代码）（覆盖 FR-007）
+- [x] T016 [US1] 在 `docs/agent/index.md` 排学习路径，主线阶段按先后排列且 ≥5（覆盖 FR-002）
+- [x] T017 [US1] 产图解演进时间线：源 `diagrams/src/agent-evolution-timeline.architecture.json`，产物 `docs/public/diagrams/agent-evolution-timeline.html`（覆盖 FR-022）
+- [x] T018 [US1] 三讲补齐官方依据（每讲 ≥2 条带适用版本）与面试追问链（3–5 条）：`docs/agent/evolution/01-from-qa-to-tools.md`、`docs/agent/evolution/02-planning-and-loop.md`、`docs/agent/evolution/03-minimal-agent.md`（覆盖 FR-053、FR-052）
+- [x] T019 [US1] 跑 `npm run check:content`、`npm run check:zh`、`npm run check:nav` 并记录结果到 `specs/009-agent-domain/checklists/local-baseline.md`（覆盖 SC-009）
 
 ## Phase 4: User Story 2 - 原理：定义、最小实现、协同、并发（Priority: P1）
 
@@ -63,7 +63,7 @@ description: "Task list for Agent 方向（演进、原理、平台与落地实�
 - [ ] T020 [US2] 写讲 B1 `docs/agent/collaboration/01-topologies.md`（主从／对等／流水线 + 适用与失败模式）（覆盖 FR-008）
 - [ ] T021 [US2] 写讲 B2 `docs/agent/collaboration/02-concurrency-and-isolation.md`（进程／线程／异步 + 隔离、限额、取消、背压）（覆盖 FR-009）
 - [ ] T022 [P] [US2] 写讲 B3 `docs/agent/collaboration/03-cost-and-circuit-breaker.md`（成本上限、死循环与熔断）（覆盖 FR-009）
-- [ ] T023 [P] [US2] 产图解最小 agent 循环：源 `diagrams/src/agent-minimal-loop.sequence.json`，产物 `docs/public/diagrams/agent-minimal-loop.html`（覆盖 FR-022）
+- [x] T023 [P] [US2] 产图解最小 agent 循环：源 `diagrams/src/agent-minimal-loop.sequence.json`，产物 `docs/public/diagrams/agent-minimal-loop.html`（覆盖 FR-022）
 - [ ] T024 [P] [US2] 产图解协同拓扑：源 `diagrams/src/agent-collaboration-topologies.architecture.json`，产物 `docs/public/diagrams/agent-collaboration-topologies.html`（覆盖 FR-008）
 - [ ] T025 [P] [US2] 产图解并发隔离：源 `diagrams/src/agent-concurrency-isolation.architecture.json`，产物 `docs/public/diagrams/agent-concurrency-isolation.html`（覆盖 FR-009）
 - [ ] T026 [US2] 把「该用/不该用 agent」判据清单落到 `docs/agent/collaboration/01-topologies.md` `docs/agent/collaboration/_meta.yml` 指向的域首页（覆盖 FR-010）
@@ -124,8 +124,8 @@ description: "Task list for Agent 方向（演进、原理、平台与落地实�
 - [ ] T046 [P] [US7] 写调研讲 E3 `docs/agent/landscape/03-memory-and-context.md`（记忆与上下文方案对比）（覆盖 FR-039）
 - [ ] T047 [US7] 写调研讲 E4 `docs/agent/landscape/04-adoption-decisions.md`（采纳／参考／不采纳 + 逐条理由 + 抓取日期与来源）（覆盖 FR-038、FR-043、SC-019）
 - [ ] T048 [US7] 抽查 3 讲与基准方向做同构核对（元数据字段、目录层级、四段式、官方依据、导航三级），结果记入 `specs/009-agent-domain/checklists/local-baseline.md`（覆盖 FR-050–FR-053、SC-022）
-- [ ] T049 [US7] 若 T011 判定整仓公开：脱敏历史文件（`README.md`、`AGENTS.md`、`.specify/memory/constitution.md`、`docs/.vitepress/config.mts`、`schemas/*.json` 示例值、`.gitea/workflows/ci.yaml`、`deploy/ingress.yaml`、`ci.env`）为占位符；否则关闭本任务并记录（覆盖 FR-044、FR-045、FR-047）
-- [ ] T050 [US7] 跑 `npm run check:public-safety` 并修复全部命中；扫描范围 `docs/agent/**`、`specs/009-agent-domain/**`、`schemas/**`、根文件与 `docs/public/diagrams/**`（覆盖 FR-048、SC-021）
+- [x] T049 [US7] 若 T011 判定整仓公开：脱敏历史文件（`README.md`、`AGENTS.md`、`.specify/memory/constitution.md`、`docs/.vitepress/config.mts`、`schemas/*.json` 示例值、`.gitea/workflows/ci.yaml`、`deploy/ingress.yaml`、`ci.env`）为占位符；否则关闭本任务并记录（覆盖 FR-044、FR-045、FR-047）
+- [x] T050 [US7] 跑 `npm run check:public-safety` 并修复全部命中；扫描范围 `docs/agent/**`、`specs/009-agent-domain/**`、`schemas/**`、根文件与 `docs/public/diagrams/**`（覆盖 FR-048、SC-021）
 
 ## Phase 10: Polish & 横切
 
