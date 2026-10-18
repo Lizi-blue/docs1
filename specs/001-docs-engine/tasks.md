@@ -12,7 +12,7 @@ description: "Task list for feature 001-docs-engine"
 
 - 门禁：`check:content` 0 错 0 警 · `check:zh` 硬违规 0 · `check:orchestration` S1–S7 ·
   `test:component` 通过 · `selftest:gates` 9/9 · `check:extensibility` E1–E10 · `check:responsive` R1–R7 · `build` 成功
-- 线上：CI Run #4377 全绿，镜像 tag `c94c52f`，`https://docs1.minilab.uzibird.cn/` 与 12 条路由 200
+- 线上：CI Run #4377 全绿，镜像 tag `c94c52f`，`https://<internal-host>/` 与 12 条路由 200
 - 两处口径修正：正文禁止 `<EntryIndex>`（避免重复渲染）；V13/V14 补进 data-model
 
 
@@ -122,19 +122,19 @@ description: "Task list for feature 001-docs-engine"
 
 ---
 
-## Phase 6: User Story 4 - 推送即上线到 docs1.minilab.uzibird.cn (Priority: P2)
+## Phase 6: User Story 4 - 推送即上线到 <internal-host> (Priority: P2)
 
 **Goal**: 推送主干自动构建镜像并部署，HTTPS 入口与健康检查可用，失败可定位
 
 **Independent Test**: 推送一次内容改动，Run 全绿，线上首页含本次提交内容，`/health` 返回 200
 
-- [x] T028 [P] [US4] 新建 `ci.env`：按 `contracts/deploy-contract.md` §1 填 `PROJECT_NAME=docs-1`、`IMAGE_NAME=dev/docs-1-docs`、`MANIFEST_DIR=deploy`、`K8S_NAMESPACE=docs`、`DEPLOYMENT_NAME=docs-1-docs`、`INGRESS_HOST=docs1.minilab.uzibird.cn`、`CONTAINER_PORT=80`、`ROLLOUT_WAIT=true`、`DB_ENABLED=false`、`CONF_ENABLED=false`，不设 `INSTALL_CMD`/`TEST_CMD`/`IMAGE_TAG`
+- [x] T028 [P] [US4] 新建 `ci.env`：按 `contracts/deploy-contract.md` §1 填 `PROJECT_NAME=docs-1`、`IMAGE_NAME=dev/docs-1-docs`、`MANIFEST_DIR=deploy`、`K8S_NAMESPACE=docs`、`DEPLOYMENT_NAME=docs-1-docs`、`INGRESS_HOST=<internal-host>`、`CONTAINER_PORT=80`、`ROLLOUT_WAIT=true`、`DB_ENABLED=false`、`CONF_ENABLED=false`，不设 `INSTALL_CMD`/`TEST_CMD`/`IMAGE_TAG`
 - [x] T029 [P] [US4] 新建 `Dockerfile`：阶段一 `node:22-alpine` + `apk add --no-cache python3`，依次执行 `npm ci`、`npm run check:content`、`npm run check:zh`、`python3 -m pytest tests/ -q`、`npm run build`；阶段二 `caddy:2-alpine`，只拷 `docs/.vitepress/dist` 与 `Caddyfile`，`EXPOSE 80` 并带 `/health` 健康检查
 - [x] T030 [P] [US4] 新建 `Caddyfile`：`try_files {path} {path}.html {path}/index.html /index.html` 与 `respond /health 200`
 - [x] T031 [P] [US4] 新建 `deploy/deployment.yaml`、`deploy/service.yaml`、`deploy/ingress.yaml`：按契约 §4 使用 `${DEPLOYMENT_NAME}`/`${K8S_NAMESPACE}`/`${IMAGE_FULL}`/`${CONTAINER_PORT}`/`${INGRESS_HOST}`/`${APP_VERSION}` 占位；资源 20m/32Mi 与 200m/128Mi；探针打 `/health`
 - [x] T032 [US4] 新建 `.gitea/workflows/ci.yaml`：薄触发文件，`uses: dev/ci/.gitea/workflows/template.yaml@main`，`project` 取 `github.event.repository.name`，按 dev-roadmap 的口径转发 Secrets
-- [x] T033 [US4] 首次部署验收：推送后确认 Run 全绿、`kubectl -n docs get deploy docs-1-docs -o jsonpath='{...image}'` 等于本次短 hash、`curl -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/health` 返回 200、首页 HTML 含内容标记
-- [x] T034 [US4] 登记域名前置：在 `minilab/registry/dns.yaml` 与 `registry/services.yaml` 增加 `docs1.minilab.uzibird.cn` 条目，通知用户侧在阿里云与 OpenWrt 添加 A 记录；生效后按 quickstart S9 用真实域名复验
+- [x] T033 [US4] 首次部署验收：推送后确认 Run 全绿、`kubectl -n docs get deploy docs-1-docs -o jsonpath='{...image}'` 等于本次短 hash、`curl -H 'Host: <internal-host>' http://<internal-ip>/health` 返回 200、首页 HTML 含内容标记
+- [x] T034 [US4] 登记域名前置：在 `minilab/registry/dns.yaml` 与 `registry/services.yaml` 增加 `<internal-host>` 条目，通知用户侧在阿里云与 OpenWrt 添加 A 记录；生效后按 quickstart S9 用真实域名复验
 
 **Checkpoint**: 线上可访问，且域名与证书前置有明确责任与验证方式
 
@@ -255,7 +255,7 @@ Task: "新建 deploy/{deployment,service,ingress}.yaml"
 
 1. US1 + US2 → 站点可读可验（MVP）
 2. US3 → 组件可复用可测试
-3. US4 → 推送到 `docs1.minilab.uzibird.cn`
+3. US4 → 推送到 `<internal-host>`
 4. US5 → 中文写作有门禁
 5. US6 → 规范可扩展、千页可承受
 

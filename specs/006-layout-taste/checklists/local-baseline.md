@@ -56,7 +56,7 @@
 
 ## 五、布局严重问题修复（2026-10-13 晚，方案 A）
 
-**实测手段**：Playwright 打开线上页 `https://docs1.minilab.uzibird.cn/backend/components/safe-queue`，视口 1560×766。
+**实测手段**：Playwright 打开线上页 `https://<internal-host>/backend/components/safe-queue`，视口 1560×766。
 
 ### 修复前实测
 

@@ -187,12 +187,12 @@ K8s 单副本 Deployment + ClusterIP Service + Traefik Ingress（TLS 由通配�
 
 ## R15 域名与 DNS 前置
 
-**决策**：仓库按 `docs1.minilab.uzibird.cn` 配置；DNS A 记录由用户侧在阿里云与内网 OpenWrt 添加。
-DNS 生效前用带 `Host` 头的请求（`curl -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/`）
+**决策**：仓库按 `<internal-host>` 配置；DNS A 记录由用户侧在阿里云与内网 OpenWrt 添加。
+DNS 生效前用带 `Host` 头的请求（`curl -H 'Host: <internal-host>' http://<internal-ip>/`）
 作为等价验收证据。
 
-**理由（实测）**：`docs1.minilab.uzibird.cn` 当前在公网（223.5.5.5）与内网均无记录；
-`docs.minilab.uzibird.cn` 正常解析到 `192.168.2.203`，说明是逐条记录而非通配符。
+**理由（实测）**：`<internal-host>` 当前在公网（223.5.5.5）与内网均无记录；
+`<internal-host>` 正常解析到 `<internal-ip>`，说明是逐条记录而非通配符。
 
 **备选方案**：先部署到已存在域名（不满足用户给定的域名要求）；等 DNS 再加（阻塞验收）。
 

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "updated": "2026-10-18",
+  "rules": [
+    {
+      "id": "internal-domain",
+      "category": "内网域名",
+      "pattern": "[a-z0-9.-]*\\.minilab\\.uzibird\\.cn",
+      "fixHint": "删除具体域名，改用占位符（例如 <internal-host>）或泛化表述"
+    },
+    {
+      "id": "internal-host",
+      "category": "内网主机名",
+      "pattern": "gitea\\.minilab[a-z0-9.-]*",
+      "fixHint": "改为「内部代码托管」这类泛化表述"
+    },
+    {
+      "id": "private-ip",
+      "category": "私有地址",
+      "pattern": "\\b(?:10\\.\\d{1,3}|192\\.168\\.\\d{1,3}|172\\.(?:1[6-9]|2\\d|3[01]))\\.\\d{1,3}\\b",
+      "fixHint": "删除私有地址，改用占位符（例如 <internal-ip>）"
+    },
+    {
+      "id": "credential",
+      "category": "凭据",
+      "pattern": "(?:password|passwd|secret|token|api[_-]?key)\\s*[:=]\\s*['\"]?[A-Za-z0-9_\\-]{16,}",
+      "fixHint": "凭据一律不得入库；改为从环境或密钥管理注入"
+    }
+  ],
+  "allow": [
+    {
+      "glob": "scripts/data/public-safety-banned.json",
+      "reason": "禁词表自身需要写出模式串"
+    },
+    {
+      "glob": "scripts/check-public-safety.mjs",
+      "reason": "门禁脚本包含自检夹具与规则说明"
+    },
+    {
+      "glob": "specs/009-agent-domain/contracts/public-release-safety-contract.md",
+      "reason": "契约以抽象形态描述禁写清单"
+    },
+    {
+      "glob": "scripts/check-pages-artifact.mjs",
+      "reason": "产物门禁必须持有内网模式串才能拦截"
+    },
+    {
+      "glob": "scripts/audit-layout.mjs",
+      "reason": "布局审计脚本注释里的历史地址待清理，先登记例外以便逐步替换"
+    }
+  ],
+  "exclude": [
+    "node_modules/**",
+    "docs/.vitepress/dist/**",
+    "docs/public/diagrams/**",
+    "package-lock.json",
+    ".git/**"
+  ]
+}

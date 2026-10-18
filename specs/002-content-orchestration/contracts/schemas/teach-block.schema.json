@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://docs1.minilab.uzibird.cn/schemas/teach-block.schema.json",
+  "$id": "https://<internal-host>/schemas/teach-block.schema.json",
   "title": "知识域编排登记块（_meta.yml 的 teach 键）",
   "description": "登记与被描述的内容同处；未知字段判错，避免拼写错误静默生效。",
   "type": "object",

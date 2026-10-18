@@ -103,8 +103,8 @@ done
 
 ```bash
 git push origin main        # 由 Lead 执行；CI 构建 + 部署
-curl -sS -o /dev/null -w '%{http_code}\n' https://docs1.minilab.uzibird.cn/backend/components/task-console
-curl -sS -o /dev/null -w '%{http_code}\n' https://docs1.minilab.uzibird.cn/frontend/components/task-console
+curl -sS -o /dev/null -w '%{http_code}\n' https://<internal-host>/backend/components/task-console
+curl -sS -o /dev/null -w '%{http_code}\n' https://<internal-host>/frontend/components/task-console
 ```
 
 期望：两个端点均 200；后端页不再出现前端内容；经域名提交 `cp` 任务可看到实时输出。

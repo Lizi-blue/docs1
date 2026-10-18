@@ -1,6 +1,6 @@
 # 本地与线上验收证据（005 GitHub Pages 发布链路）
 
-> 每项记录命令与真实输出。线上地址：内网 `https://docs1.minilab.uzibird.cn`、公网 `https://lizi-blue.github.io/docs1/`。
+> 每项记录命令与真实输出。线上地址：内网 `https://<internal-host>`、公网 `https://lizi-blue.github.io/docs1/`。
 
 ## 环境
 

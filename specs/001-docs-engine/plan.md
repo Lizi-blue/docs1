@@ -15,7 +15,7 @@
 扫描目录、合并目录元数据与页面 frontmatter，产出页面模型与虚拟模块，驱动三层导航、作用域侧边栏、
 领域双入口（渐进式学习 / 组件查询）、学习进度与双向链接。站点由 VitePress + Vue 3 渲染，
 图解由 Archify 从 JSON IR 生成自包含交互 HTML，中文质量由 ste-lint-zh 机械判定，
-交付走 `ci` 中心仓流水线部署到 `docs1.minilab.uzibird.cn`。
+交付走 `ci` 中心仓流水线部署到 `<internal-host>`。
 
 示例内容覆盖两个方向：Python 后端（多线程 → 多进程 → Queue 通信 → 异步 I/O，另有一个组件页）
 与前端工程化（单页 index.html 入口 → npm 与模块 → Vite 开发与构建 → 工程化项目结构）。

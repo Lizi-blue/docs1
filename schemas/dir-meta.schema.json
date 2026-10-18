@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://docs1.minilab.uzibird.cn/schemas/dir-meta.schema.json",
+  "$id": "https://example.invalid/schemas/dir-meta.schema.json",
   "title": "目录级 _meta.yml",
   "description": "领域、知识域、入口目录的元数据。设计源在 specs/001-docs-engine/contracts/（本文件是运行时副本，改动必须同步）。未知字段判错。",
   "type": "object",

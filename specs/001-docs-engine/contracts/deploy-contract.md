@@ -15,7 +15,7 @@
 | `DEPLOY_TO_K8S` | `true` | 需要部署 |
 | `K8S_NAMESPACE` | `docs` | 与既有文档站 `dev-roadmap` 同命名空间 |
 | `DEPLOYMENT_NAME` | `docs-1-docs` | 工作负载名 |
-| `INGRESS_HOST` | `docs1.minilab.uzibird.cn` | 用户指定域名（不含连字符，符合 OpenWrt DNS 限制） |
+| `INGRESS_HOST` | `<internal-host>` | 用户指定域名（不含连字符，符合 OpenWrt DNS 限制） |
 | `CONTAINER_PORT` | `80` | Caddy 监听端口 |
 | `ROLLOUT_WAIT` | `true` | 部署后等待就绪 |
 | `DB_ENABLED` | `false` | 静态站无数据库 |
@@ -62,7 +62,7 @@
 |---|---|---|
 | `deployment.yaml` | 单副本；`/health` 就绪与存活探针；`requests 20m/32Mi`、`limits 200m/128Mi`；`APP_VERSION` 环境变量 | `${DEPLOYMENT_NAME}` `${K8S_NAMESPACE}` `${IMAGE_FULL}` `${CONTAINER_PORT}` `${APP_VERSION}` |
 | `service.yaml` | ClusterIP:80 → 容器端口 | `${DEPLOYMENT_NAME}` `${K8S_NAMESPACE}` `${CONTAINER_PORT}` |
-| `ingress.yaml` | `docs1.minilab.uzibird.cn` → Service:80；TLS 由 Traefik 通配符证书按 SNI 下发 | `${INGRESS_HOST}` `${DEPLOYMENT_NAME}` `${K8S_NAMESPACE}` |
+| `ingress.yaml` | `<internal-host>` → Service:80；TLS 由 Traefik 通配符证书按 SNI 下发 | `${INGRESS_HOST}` `${DEPLOYMENT_NAME}` `${K8S_NAMESPACE}` |
 
 清单 MUST 使用 `${VAR}` 占位并由 ci 渲染；MUST NOT 在清单里写死镜像标签或命名空间。
 
@@ -70,15 +70,15 @@
 
 | 前置 | 现状（2026-10-11 实测） | 责任方 | 验证方式 |
 |---|---|---|---|
-| DNS A 记录 `docs1.minilab.uzibird.cn` → `192.168.2.203` | **不存在**（公网 223.5.5.5 与内网均无记录；`docs.minilab.uzibird.cn` 正常，说明是逐条记录而非通配符） | 用户侧（阿里云 DNS + 内网 OpenWrt） | `dig +short @223.5.5.5 docs1.minilab.uzibird.cn` 返回 192.168.2.203 |
-| TLS 证书覆盖该域名 | cert 服务按 `a.b.c` 派生 `*.b.c`，登记后应自动覆盖 | 平台已有能力 | `curl -sSI https://docs1.minilab.uzibird.cn/ \| head -1` |
+| DNS A 记录 `<internal-host>` → `<internal-ip>` | **不存在**（公网 223.5.5.5 与内网均无记录；`<internal-host>` 正常，说明是逐条记录而非通配符） | 用户侧（阿里云 DNS + 内网 OpenWrt） | `dig +short @223.5.5.5 <internal-host>` 返回 <internal-ip> |
+| TLS 证书覆盖该域名 | cert 服务按 `a.b.c` 派生 `*.b.c`，登记后应自动覆盖 | 平台已有能力 | `curl -sSI https://<internal-host>/ \| head -1` |
 | ci 仓"协作所有者"含 `dev` | 平台既有配置 | 平台 | 推送后本仓 Actions 出现 Run |
 | 组织级 Secrets（`REPO_*`、`REGISTRY_*`、`KUBECONFIG`、`CI_REPO_TOKEN`） | 平台既有配置 | 平台 | 构建与部署阶段不因缺凭据判红 |
 
 **域名未生效时的等价验收**：用带 `Host` 头的请求验证路由与内容。
 
 ```bash
-curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/
+curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: <internal-host>' http://<internal-ip>/
 ```
 
 ## 6. 触发与发布行为
@@ -120,8 +120,8 @@ kubectl -n docs rollout status deploy/docs-1-docs --timeout=60s
 | 3 等就绪 | `kubectl -n docs rollout status deploy/docs-1-docs --timeout=60s` | `successfully rolled out`，副本 1/1 |
 | 4 查镜像 | 重跑步骤 1 | 标签变成上一 revision，且与步骤 1 不同 |
 | 5 查 revision | `kubectl -n docs rollout history deploy/docs-1-docs` | revision 递增；回滚目标在历史中 |
-| 6 探活 | `curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/health` | `200` |
-| 7 验内容 | `curl -sS -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/ \| grep -c '<上一版标题>'` | 计数 ≥1，内容回到上一版 |
+| 6 探活 | `curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: <internal-host>' http://<internal-ip>/health` | `200` |
+| 7 验内容 | `curl -sS -H 'Host: <internal-host>' http://<internal-ip>/ \| grep -c '<上一版标题>'` | 计数 ≥1，内容回到上一版 |
 
 **前置**：`revisionHistoryLimit` 保留历史 ReplicaSet（清单未设，用默认 10）；每次部署的镜像标签
 唯一（ci 按短 hash 或 tag 派生），`undo` 才能切回上一 ReplicaSet。清单见

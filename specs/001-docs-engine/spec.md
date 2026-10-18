@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: User description: "新建 docs-1 仓，域名 docs1.minilab.uzibird.cn；实现声明式文档引擎：按规则在 docs/ 目录放 Markdown 与 _meta.yml，引擎自动解析为可导航文档网站（渐进式学习 + 组件查询两类场景，领域内容可扩展）；本次用 Python 多线程/多进程知识域做目录划分与内容示例效果验证，含 1 个组件页；参照 ci 仓与 python-vue 仓接入 CI 流水线并部署；写作遵循受控中文规则，图解用 Archify，质量检查用 ste-lint-zh。"
+**Input**: User description: "新建 docs-1 仓，域名 <internal-host>；实现声明式文档引擎：按规则在 docs/ 目录放 Markdown 与 _meta.yml，引擎自动解析为可导航文档网站（渐进式学习 + 组件查询两类场景，领域内容可扩展）；本次用 Python 多线程/多进程知识域做目录划分与内容示例效果验证，含 1 个组件页；参照 ci 仓与 python-vue 仓接入 CI 流水线并部署；写作遵循受控中文规则，图解用 Archify，质量检查用 ste-lint-zh。"
 
 ## Clarifications
 
@@ -74,9 +74,9 @@
 
 ---
 
-### User Story 4 - 推送即上线到 docs1.minilab.uzibird.cn（Priority: P2）
+### User Story 4 - 推送即上线到 <internal-host>（Priority: P2）
 
-作者把内容或引擎改动推到主干，流水线自动构建站点镜像并部署到集群，读者随后通过 `https://docs1.minilab.uzibird.cn` 访问到本次改动。
+作者把内容或引擎改动推到主干，流水线自动构建站点镜像并部署到集群，读者随后通过 `https://<internal-host>` 访问到本次改动。
 
 **Why this priority**: 没有自动部署，文档站就无法持续演进；这也是本仓与中心仓 `ci`、母板仓 `python-vue` 的标准接入方式。
 
@@ -85,7 +85,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** 仓内已有薄触发工作流与仓内能力开关文件，**When** 推送到主干分支，**Then** 本仓 Actions 页出现自己的 Run，编排复用中心仓共享工作流，仓内不存在编排实现的副本。
-2. **Given** 一次 Run，**When** 构建与部署阶段依次执行，**Then** 部署后站点健康检查返回成功，`https://docs1.minilab.uzibird.cn/` 返回 200 且内容包含本次提交的页面。
+2. **Given** 一次 Run，**When** 构建与部署阶段依次执行，**Then** 部署后站点健康检查返回成功，`https://<internal-host>/` 返回 200 且内容包含本次提交的页面。
 3. **Given** 打出 `vX.Y.Z` 版本标签，**When** 触发流水线，**Then** 额外产出带版本号与 `latest` 标签的镜像，并按发布逻辑部署到发布环境。
 4. **Given** 推送发生在非部署分支，**When** 流水线执行，**Then** 只做构建与检查，不产生部署。
 5. **Given** 流水线任一阶段失败，**When** 作者查看 Run 日志，**Then** 能定位到具体阶段与首个错误原因。
@@ -193,7 +193,7 @@
 - **FR-026**: 站点 MUST 以静态产物镜像交付：镜像内只含构建产物与静态服务器，无后端进程、无数据库、无持久卷依赖。
 - **FR-027**: 部署 MUST 走中心仓 `ci` 流水线：仓内只保留薄触发工作流、能力开关文件、Dockerfile 与业务自带 K8s 清单，MUST NOT 复制中心仓编排实现。
 - **FR-028**: 推送主干 MUST 自动构建镜像并部署；打版本标签 MUST 走发布逻辑（版本号 + `latest` 镜像标签）。
-- **FR-029**: 部署 MUST 暴露 `docs1.minilab.uzibird.cn` 的 HTTPS 入口与健康检查端点；健康检查 MUST 在不依赖后端的情况下返回成功。
+- **FR-029**: 部署 MUST 暴露 `<internal-host>` 的 HTTPS 入口与健康检查端点；健康检查 MUST 在不依赖后端的情况下返回成功。
 - **FR-030**: 部署 MUST 幂等且可回滚：重复部署不产生冲突，回滚到上一版本不依赖数据迁移。
 - **FR-031**: 流水线 MUST 在站点内容层面可验证：部署后能断言线上页面包含本次提交的页面或内容标记。
 
@@ -244,7 +244,7 @@
 - **SC-002**: 已交付的知识点页 100% 含四段式全部必需小节（缺失项计数为 0，可由自动化检查给出证据）。
 - **SC-003**: 已交付的组件页 100% 含可复制安装命令、核心源码、知识对照表与 ≥3 种引用方式。
 - **SC-004**: 站点内部链接断链数为 0。
-- **SC-005**: 主干推送后 10 分钟内，`https://docs1.minilab.uzibird.cn/` 返回成功，且线上内容包含本次提交的页面（可用内容标记断言）。
+- **SC-005**: 主干推送后 10 分钟内，`https://<internal-host>/` 返回成功，且线上内容包含本次提交的页面（可用内容标记断言）。
 - **SC-006**: `docs/**/*.md` 的中文写作检查 100% 通过；存在不可修复项时，输出清单条目可逐条定位到文件与行号。
 - **SC-007**: 每个知识点页至少 1 个图解，且图解在断网环境下仍可交互（无外部资源请求）。
 - **SC-008**: 内容作者新增一个知识点页的操作步骤 ≤3 步（建文件、写元数据、写正文），过程中无需改配置或引擎代码。
@@ -264,9 +264,9 @@
 - **技术选型已定**：渲染层为 VitePress + Vue 3（非 Zensical，因其模块 API 未公开、无法深度定制解析流程）；解析层为自定义 Vite 插件 + VitePress 数据加载器；图表以 Archify 生成的交互 HTML 为主，`mingrammer/diagrams` 生成静态云架构图为辅。
 - **Archify 以 Agent Skill 形式接入**（`npx skills add tt-a1i/archify -g` 或 DSH 插件），图解在创作阶段生成并入库到 `docs/public/diagrams/`；流水线只校验产物存在与自包含性，不联网生成。若 Archify 不可用，退化为手写自包含交互 HTML，接入位不变。
 - **受控中文规则**取自 `lemonhall/asd-ste100-skill-zh` 的 `scripts/ste-lint-zh.py`，以 vendored 方式入库并在 CI 执行；门禁默认 fail-closed，允许显式豁免清单（只减不增）。
-- **域名与解析**：`docs1.minilab.uzibird.cn` 的 A 记录指向集群入口 `192.168.2.203`，由用户侧在阿里云 DNS 与内网 OpenWrt 添加；仓库与流水线按该域名配置。DNS 生效前，验证用带 `Host` 头的请求完成。
+- **域名与解析**：`<internal-host>` 的 A 记录指向集群入口 `<internal-ip>`，由用户侧在阿里云 DNS 与内网 OpenWrt 添加；仓库与流水线按该域名配置。DNS 生效前，验证用带 `Host` 头的请求完成。
 - **部署形态**： Kubernetes 命名空间 `docs`（与既有 `dev-roadmap` 文档站同），单副本、无 PVC、无后端；`DB_ENABLED=false`、`CONF_ENABLED=false`、不接 IAM 上报。
-- **平台前置已具备**：ci 仓协作所有者、组织级 Secrets（`REPO_USERNAME` / `REPO_TOKEN` / `REGISTRY_USERNAME` / `REGISTRY_PASSWORD` / `KUBECONFIG` / `CI_REPO_TOKEN`）与 runner 在线；镜像仓库与 Ingress 走既有 `gitea.minilab.uzibird.cn` 与 Traefik。
+- **平台前置已具备**：ci 仓协作所有者、组织级 Secrets（`REPO_USERNAME` / `REPO_TOKEN` / `REGISTRY_USERNAME` / `REGISTRY_PASSWORD` / `KUBECONFIG` / `CI_REPO_TOKEN`）与 runner 在线；镜像仓库与 Ingress 走既有 `<internal-host>` 与 Traefik。
 - **本轮范围**：交付完整引擎结构（三类页面类型与全部自定义渲染组件）+ 内容规范四件套（规范正文、机器可读 schema、机械校验、新建脚手架）与创作技能（仓内版 + `dev/skill` 仓跨仓版）+ Python 并发域 3 个知识点页 + 1 个组件页 + 每领域两个入口 + CI 部署 + 中文门禁 + 图解方案。跨领域组件示例页、`frontend` / `k8s` 领域内容、云架构静态专题图为下一里程碑；引擎对跨领域类型的契约 MUST 已具备。
 - **规范与技能的单一事实源**：规范正文在 `docs-1` 仓维护；`dev/skill` 仓只放可加载的技能正文 + 指向本仓规范的指针，不复制取值。上架依赖 `dev/skill` 仓写权限（当前令牌具备 `write:repository`）。
 - **组件交付形态**：组件以『源码 + 设计 / 使用文档 + 自动化测试』交付，测试进 CI；发布为可安装包为可选能力，本轮不发布。

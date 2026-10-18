@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://docs1.minilab.uzibird.cn/schemas/page-frontmatter.schema.json",
+  "$id": "https://<internal-host>/schemas/page-frontmatter.schema.json",
   "title": "页面 frontmatter",
   "description": "按 type 分四种形态。未知字段一律判错，避免拼写错误静默生效。",
   "$defs": {

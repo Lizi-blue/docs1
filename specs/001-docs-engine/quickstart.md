@@ -119,14 +119,14 @@ git push origin main
 
 ```bash
 kubectl -n docs get deploy docs-1-docs -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
-curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/health
+curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: <internal-host>' http://<internal-ip>/health
 ```
 
 DNS 生效后（前置见 `contracts/deploy-contract.md` §5）：
 
 ```bash
-curl -sS -o /dev/null -w '%{http_code}\n' https://docs1.minilab.uzibird.cn/
-curl -sS https://docs1.minilab.uzibird.cn/backend/learn/concurrency/thread-basics | grep -c '多线程基础'
+curl -sS -o /dev/null -w '%{http_code}\n' https://<internal-host>/
+curl -sS https://<internal-host>/backend/learn/concurrency/thread-basics | grep -c '多线程基础'
 ```
 
 **期望**：镜像标签等于本次提交短 hash；`/health` 为 200；首页与知识点页 200；页面含本次提交内容。
@@ -137,7 +137,7 @@ curl -sS https://docs1.minilab.uzibird.cn/backend/learn/concurrency/thread-basic
 kubectl -n docs get deploy docs-1-docs -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
 kubectl -n docs rollout undo deploy/docs-1-docs          # 期望：rolled back
 kubectl -n docs rollout status deploy/docs-1-docs --timeout=60s   # 期望：successfully rolled out
-curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/health  # 期望 200
+curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: <internal-host>' http://<internal-ip>/health  # 期望 200
 ```
 
 **期望**：镜像标签切回上一 revision；`/health` 仍为 200；无需数据迁移。命名空间随触发而变：

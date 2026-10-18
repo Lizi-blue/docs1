@@ -118,7 +118,7 @@ npm run check:content && npm run check:experience && npm run build
 
 | 目标 | 地址 | 触发 | 基础路径 |
 |---|---|---|---|
-| 内网 k3s | `https://docs1.minilab.uzibird.cn` | 推送到主分支（Gitea 流水线） | `/` |
+| 内网 k3s | `<内网站点地址>` | 推送到主分支（Gitea 流水线） | `/` |
 | GitHub Pages | `https://lizi-blue.github.io/docs1/` | 推送到主分支（GitHub 流水线） | `/docs1/` |
 
 两条链路互不阻塞。公网侧无后端服务，任务控制台显示降级提示；产物不得包含内网信息。
@@ -140,15 +140,15 @@ CI 走 `dev/ci` 中心仓模板。仓内只留薄工作流与交付文件。
 部署后验收：
 
 ```bash
-curl -sS -o /dev/null -w '%{http_code}\n' https://docs1.minilab.uzibird.cn/health
-curl -sS -o /dev/null -w '%{http_code}\n' https://docs1.minilab.uzibird.cn/
+curl -sS -o /dev/null -w '%{http_code}\n' "$SITE/health"
+curl -sS -o /dev/null -w '%{http_code}\n' "$SITE/"
 kubectl -n docs rollout undo deploy/docs-1-docs
 ```
 
 域名未生效时用 Host 头等价验收。
 
 ```bash
-curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: docs1.minilab.uzibird.cn' http://192.168.2.203/
+curl -sS -o /dev/null -w '%{http_code}\n' -H "Host: $SITE_HOST" "$SITE_IP/"
 ```
 
 DNS 与证书属外部前置，责任方与验收方式见部署契约 §5。

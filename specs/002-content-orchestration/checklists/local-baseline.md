@@ -62,7 +62,7 @@
 | 项 | 依赖 |
 |---|---|
 | 组件跨进程用例真实执行 | CI 镜像（Docker 内 `/dev/shm` 可用） |
-| `docs1.minilab.uzibird.cn` 访问 | 用户侧添加 A 记录（阿里云 + OpenWrt），见 deploy 契约 §5 |
+| `<internal-host>` 访问 | 用户侧添加 A 记录（阿里云 + OpenWrt），见 deploy 契约 §5 |
 | 流水线首次 Run 与线上内容断言 | 推送后由 `ci` 模板执行，见 deploy 契约 §7 |
 
 ## 002 验证与取证轮（T037 / T050–T057 / T059，2026-10-11）

@@ -206,7 +206,7 @@ MUST 有统一判据，MUST NOT 只停留在各页经验里。
 - 站点 MUST 为静态产物加静态服务器：无后端进程、无数据库、无持久卷。
 - 部署 MUST 复用 `ci` 中心仓流水线：仓内只保留薄触发工作流、`ci.env` 开关文件、
   Dockerfile 与业务自带清单。MUST NOT 复制中心仓的编排与平台供给实现。
-- 部署目标为 Kubernetes 命名空间 `docs` 与域名 `docs1.minilab.uzibird.cn`，入口走 HTTPS。
+- 部署目标为 Kubernetes 命名空间 `docs` 与由部署环境提供的内网域名，入口走 HTTPS。
 - 域名解析与证书是外部前置，MUST 在文档中显式记录责任方与验证方式。
 
 三类内容工具的分工唯一如下，MUST NOT 越位：

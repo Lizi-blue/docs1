@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://docs1.minilab.uzibird.cn/schemas/teach-block.schema.json",
+  "$id": "https://example.invalid/schemas/teach-block.schema.json",
   "title": "知识域编排登记块（_meta.yml 的 teach 键）",
   "description": "设计源在 specs/002-content-orchestration/contracts/schemas/teach-block.schema.json（本文件是运行时副本，改动必须同步）。登记与被描述的内容同处。",
   "type": "object",

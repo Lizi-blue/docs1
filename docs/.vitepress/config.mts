@@ -239,7 +239,7 @@ export default defineConfig({
     returnToTopLabel: '回到顶部',
     footer: {
       message: '内容为受控中文（asd-ste100-skill-zh 规则），图解由 Archify 生成',
-      copyright: process.env.DOCS1_SITE_LABEL ?? 'docs-1 · docs1.minilab.uzibird.cn',
+      copyright: process.env.DOCS1_SITE_LABEL ?? 'docs-1',
     },
   },
 })

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://docs1.minilab.uzibird.cn/schemas/dir-meta.schema.json",
+  "$id": "https://<internal-host>/schemas/dir-meta.schema.json",
   "title": "目录级 _meta.yml",
   "description": "领域、知识域、入口目录的元数据。未知字段一律判错。",
   "type": "object",

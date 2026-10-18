@@ -4,7 +4,7 @@ metadata:
   name: ${DEPLOYMENT_NAME}
   namespace: ${K8S_NAMESPACE}
 spec:
-  # 通配符证书 *.minilab.uzibird.cn 由 Traefik 全局 file provider 提供，
+  # 通配符证书由集群入口的全局证书提供，
   # 按 SNI 自动下发，这里只声明域名。
   tls:
     - hosts:

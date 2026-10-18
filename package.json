@@ -21,6 +21,7 @@
     "check:component": "node scripts/check-component.mjs",
     "check:experience": "node scripts/check-experience.mjs",
     "check:pages": "node scripts/check-pages-artifact.mjs",
+    "check:public-safety": "node scripts/check-public-safety.mjs",
     "check:layout": "node scripts/check-layout.mjs",
     "audit:layout": "node scripts/audit-layout.mjs"
   },

@@ -95,8 +95,8 @@ git push origin main        # 由 Lead 执行
 ## S8 双链路回归
 
 ```bash
-curl -sS -o /dev/null -w 'internal home   %{http_code}\n' https://docs1.minilab.uzibird.cn/
-curl -sS -o /dev/null -w 'internal health %{http_code}\n' https://docs1.minilab.uzibird.cn/health
+curl -sS -o /dev/null -w 'internal home   %{http_code}\n' https://<internal-host>/
+curl -sS -o /dev/null -w 'internal health %{http_code}\n' https://<internal-host>/health
 curl -sS -o /dev/null -w 'pages home      %{http_code}\n' https://lizi-blue.github.io/docs1/
 ```
 

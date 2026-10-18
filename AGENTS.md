@@ -111,7 +111,7 @@ CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 
 ## 8. 发布与两端地址
 
-- 内网：`https://docs1.minilab.uzibird.cn`（Gitea 流水线部署到本机 k3s）。基础路径 `/`。
+- 内网：`<内网站点地址>`（Gitea 流水线部署到本机 k3s）。基础路径 `/`。
 - 公网：`https://lizi-blue.github.io/docs1/`（GitHub 流水线发布 GitHub Pages）。基础路径 `/docs1/`。
 - 同一份推送驱动两条链路，互不阻塞。链路契约见 `specs/005-github-pages-deploy/contracts/dual-deploy-contract.md`。
 - 基础路径与站点标识由环境变量注入：`DOCS1_BASE`、`DOCS1_SITE_LABEL`（默认值服务内网）。

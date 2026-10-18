@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://docs1.minilab.uzibird.cn/schemas/page-frontmatter.schema.json",
+  "$id": "https://example.invalid/schemas/page-frontmatter.schema.json",
   "title": "页面 frontmatter",
   "description": "设计源在 specs/001-docs-engine/contracts/schemas/page-frontmatter.schema.json（本文件是运行时副本，改动必须同步）。按 type 分四种形态。",
   "$defs": {
