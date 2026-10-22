@@ -20,21 +20,21 @@ description: "任务清单：07 / 08 / 10 / 11 四域完整教学，一域一次
 
 ## Phase 1: 07 语言核心机制（10 讲）
 
-- [ ] T001 [P] 产出该域 4 张图解（域地图、对象模型、属性查找、装饰器叠加）并生成产物（覆盖 FR-022）
-- [ ] T002 [US-07] 写 `01-data-model.md`（数据模型与魔术方法）（覆盖目录表第 1 讲）
-- [ ] T003 [P] [US-07] 写 `02-object-lifecycle.md`（对象创建与生命周期）
-- [ ] T004 [P] [US-07] 写 `03-attribute-access.md`（属性访问与 `__slots__`）
-- [ ] T005 [P] [US-07] 写 `04-descriptors.md`（描述符协议）
-- [ ] T006 [P] [US-07] 写 `05-metaclass.md`（元类编程）
-- [ ] T007 [P] [US-07] 写 `06-decorators-closures.md`（装饰器与闭包）
-- [ ] T008 [P] [US-07] 写 `07-context-managers.md`（上下文管理器）
-- [ ] T009 [P] [US-07] 写 `08-iterators-generators.md`（迭代器与生成器）
-- [ ] T010 [P] [US-07] 写 `09-exceptions.md`（异常层次与异常组）
-- [ ] T011 [US-07] 写 `10-modules-import.md`（模块与导入机制）
-- [ ] T012 [US-07] 改 `docs/backend/learn/07-language-core/_meta.yml`：status 改 active，登记 path 与 10 条 lessons
-- [ ] T013 [US-07] 在 `scripts/data/topic-coverage.json` 登记该域 10 个主题
-- [ ] T014 [US-07] 跑十五条门禁并修复
-- [ ] T015 [US-07] 提交并推送一次，核验流水线与线上页面
+- [x] T001 [P] 产出该域 4 张图解（域地图、对象模型、属性查找、装饰器叠加）并生成产物（覆盖 FR-022）
+- [x] T002 [US-07] 写 `01-data-model.md`（数据模型与魔术方法）（覆盖目录表第 1 讲）
+- [x] T003 [P] [US-07] 写 `02-object-lifecycle.md`（对象创建与生命周期）
+- [x] T004 [P] [US-07] 写 `03-attribute-access.md`（属性访问与 `__slots__`）
+- [x] T005 [P] [US-07] 写 `04-descriptors.md`（描述符协议）
+- [x] T006 [P] [US-07] 写 `05-metaclass.md`（元类编程）
+- [x] T007 [P] [US-07] 写 `06-decorators-closures.md`（装饰器与闭包）
+- [x] T008 [P] [US-07] 写 `07-context-managers.md`（上下文管理器）
+- [x] T009 [P] [US-07] 写 `08-iterators-generators.md`（迭代器与生成器）
+- [x] T010 [P] [US-07] 写 `09-exceptions.md`（异常层次与异常组）
+- [x] T011 [US-07] 写 `10-modules-import.md`（模块与导入机制）
+- [x] T012 [US-07] 改 `docs/backend/learn/07-language-core/_meta.yml`：status 改 active，登记 path 与 10 条 lessons
+- [x] T013 [US-07] 在 `scripts/data/topic-coverage.json` 登记该域 10 个主题
+- [x] T014 [US-07] 跑十五条门禁并修复
+- [x] T015 [US-07] 提交并推送一次，核验流水线与线上页面
 
 ## Phase 2: 08 类型系统与类型检查（8 讲）
 
