@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-22",
+  "updated": "2026-10-23",
   "note": "主题级覆盖清单。每讲依赖模块与 API 清单容易漏掉整类主题，例如线程间通信与 await 语义。新增或调整内容后先更新本表，再跑 check:coverage。",
   "domains": {
     "backend/learn/01-concurrency": {
@@ -473,6 +473,91 @@
             "兼容"
           ],
           "hint": "讲清版本与幂等"
+        }
+      ]
+    },
+    "backend/learn/11-engineering": {
+      "name": "工程化与交付",
+      "topics": [
+        {
+          "id": "config",
+          "name": "配置管理",
+          "must": [
+            "配置"
+          ],
+          "hint": "讲清分层覆盖"
+        },
+        {
+          "id": "secrets",
+          "name": "密钥管理",
+          "must": [
+            "轮换"
+          ],
+          "hint": "讲清托管与最小权限"
+        },
+        {
+          "id": "logging",
+          "name": "结构化日志",
+          "must": [
+            "日志"
+          ],
+          "hint": "讲清字段与上下文"
+        },
+        {
+          "id": "observability",
+          "name": "可观测性",
+          "must": [
+            "指标"
+          ],
+          "hint": "讲清三类信号配合"
+        },
+        {
+          "id": "testing",
+          "name": "测试体系",
+          "must": [
+            "夹具"
+          ],
+          "hint": "讲清分层与边界"
+        },
+        {
+          "id": "contract",
+          "name": "契约测试",
+          "must": [
+            "契约"
+          ],
+          "hint": "讲清集成分工"
+        },
+        {
+          "id": "property-testing",
+          "name": "属性测试",
+          "must": [
+            "属性测试"
+          ],
+          "hint": "讲清生成式用例"
+        },
+        {
+          "id": "packaging",
+          "name": "打包与依赖",
+          "must": [
+            "锁文件"
+          ],
+          "hint": "讲清锁与治理"
+        },
+        {
+          "id": "quality",
+          "name": "质量门禁",
+          "must": [
+            "lint"
+          ],
+          "hint": "讲清门禁内容"
+        },
+        {
+          "id": "deploy",
+          "name": "容器发布",
+          "must": [
+            "回滚"
+          ],
+          "hint": "讲清探针与回滚"
         }
       ]
     }
