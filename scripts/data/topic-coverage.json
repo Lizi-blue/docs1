@@ -390,6 +390,91 @@
           "hint": "讲清存量加类型路径"
         }
       ]
+    },
+    "backend/learn/10-architecture": {
+      "name": "架构与领域设计",
+      "topics": [
+        {
+          "id": "pattern-language",
+          "name": "模式选型",
+          "must": [
+            "模式"
+          ],
+          "hint": "讲清惯用写法与模式取舍"
+        },
+        {
+          "id": "creational",
+          "name": "创建型模式",
+          "must": [
+            "工厂"
+          ],
+          "hint": "讲清工厂、单例与注册表"
+        },
+        {
+          "id": "structural",
+          "name": "结构型模式",
+          "must": [
+            "适配器"
+          ],
+          "hint": "讲清适配与代理边界"
+        },
+        {
+          "id": "behavioral",
+          "name": "行为型模式",
+          "must": [
+            "策略"
+          ],
+          "hint": "讲清策略与观察者"
+        },
+        {
+          "id": "layering",
+          "name": "分层与依赖方向",
+          "must": [
+            "依赖"
+          ],
+          "hint": "讲清单向依赖与倒置"
+        },
+        {
+          "id": "injection",
+          "name": "依赖注入",
+          "must": [
+            "注入"
+          ],
+          "hint": "讲清装配方式"
+        },
+        {
+          "id": "domain-modeling",
+          "name": "领域建模",
+          "must": [
+            "值对象"
+          ],
+          "hint": "讲清实体与聚合"
+        },
+        {
+          "id": "repository-events",
+          "name": "仓储与领域事件",
+          "must": [
+            "仓储"
+          ],
+          "hint": "讲清仓储边界与事件"
+        },
+        {
+          "id": "api-design",
+          "name": "REST 与 RPC",
+          "must": [
+            "REST"
+          ],
+          "hint": "讲清建模与错误语义"
+        },
+        {
+          "id": "api-evolution",
+          "name": "接口演进",
+          "must": [
+            "兼容"
+          ],
+          "hint": "讲清版本与幂等"
+        }
+      ]
     }
   }
 }
