@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "注解如何走到检查器",
+    "output": "docs/public/diagrams/type-system-checker-pipeline.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      660
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "src",
+      "type": "backend",
+      "label": "源码",
+      "sublabel": "注解"
+    },
+    {
+      "id": "res",
+      "type": "backend",
+      "label": "解析",
+      "sublabel": "读注解"
+    },
+    {
+      "id": "ill",
+      "type": "backend",
+      "label": "类型推导",
+      "sublabel": "约束求值"
+    },
+    {
+      "id": "chk",
+      "type": "backend",
+      "label": "检查器",
+      "sublabel": "mypy 或 pyright"
+    },
+    {
+      "id": "ci",
+      "type": "backend",
+      "label": "CI",
+      "sublabel": "门禁"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "src",
+      "to": "res",
+      "y": 170,
+      "label": "读取注解语法",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "res",
+      "to": "ill",
+      "y": 210,
+      "label": "建类型环境"
+    },
+    {
+      "id": "m3",
+      "from": "ill",
+      "to": "chk",
+      "y": 250,
+      "label": "逐函数推导"
+    },
+    {
+      "id": "m4",
+      "from": "chk",
+      "to": "ill",
+      "y": 290,
+      "label": "报错或通过",
+      "variant": "return"
+    },
+    {
+      "id": "m5",
+      "from": "chk",
+      "to": "ci",
+      "y": 330,
+      "label": "失败即阻断",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "两个检查器",
+      "items": [
+        "mypy 规则更严，报错更啰嗦",
+        "pyright 更快，编辑器体验好"
+      ]
+    }
+  ]
+}

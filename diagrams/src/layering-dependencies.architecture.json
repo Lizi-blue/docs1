@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "分层与依赖方向",
+    "output": "docs/public/diagrams/layering-dependencies.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "接口层",
+      "sublabel": "校验与编排",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "app",
+      "type": "backend",
+      "label": "应用层",
+      "sublabel": "用例",
+      "pos": [
+        330,
+        100
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "dom",
+      "type": "backend",
+      "label": "领域层",
+      "sublabel": "实体与规则",
+      "pos": [
+        620,
+        100
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "infra",
+      "type": "backend",
+      "label": "基础设施层",
+      "sublabel": "数据库与外部",
+      "pos": [
+        910,
+        100
+      ],
+      "size": [
+        220,
+        64
+      ]
+    },
+    {
+      "id": "bad",
+      "type": "backend",
+      "label": "反向依赖",
+      "sublabel": "领域层引用基础设施",
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "fix",
+      "type": "backend",
+      "label": "依赖倒置",
+      "sublabel": "领域定义接口",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        220,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "单向依赖",
+      "wraps": [
+        "api",
+        "app",
+        "dom"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "不要越界",
+      "wraps": [
+        "bad"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "l1",
+      "from": "api",
+      "to": "app",
+      "label": "调用",
+      "variant": "emphasis"
+    },
+    {
+      "id": "l2",
+      "from": "app",
+      "to": "dom",
+      "label": "调用",
+      "variant": "emphasis"
+    },
+    {
+      "id": "l3",
+      "from": "app",
+      "to": "infra",
+      "label": "找实现",
+      "variant": "dashed"
+    },
+    {
+      "id": "l4",
+      "from": "bad",
+      "to": "infra",
+      "label": "错误方向",
+      "variant": "security"
+    },
+    {
+      "id": "l5",
+      "from": "fix",
+      "to": "dom",
+      "label": "接口归领域",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "判据",
+      "items": [
+        "箭头只允许指向内层",
+        "领域层不依赖具体技术",
+        "跨层调用改走接口"
+      ]
+    }
+  ]
+}

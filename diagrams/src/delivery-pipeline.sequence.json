@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "一次可回滚的发布",
+    "output": "docs/public/diagrams/delivery-pipeline.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      660
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "dev",
+      "type": "backend",
+      "label": "开发者",
+      "sublabel": "提交"
+    },
+    {
+      "id": "ci",
+      "type": "backend",
+      "label": "流水线",
+      "sublabel": "构建与测试"
+    },
+    {
+      "id": "img",
+      "type": "messagebus",
+      "label": "镜像",
+      "sublabel": "不可变产物"
+    },
+    {
+      "id": "dep",
+      "type": "backend",
+      "label": "部署",
+      "sublabel": "滚动与探针"
+    },
+    {
+      "id": "rb",
+      "type": "backend",
+      "label": "回滚",
+      "sublabel": "旧版本"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "dev",
+      "to": "ci",
+      "y": 170,
+      "label": "推送代码",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "ci",
+      "to": "img",
+      "y": 210,
+      "label": "构建并打标签"
+    },
+    {
+      "id": "m3",
+      "from": "img",
+      "to": "dep",
+      "y": 250,
+      "label": "部署新标签",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m4",
+      "from": "dep",
+      "to": "ci",
+      "y": 290,
+      "label": "探针结果",
+      "variant": "return"
+    },
+    {
+      "id": "m5",
+      "from": "dep",
+      "to": "rb",
+      "y": 330,
+      "label": "失败则回滚"
+    },
+    {
+      "id": "m6",
+      "from": "rb",
+      "to": "img",
+      "y": 370,
+      "label": "取上一个标签",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "三条纪律",
+      "items": [
+        "镜像不可变，回滚靠换标签",
+        "探针不过不算成功",
+        "回滚命令要演练"
+      ]
+    }
+  ]
+}

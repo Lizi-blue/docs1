@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "三类信号如何配合",
+    "output": "docs/public/diagrams/observability-signals.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "log",
+      "type": "backend",
+      "label": "日志",
+      "sublabel": "事件与上下文",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "met",
+      "type": "backend",
+      "label": "指标",
+      "sublabel": "趋势与告警",
+      "pos": [
+        330,
+        100
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "tr",
+      "type": "backend",
+      "label": "链路",
+      "sublabel": "跨服务定位",
+      "pos": [
+        620,
+        100
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "alert",
+      "type": "backend",
+      "label": "告警",
+      "sublabel": "阈值与分级",
+      "pos": [
+        910,
+        100
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "trace",
+      "type": "backend",
+      "label": "请求号",
+      "sublabel": "串联三类信号",
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        220,
+        64
+      ]
+    },
+    {
+      "id": "run",
+      "type": "backend",
+      "label": "排障手册",
+      "sublabel": "先看什么后看什么",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        240,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "信号",
+      "wraps": [
+        "log",
+        "met",
+        "tr"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "s1",
+      "from": "log",
+      "to": "trace",
+      "label": "带请求号",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s2",
+      "from": "met",
+      "to": "alert",
+      "label": "触发告警",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s3",
+      "from": "tr",
+      "to": "trace",
+      "label": "同号关联",
+      "variant": "dashed"
+    },
+    {
+      "id": "s4",
+      "from": "alert",
+      "to": "run",
+      "label": "进入排障",
+      "variant": "dashed"
+    },
+    {
+      "id": "s5",
+      "from": "trace",
+      "to": "run",
+      "label": "按号检索",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "配合方式",
+      "items": [
+        "指标先发现异常",
+        "日志看具体事件",
+        "链路定位到服务与耗时"
+      ]
+    }
+  ]
+}

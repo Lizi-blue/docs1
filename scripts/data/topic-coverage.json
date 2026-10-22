@@ -233,6 +233,93 @@
           "hint": "锁、条件变量、事件、信号量、屏障、队列"
         }
       ]
+    },
+    "backend/learn/07-language-core": {
+      "name": "语言核心机制",
+      "topics": [
+        {
+          "id": "data-model",
+          "name": "数据模型与魔术方法",
+          "must": [
+            "魔术方法"
+          ],
+          "hint": "讲清协议与调用时机"
+        },
+        {
+          "id": "object-lifecycle",
+          "name": "对象创建与销毁",
+          "must": [
+            "__init__",
+            "__del__"
+          ],
+          "hint": "讲清创建与回收时机"
+        },
+        {
+          "id": "attribute-access",
+          "name": "属性访问与 __slots__",
+          "must": [
+            "__slots__"
+          ],
+          "hint": "讲清查找顺序与内存代价"
+        },
+        {
+          "id": "descriptors",
+          "name": "描述符协议",
+          "must": [
+            "__get__"
+          ],
+          "hint": "讲清数据与非数据描述符"
+        },
+        {
+          "id": "metaclass",
+          "name": "元类编程",
+          "must": [
+            "元类"
+          ],
+          "hint": "讲清类对象的创建流程"
+        },
+        {
+          "id": "closures",
+          "name": "装饰器与闭包",
+          "must": [
+            "闭包"
+          ],
+          "hint": "讲清捕获与叠加顺序"
+        },
+        {
+          "id": "context-managers",
+          "name": "上下文管理器",
+          "must": [
+            "__enter__",
+            "__exit__"
+          ],
+          "hint": "讲清 with 协议与异常处理"
+        },
+        {
+          "id": "generators",
+          "name": "迭代与生成器",
+          "must": [
+            "生成器"
+          ],
+          "hint": "讲清暂停恢复与惰性求值"
+        },
+        {
+          "id": "exceptions",
+          "name": "异常层次与异常组",
+          "must": [
+            "异常组"
+          ],
+          "hint": "讲清链式传递与 ExceptionGroup"
+        },
+        {
+          "id": "imports",
+          "name": "模块与导入机制",
+          "must": [
+            "导入"
+          ],
+          "hint": "讲清查找路径与循环导入"
+        }
+      ]
     }
   }
 }

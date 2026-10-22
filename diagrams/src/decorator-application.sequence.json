@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "装饰器叠加与调用链",
+    "output": "docs/public/diagrams/decorator-application.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      660
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "def",
+      "type": "backend",
+      "label": "定义处",
+      "sublabel": "@inner @outer"
+    },
+    {
+      "id": "outer",
+      "type": "backend",
+      "label": "外层装饰器",
+      "sublabel": "后应用"
+    },
+    {
+      "id": "inner",
+      "type": "backend",
+      "label": "内层装饰器",
+      "sublabel": "先应用"
+    },
+    {
+      "id": "fn",
+      "type": "backend",
+      "label": "被装饰函数",
+      "sublabel": "原函数"
+    },
+    {
+      "id": "call",
+      "type": "backend",
+      "label": "调用处",
+      "sublabel": "调用包装结果"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "def",
+      "to": "fn",
+      "y": 170,
+      "label": "定义函数对象",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "def",
+      "to": "inner",
+      "y": 210,
+      "label": "由内向外应用"
+    },
+    {
+      "id": "m3",
+      "from": "inner",
+      "to": "fn",
+      "y": 250,
+      "label": "包一层并返回",
+      "variant": "return"
+    },
+    {
+      "id": "m4",
+      "from": "def",
+      "to": "outer",
+      "y": 290,
+      "label": "再应用外层"
+    },
+    {
+      "id": "m5",
+      "from": "outer",
+      "to": "inner",
+      "y": 330,
+      "label": "包住内层结果",
+      "variant": "return"
+    },
+    {
+      "id": "m6",
+      "from": "call",
+      "to": "outer",
+      "y": 370,
+      "label": "调用最外层"
+    },
+    {
+      "id": "m7",
+      "from": "outer",
+      "to": "inner",
+      "y": 410,
+      "label": "逐层向下"
+    },
+    {
+      "id": "m8",
+      "from": "inner",
+      "to": "fn",
+      "y": 450,
+      "label": "最终调用原函数"
+    },
+    {
+      "id": "m9",
+      "from": "fn",
+      "to": "call",
+      "y": 490,
+      "label": "返回值逐层回传",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "两条结论",
+      "items": [
+        "应用顺序由内向外，等价于 f = outer(inner(f))",
+        "调用顺序由外向内，包装层可以做前后处理"
+      ]
+    }
+  ]
+}

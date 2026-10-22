@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "工程化与交付：十讲地图",
+    "output": "docs/public/diagrams/engineering-map.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "e1",
+      "type": "backend",
+      "label": "01 配置",
+      "sublabel": "分层与覆盖",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e2",
+      "type": "backend",
+      "label": "02 密钥",
+      "sublabel": "托管与轮换",
+      "pos": [
+        330,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e3",
+      "type": "backend",
+      "label": "03 日志",
+      "sublabel": "字段与上下文",
+      "pos": [
+        620,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e4",
+      "type": "backend",
+      "label": "04 可观测性",
+      "sublabel": "指标与链路",
+      "pos": [
+        910,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e5",
+      "type": "backend",
+      "label": "05 单元测试",
+      "sublabel": "边界与夹具",
+      "pos": [
+        1200,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e6",
+      "type": "backend",
+      "label": "06 集成与契约",
+      "sublabel": "接口稳定",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e7",
+      "type": "backend",
+      "label": "07 属性测试",
+      "sublabel": "生成式用例",
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e8",
+      "type": "backend",
+      "label": "08 打包与依赖",
+      "sublabel": "锁与治理",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e9",
+      "type": "backend",
+      "label": "09 质量门禁",
+      "sublabel": "lint 与评审",
+      "pos": [
+        910,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "e10",
+      "type": "backend",
+      "label": "10 容器发布",
+      "sublabel": "健康检查与回滚",
+      "pos": [
+        1200,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "运行支撑",
+      "wraps": [
+        "e1",
+        "e2",
+        "e3",
+        "e4"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "交付链路",
+      "wraps": [
+        "e5",
+        "e6",
+        "e7",
+        "e8",
+        "e9",
+        "e10"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "z1",
+      "from": "e1",
+      "to": "e2",
+      "label": "承接",
+      "variant": "emphasis"
+    },
+    {
+      "id": "z2",
+      "from": "e2",
+      "to": "e3",
+      "label": "承接"
+    },
+    {
+      "id": "z3",
+      "from": "e3",
+      "to": "e4",
+      "label": "承接"
+    },
+    {
+      "id": "z4",
+      "from": "e4",
+      "to": "e5",
+      "label": "承接",
+      "variant": "emphasis"
+    },
+    {
+      "id": "w1",
+      "from": "e5",
+      "to": "e6",
+      "label": "分层",
+      "variant": "dashed"
+    },
+    {
+      "id": "w2",
+      "from": "e6",
+      "to": "e7",
+      "label": "补强",
+      "variant": "dashed"
+    },
+    {
+      "id": "w3",
+      "from": "e7",
+      "to": "e8",
+      "label": "构建",
+      "variant": "dashed"
+    },
+    {
+      "id": "w4",
+      "from": "e8",
+      "to": "e9",
+      "label": "门禁",
+      "variant": "dashed"
+    },
+    {
+      "id": "w5",
+      "from": "e9",
+      "to": "e10",
+      "label": "发布",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "读法",
+      "items": [
+        "上半是运行时支撑",
+        "下半是交付链路"
+      ]
+    }
+  ]
+}

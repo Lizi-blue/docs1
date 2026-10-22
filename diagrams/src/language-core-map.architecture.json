@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "语言核心机制：十讲地图",
+    "output": "docs/public/diagrams/language-core-map.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "l1",
+      "type": "backend",
+      "label": "01 数据模型",
+      "sublabel": "魔术方法",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l2",
+      "type": "backend",
+      "label": "02 对象生命周期",
+      "sublabel": "创建与销毁",
+      "pos": [
+        330,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l3",
+      "type": "backend",
+      "label": "03 属性访问",
+      "sublabel": "查找顺序",
+      "pos": [
+        620,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l4",
+      "type": "backend",
+      "label": "04 描述符",
+      "sublabel": "属性代理",
+      "pos": [
+        910,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l5",
+      "type": "backend",
+      "label": "05 元类",
+      "sublabel": "创建类",
+      "pos": [
+        1200,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l6",
+      "type": "backend",
+      "label": "06 装饰器与闭包",
+      "sublabel": "叠加顺序",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l7",
+      "type": "backend",
+      "label": "07 上下文管理器",
+      "sublabel": "with 协议",
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l8",
+      "type": "backend",
+      "label": "08 迭代与生成器",
+      "sublabel": "暂停恢复",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l9",
+      "type": "backend",
+      "label": "09 异常与异常组",
+      "sublabel": "层次与链",
+      "pos": [
+        910,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "l10",
+      "type": "backend",
+      "label": "10 模块与导入",
+      "sublabel": "查找与缓存",
+      "pos": [
+        1200,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "对象与属性",
+      "wraps": [
+        "l1",
+        "l2",
+        "l3",
+        "l4",
+        "l5"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "协议与工程",
+      "wraps": [
+        "l6",
+        "l7",
+        "l8",
+        "l9",
+        "l10"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "c1",
+      "from": "l1",
+      "to": "l2",
+      "label": "承接",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c2",
+      "from": "l2",
+      "to": "l3",
+      "label": "承接",
+      "variant": "default"
+    },
+    {
+      "id": "c3",
+      "from": "l3",
+      "to": "l4",
+      "label": "承接",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c4",
+      "from": "l4",
+      "to": "l5",
+      "label": "承接",
+      "variant": "default"
+    },
+    {
+      "id": "d1",
+      "from": "l1",
+      "to": "l6",
+      "label": "深入",
+      "variant": "dashed"
+    },
+    {
+      "id": "d2",
+      "from": "l2",
+      "to": "l7",
+      "label": "深入",
+      "variant": "dashed"
+    },
+    {
+      "id": "d3",
+      "from": "l3",
+      "to": "l8",
+      "label": "深入",
+      "variant": "dashed"
+    },
+    {
+      "id": "d4",
+      "from": "l4",
+      "to": "l9",
+      "label": "深入",
+      "variant": "dashed"
+    },
+    {
+      "id": "d5",
+      "from": "l5",
+      "to": "l10",
+      "label": "深入",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "阅读顺序",
+      "items": [
+        "先看对象与属性五讲",
+        "再看协议与工程五讲",
+        "每讲都含可运行示例"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "对象、类型与元类的关系",
+    "output": "docs/public/diagrams/language-object-model.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "obj",
+      "type": "backend",
+      "label": "object",
+      "sublabel": "所有类的根",
+      "pos": [
+        40,
+        80
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "type",
+      "type": "backend",
+      "label": "type",
+      "sublabel": "对象的类型",
+      "pos": [
+        300,
+        80
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "meta",
+      "type": "backend",
+      "label": "元类",
+      "sublabel": "定制类创建",
+      "pos": [
+        560,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "cls",
+      "type": "backend",
+      "label": "类对象",
+      "sublabel": "属性放在类字典",
+      "pos": [
+        300,
+        230
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "inst",
+      "type": "backend",
+      "label": "实例",
+      "sublabel": "属性放在实例字典",
+      "pos": [
+        40,
+        230
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "dict",
+      "type": "backend",
+      "label": "属性字典",
+      "sublabel": "__dict__",
+      "pos": [
+        300,
+        380
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "slot",
+      "type": "backend",
+      "label": "__slots__",
+      "sublabel": "固定布局",
+      "pos": [
+        560,
+        380
+      ],
+      "size": [
+        190,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "类型体系",
+      "wraps": [
+        "obj",
+        "type",
+        "meta"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "c1",
+      "from": "obj",
+      "to": "type",
+      "label": "类型由 type 创建",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c2",
+      "from": "type",
+      "to": "meta",
+      "label": "元类可替换 type",
+      "variant": "dashed"
+    },
+    {
+      "id": "c3",
+      "from": "cls",
+      "to": "inst",
+      "label": "实例化"
+    },
+    {
+      "id": "c4",
+      "from": "inst",
+      "to": "dict",
+      "label": "默认有字典"
+    },
+    {
+      "id": "c5",
+      "from": "cls",
+      "to": "slot",
+      "label": "声明后无字典",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "三条结论",
+      "items": [
+        "一切皆对象，类也是对象",
+        "对象的类型是类，类的类型是元类",
+        "默认实例有 __dict__，用 __slots__ 可关掉"
+      ]
+    }
+  ]
+}

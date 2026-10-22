@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "泛型、约束与型变",
+    "output": "docs/public/diagrams/variance-and-generics.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "base",
+      "type": "backend",
+      "label": "类型参数",
+      "sublabel": "TypeVar",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "bound",
+      "type": "backend",
+      "label": "上界与约束",
+      "sublabel": "bound 与约束元组",
+      "pos": [
+        320,
+        100
+      ],
+      "size": [
+        210,
+        64
+      ]
+    },
+    {
+      "id": "cov",
+      "type": "backend",
+      "label": "协变",
+      "sublabel": "只读位置",
+      "pos": [
+        620,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "contra",
+      "type": "backend",
+      "label": "逆变",
+      "sublabel": "只写位置",
+      "pos": [
+        880,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "inv",
+      "type": "backend",
+      "label": "不变",
+      "sublabel": "读写都用",
+      "pos": [
+        620,
+        280
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "proto",
+      "type": "backend",
+      "label": "Protocol",
+      "sublabel": "结构化子类型",
+      "pos": [
+        880,
+        280
+      ],
+      "size": [
+        190,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "类型参数",
+      "wraps": [
+        "base",
+        "bound"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "b1",
+      "from": "base",
+      "to": "bound",
+      "label": "限定范围",
+      "variant": "emphasis"
+    },
+    {
+      "id": "b2",
+      "from": "bound",
+      "to": "cov",
+      "label": "出现在返回位",
+      "variant": "dashed"
+    },
+    {
+      "id": "b3",
+      "from": "bound",
+      "to": "contra",
+      "label": "出现在参数位",
+      "variant": "dashed"
+    },
+    {
+      "id": "b4",
+      "from": "base",
+      "to": "inv",
+      "label": "同时在两位",
+      "variant": "dashed"
+    },
+    {
+      "id": "b5",
+      "from": "inv",
+      "to": "proto",
+      "label": "常见替代",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "一句话",
+      "items": [
+        "只读用协变",
+        "只写用逆变",
+        "读写都用就只能不变"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "类型系统：八讲地图",
+    "output": "docs/public/diagrams/type-system-map.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "t1",
+      "type": "backend",
+      "label": "01 注解基础",
+      "sublabel": "联合与收窄",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "t2",
+      "type": "backend",
+      "label": "02 泛型与型变",
+      "sublabel": "参数与边界",
+      "pos": [
+        330,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "t3",
+      "type": "backend",
+      "label": "03 Protocol",
+      "sublabel": "结构化子类型",
+      "pos": [
+        620,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "t4",
+      "type": "backend",
+      "label": "04 可调用与重载",
+      "sublabel": "Callable 与重载",
+      "pos": [
+        910,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "t5",
+      "type": "backend",
+      "label": "05 TypedDict 与 dataclass",
+      "sublabel": "结构类型",
+      "pos": [
+        1200,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "t6",
+      "type": "backend",
+      "label": "06 检查器",
+      "sublabel": "mypy 与 pyright",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "t7",
+      "type": "backend",
+      "label": "07 运行时类型",
+      "sublabel": "注解与实际",
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "t8",
+      "type": "backend",
+      "label": "08 渐进迁移",
+      "sublabel": "存量加类型",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "类型表达",
+      "wraps": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "检查与落地",
+      "wraps": [
+        "t6",
+        "t7",
+        "t8"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "a1",
+      "from": "t1",
+      "to": "t2",
+      "label": "承接",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a2",
+      "from": "t2",
+      "to": "t3",
+      "label": "承接"
+    },
+    {
+      "id": "a3",
+      "from": "t3",
+      "to": "t4",
+      "label": "承接",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a4",
+      "from": "t4",
+      "to": "t5",
+      "label": "承接"
+    },
+    {
+      "id": "a5",
+      "from": "t5",
+      "to": "t6",
+      "label": "配置检查",
+      "variant": "dashed"
+    },
+    {
+      "id": "a6",
+      "from": "t6",
+      "to": "t7",
+      "label": "运行时对照",
+      "variant": "dashed"
+    },
+    {
+      "id": "a7",
+      "from": "t7",
+      "to": "t8",
+      "label": "迁移路径",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "顺序建议",
+      "items": [
+        "先写表达，再配检查器",
+        "最后做存量迁移"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "backend/learn/07-language-core": {
+    "name": "语言核心机制",
+    "topics": [
+      {
+        "id": "data-model",
+        "name": "数据模型与魔术方法",
+        "must": [
+          "魔术方法"
+        ],
+        "hint": "讲清协议与调用时机"
+      },
+      {
+        "id": "object-lifecycle",
+        "name": "对象创建与销毁",
+        "must": [
+          "__init__",
+          "__del__"
+        ],
+        "hint": "讲清创建与回收时机"
+      },
+      {
+        "id": "attribute-access",
+        "name": "属性访问与 __slots__",
+        "must": [
+          "__slots__"
+        ],
+        "hint": "讲清查找顺序与内存代价"
+      },
+      {
+        "id": "descriptors",
+        "name": "描述符协议",
+        "must": [
+          "__get__"
+        ],
+        "hint": "讲清数据与非数据描述符"
+      },
+      {
+        "id": "metaclass",
+        "name": "元类编程",
+        "must": [
+          "元类"
+        ],
+        "hint": "讲清类对象的创建流程"
+      },
+      {
+        "id": "closures",
+        "name": "装饰器与闭包",
+        "must": [
+          "闭包"
+        ],
+        "hint": "讲清捕获与叠加顺序"
+      },
+      {
+        "id": "context-managers",
+        "name": "上下文管理器",
+        "must": [
+          "__enter__",
+          "__exit__"
+        ],
+        "hint": "讲清 with 协议与异常处理"
+      },
+      {
+        "id": "generators",
+        "name": "迭代与生成器",
+        "must": [
+          "生成器"
+        ],
+        "hint": "讲清暂停恢复与惰性求值"
+      },
+      {
+        "id": "exceptions",
+        "name": "异常层次与异常组",
+        "must": [
+          "异常组"
+        ],
+        "hint": "讲清链式传递与 ExceptionGroup"
+      },
+      {
+        "id": "imports",
+        "name": "模块与导入机制",
+        "must": [
+          "导入"
+        ],
+        "hint": "讲清查找路径与循环导入"
+      }
+    ]
+  },
+  "backend/learn/08-type-system": {
+    "name": "类型系统与类型检查",
+    "topics": [
+      {
+        "id": "annotations",
+        "name": "注解与收窄",
+        "must": [
+          "注解"
+        ],
+        "hint": "讲清注解作用与联合类型"
+      },
+      {
+        "id": "generics",
+        "name": "泛型与型变",
+        "must": [
+          "型变"
+        ],
+        "hint": "讲清 TypeVar 与协变逆变"
+      },
+      {
+        "id": "protocol",
+        "name": "结构化子类型",
+        "must": [
+          "Protocol"
+        ],
+        "hint": "讲清协议与鸭子类型的关系"
+      },
+      {
+        "id": "callable",
+        "name": "可调用与重载",
+        "must": [
+          "Callable"
+        ],
+        "hint": "讲清 ParamSpec 与重载"
+      },
+      {
+        "id": "structured-data",
+        "name": "结构类型与数据类",
+        "must": [
+          "TypedDict",
+          "dataclass"
+        ],
+        "hint": "讲清两者边界"
+      },
+      {
+        "id": "checkers",
+        "name": "检查器配置",
+        "must": [
+          "mypy"
+        ],
+        "hint": "讲清两检查器差异"
+      },
+      {
+        "id": "runtime-types",
+        "name": "运行时类型信息",
+        "must": [
+          "get_type_hints"
+        ],
+        "hint": "讲清运行时取注解"
+      },
+      {
+        "id": "migration",
+        "name": "渐进式迁移",
+        "must": [
+          "迁移"
+        ],
+        "hint": "讲清存量加类型路径"
+      }
+    ]
+  },
+  "backend/learn/10-architecture": {
+    "name": "架构与领域设计",
+    "topics": [
+      {
+        "id": "pattern-language",
+        "name": "模式选型",
+        "must": [
+          "模式"
+        ],
+        "hint": "讲清惯用写法与模式取舍"
+      },
+      {
+        "id": "creational",
+        "name": "创建型模式",
+        "must": [
+          "工厂"
+        ],
+        "hint": "讲清工厂、单例与注册表"
+      },
+      {
+        "id": "structural",
+        "name": "结构型模式",
+        "must": [
+          "适配器"
+        ],
+        "hint": "讲清适配与代理边界"
+      },
+      {
+        "id": "behavioral",
+        "name": "行为型模式",
+        "must": [
+          "策略"
+        ],
+        "hint": "讲清策略与观察者"
+      },
+      {
+        "id": "layering",
+        "name": "分层与依赖方向",
+        "must": [
+          "依赖"
+        ],
+        "hint": "讲清单向依赖与倒置"
+      },
+      {
+        "id": "injection",
+        "name": "依赖注入",
+        "must": [
+          "注入"
+        ],
+        "hint": "讲清装配方式"
+      },
+      {
+        "id": "domain-modeling",
+        "name": "领域建模",
+        "must": [
+          "值对象"
+        ],
+        "hint": "讲清实体与聚合"
+      },
+      {
+        "id": "repository-events",
+        "name": "仓储与领域事件",
+        "must": [
+          "仓储"
+        ],
+        "hint": "讲清仓储边界与事件"
+      },
+      {
+        "id": "api-design",
+        "name": "REST 与 RPC",
+        "must": [
+          "REST"
+        ],
+        "hint": "讲清建模与错误语义"
+      },
+      {
+        "id": "api-evolution",
+        "name": "接口演进",
+        "must": [
+          "兼容"
+        ],
+        "hint": "讲清版本与幂等"
+      }
+    ]
+  },
+  "backend/learn/11-engineering": {
+    "name": "工程化与交付",
+    "topics": [
+      {
+        "id": "config",
+        "name": "配置管理",
+        "must": [
+          "配置"
+        ],
+        "hint": "讲清分层覆盖"
+      },
+      {
+        "id": "secrets",
+        "name": "密钥管理",
+        "must": [
+          "轮换"
+        ],
+        "hint": "讲清托管与最小权限"
+      },
+      {
+        "id": "logging",
+        "name": "结构化日志",
+        "must": [
+          "日志"
+        ],
+        "hint": "讲清字段与上下文"
+      },
+      {
+        "id": "observability",
+        "name": "可观测性",
+        "must": [
+          "指标"
+        ],
+        "hint": "讲清三类信号配合"
+      },
+      {
+        "id": "testing",
+        "name": "测试体系",
+        "must": [
+          "夹具"
+        ],
+        "hint": "讲清分层与边界"
+      },
+      {
+        "id": "contract",
+        "name": "契约测试",
+        "must": [
+          "契约"
+        ],
+        "hint": "讲清集成分工"
+      },
+      {
+        "id": "property-testing",
+        "name": "属性测试",
+        "must": [
+          "属性测试"
+        ],
+        "hint": "讲清生成式用例"
+      },
+      {
+        "id": "packaging",
+        "name": "打包与依赖",
+        "must": [
+          "锁文件"
+        ],
+        "hint": "讲清锁与治理"
+      },
+      {
+        "id": "quality",
+        "name": "质量门禁",
+        "must": [
+          "lint"
+        ],
+        "hint": "讲清门禁内容"
+      },
+      {
+        "id": "deploy",
+        "name": "容器发布",
+        "must": [
+          "回滚"
+        ],
+        "hint": "讲清探针与回滚"
+      }
+    ]
+  }
+}

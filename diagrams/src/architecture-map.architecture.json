@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "架构与领域设计：十讲地图",
+    "output": "docs/public/diagrams/architecture-map.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "a1",
+      "type": "backend",
+      "label": "01 模式选型",
+      "sublabel": "惯用写法",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a2",
+      "type": "backend",
+      "label": "02 创建型",
+      "sublabel": "工厂与单例",
+      "pos": [
+        330,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a3",
+      "type": "backend",
+      "label": "03 结构型",
+      "sublabel": "适配与代理",
+      "pos": [
+        620,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a4",
+      "type": "backend",
+      "label": "04 行为型",
+      "sublabel": "策略与观察者",
+      "pos": [
+        910,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a5",
+      "type": "backend",
+      "label": "05 分层",
+      "sublabel": "依赖方向",
+      "pos": [
+        1200,
+        120
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a6",
+      "type": "backend",
+      "label": "06 依赖注入",
+      "sublabel": "装配",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a7",
+      "type": "backend",
+      "label": "07 领域建模",
+      "sublabel": "实体与值对象",
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a8",
+      "type": "backend",
+      "label": "08 仓储与事件",
+      "sublabel": "聚合与事件",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a9",
+      "type": "backend",
+      "label": "09 接口设计",
+      "sublabel": "REST 与 RPC",
+      "pos": [
+        910,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "a10",
+      "type": "backend",
+      "label": "10 接口演进",
+      "sublabel": "版本与幂等",
+      "pos": [
+        1200,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "模式语言",
+      "wraps": [
+        "a1",
+        "a2",
+        "a3",
+        "a4"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "边界与契约",
+      "wraps": [
+        "a5",
+        "a6",
+        "a7",
+        "a8",
+        "a9",
+        "a10"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "x1",
+      "from": "a1",
+      "to": "a2",
+      "label": "承接",
+      "variant": "emphasis"
+    },
+    {
+      "id": "x2",
+      "from": "a2",
+      "to": "a3",
+      "label": "承接"
+    },
+    {
+      "id": "x3",
+      "from": "a3",
+      "to": "a4",
+      "label": "承接"
+    },
+    {
+      "id": "x4",
+      "from": "a4",
+      "to": "a5",
+      "label": "承接到分层",
+      "variant": "emphasis"
+    },
+    {
+      "id": "y1",
+      "from": "a5",
+      "to": "a6",
+      "label": "解耦手段",
+      "variant": "dashed"
+    },
+    {
+      "id": "y2",
+      "from": "a6",
+      "to": "a7",
+      "label": "建模基础",
+      "variant": "dashed"
+    },
+    {
+      "id": "y3",
+      "from": "a7",
+      "to": "a8",
+      "label": "落地",
+      "variant": "dashed"
+    },
+    {
+      "id": "y4",
+      "from": "a8",
+      "to": "a9",
+      "label": "对外接口",
+      "variant": "dashed"
+    },
+    {
+      "id": "y5",
+      "from": "a9",
+      "to": "a10",
+      "label": "长期兼容",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "两条主线",
+      "items": [
+        "上半是模式语言",
+        "下半是边界与契约"
+      ]
+    }
+  ]
+}
