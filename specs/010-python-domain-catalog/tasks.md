@@ -70,26 +70,26 @@ description: "任务清单：07 / 08 / 10 / 11 四域完整教学，一域一次
 
 ## Phase 4: 11 工程化与交付（10 讲）
 
-- [ ] T042 [P] [US-11] 产出该域 3 张图解（域地图、交付流水线、三类信号）
-- [ ] T043 [US-11] 写 `01-config-management.md`
-- [ ] T044 [P] [US-11] 写 `02-secrets.md`
-- [ ] T045 [P] [US-11] 写 `03-logging.md`
-- [ ] T046 [P] [US-11] 写 `04-observability.md`
-- [ ] T047 [P] [US-11] 写 `05-unit-testing.md`
-- [ ] T048 [P] [US-11] 写 `06-integration-contract.md`
-- [ ] T049 [P] [US-11] 写 `07-property-testing.md`
-- [ ] T050 [P] [US-11] 写 `08-packaging.md`
-- [ ] T051 [P] [US-11] 写 `09-code-quality.md`
-- [ ] T052 [US-11] 写 `10-deploy-container.md`
-- [ ] T053 [US-11] 该域 `_meta.yml` 转 active 并登记
-- [ ] T054 [US-11] 覆盖矩阵登记该域主题
-- [ ] T055 [US-11] 门禁 + 提交推送 + 线上核验
+- [x] T042 [P] [US-11] 产出该域 3 张图解（域地图、交付流水线、三类信号）
+- [x] T043 [US-11] 写 `01-config-management.md`
+- [x] T044 [P] [US-11] 写 `02-secrets.md`
+- [x] T045 [P] [US-11] 写 `03-logging.md`
+- [x] T046 [P] [US-11] 写 `04-observability.md`
+- [x] T047 [P] [US-11] 写 `05-unit-testing.md`
+- [x] T048 [P] [US-11] 写 `06-integration-contract.md`
+- [x] T049 [P] [US-11] 写 `07-property-testing.md`
+- [x] T050 [P] [US-11] 写 `08-packaging.md`
+- [x] T051 [P] [US-11] 写 `09-code-quality.md`
+- [x] T052 [US-11] 写 `10-deploy-container.md`
+- [x] T053 [US-11] 该域 `_meta.yml` 转 active 并登记
+- [x] T054 [US-11] 覆盖矩阵登记该域主题
+- [x] T055 [US-11] 门禁 + 提交推送 + 线上核验
 
 ## Phase 5: 收尾
 
-- [ ] T056 四域整体复核：目录与 catalog.md 一致，无重复主题
-- [ ] T057 证据归档 `specs/010-python-domain-catalog/checklists/local-baseline.md`
-- [ ] T058 确认 03/04/05/06/12 仍为 outline 且无空页
+- [x] T056 四域整体复核：目录与 catalog.md 一致，无重复主题
+- [x] T057 证据归档 `specs/010-python-domain-catalog/checklists/local-baseline.md`
+- [x] T058 确认 03/04/05/06/12 仍为 outline 且无空页
 
 ## 依赖与并行
 
