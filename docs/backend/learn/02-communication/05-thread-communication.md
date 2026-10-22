@@ -2,8 +2,8 @@
 title: "线程间通信与共享内存范围"
 type: knowledge
 domain: backend
-knowledge_domain: concurrency
-order: 13
+knowledge_domain: communication
+order: 5
 level: advanced
 tags: [threading, shared-memory, lock, condition, queue]
 description: "线程共享什么、不共享什么，以及共享之后怎么安全通信"
@@ -11,8 +11,8 @@ prerequisites:
   - /backend/learn/concurrency/thread-basics
 related_knowledge:
   - /backend/learn/concurrency/sync-primitives
-  - /backend/learn/concurrency/queue-pipe
-  - /backend/learn/concurrency/shared-memory
+  - /backend/learn/communication/shared-state
+  - /backend/learn/communication/semaphore-and-signal
 ---
 
 ### 本讲要解决的问题

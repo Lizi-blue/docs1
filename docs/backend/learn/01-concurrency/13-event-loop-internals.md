@@ -3,7 +3,7 @@ title: "事件循环原理与 await 语义"
 type: knowledge
 domain: backend
 knowledge_domain: concurrency
-order: 14
+order: 13
 level: advanced
 tags: [asyncio, event-loop, await, coroutine, callback]
 description: "await 挂起谁、恢复谁：两个任务同时等待时的回调顺序"
@@ -11,7 +11,7 @@ prerequisites:
   - /backend/learn/concurrency/async-io
 related_knowledge:
   - /backend/learn/concurrency/async-advanced
-  - /backend/learn/concurrency/thread-communication
+  - /backend/learn/communication/thread-communication
 ---
 
 ### 本讲要解决的问题
@@ -45,7 +45,7 @@ related_knowledge:
 **恢复**：回调被触发后，循环把该协程重新排进就绪队列，下一轮继续执行。
 
 
-### 为什么是两种写法：协程、任务与 await 协议
+### 两种写法的原理
 
 先分清三个对象。它们决定了并发与否。
 

@@ -1,0 +1,18 @@
+name: "架构与领域设计"
+icon: "🏛️"
+order: 10
+description: "设计模式、分层、DDD 与 API 设计"
+teach:
+  audience: "写过业务模块、需要划分边界的开发者"
+  prerequisites:
+    - "能读写 Python 类与模块"
+    - "了解分层与接口的基本概念"
+    - "写过一个完整的 HTTP 服务"
+  outcomes:
+    - "能按变化方向选择设计模式"
+    - "能划清分层边界与依赖方向"
+    - "能建模实体、值对象与聚合"
+    - "能设计稳定的 REST 接口与版本策略"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

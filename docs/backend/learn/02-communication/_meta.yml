@@ -21,6 +21,9 @@ teach:
     - from: "03-semaphore-and-signal"
       to: "04-socket-and-streams"
       label: "协调与网络"
+    - from: "05-thread-communication"
+      to: "05-thread-communication"
+      label: "线程内通信"
   lessons:
     - slug: "01-queue-and-pipe"
       goal: "讲清队列与管道的阻塞语义与退出约定"
@@ -30,3 +33,5 @@ teach:
       goal: "讲清信号量的通信语义与信号退出流程"
     - slug: "04-socket-and-streams"
       goal: "讲清多路复用、流接口与粘包处理"
+    - slug: "05-thread-communication"
+      goal: "讲清线程共享内存范围与通信手段"

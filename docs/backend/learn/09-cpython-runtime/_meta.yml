@@ -1,0 +1,19 @@
+name: "CPython 运行时与性能"
+icon: "⚙️"
+order: 9
+description: "对象模型、GC、字节码、剖析与压测"
+teach:
+  audience: "写过性能敏感代码、想读懂运行时的开发者"
+  prerequisites:
+    - "能读写 Python 函数与类"
+    - "了解引用与对象的基本概念"
+    - "用过 cProfile 或 time 做测量"
+  outcomes:
+    - "能解释对象布局与引用计数的代价"
+    - "能读懂常用字节码指令"
+    - "能判断内存增长来自泄漏或碎片"
+    - "能用剖析数据定位热点并验证优化"
+    - "能按压测结果给出容量结论"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

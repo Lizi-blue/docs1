@@ -16,23 +16,6 @@
           "hint": "讲清创建、启动、join 与守护线程"
         },
         {
-          "id": "thread-shared-scope",
-          "name": "线程共享内存范围",
-          "must": [
-            "共享内存范围",
-            "堆"
-          ],
-          "hint": "讲清哪些变量与对象共享，哪些不共享"
-        },
-        {
-          "id": "thread-communication",
-          "name": "线程间通信手段",
-          "must": [
-            "线程间通信"
-          ],
-          "hint": "锁、条件变量、事件、信号量、屏障、队列"
-        },
-        {
           "id": "sync-locks",
           "name": "互斥与锁家族",
           "must": [
@@ -226,6 +209,28 @@
             "入口"
           ],
           "hint": "讲清目录划分与入口约定"
+        }
+      ]
+    },
+    "backend/learn/02-communication": {
+      "name": "跨线程与跨进程通信",
+      "topics": [
+        {
+          "id": "thread-shared-scope",
+          "name": "线程共享内存范围",
+          "must": [
+            "共享内存范围",
+            "堆"
+          ],
+          "hint": "讲清哪些变量与对象共享，哪些不共享"
+        },
+        {
+          "id": "thread-communication",
+          "name": "线程间通信手段",
+          "must": [
+            "线程间通信"
+          ],
+          "hint": "锁、条件变量、事件、信号量、屏障、队列"
         }
       ]
     }

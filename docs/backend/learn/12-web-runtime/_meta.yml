@@ -1,0 +1,19 @@
+name: "Web 运行时与安全"
+icon: "🕸️"
+order: 12
+description: "WSGI/ASGI、框架原理、认证授权与注入防护"
+teach:
+  audience: "写过 Web 接口、想弄清框架与安全的开发者"
+  prerequisites:
+    - "能读写 Python 函数与类"
+    - "用过至少一个 Web 框架"
+    - "了解 HTTP 请求与响应"
+  outcomes:
+    - "能解释 WSGI 与 ASGI 的调用差异"
+    - "能还原一次请求在框架内的路径"
+    - "能设计认证、授权与令牌方案"
+    - "能识别注入与反序列化风险"
+    - "能给出统一错误响应与边界处理"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []

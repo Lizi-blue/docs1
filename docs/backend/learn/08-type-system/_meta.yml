@@ -1,0 +1,18 @@
+name: "类型系统与类型检查"
+icon: "🏷️"
+order: 8
+description: "typing、泛型、Protocol 与检查器配置"
+teach:
+  audience: "写过类型注解、想让检查真正生效的开发者"
+  prerequisites:
+    - "能读写 Python 函数与类"
+    - "用过 typing 的基本类型"
+    - "能运行 mypy 或 pyright"
+  outcomes:
+    - "能写出可检查的泛型与协议"
+    - "能解释型变与重载的适用边界"
+    - "能配置检查器并接入 CI"
+    - "能给出存量代码的加类型路径"
+  # 未开写：只登记方向，不排路径与讲次。
+  status: outline
+  lessons: []
