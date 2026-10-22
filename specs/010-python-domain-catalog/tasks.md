@@ -53,20 +53,20 @@ description: "任务清单：07 / 08 / 10 / 11 四域完整教学，一域一次
 
 ## Phase 3: 10 架构与领域设计（10 讲）
 
-- [ ] T028 [P] [US-10] 产出该域 3 张图解（域地图、分层依赖、接口演进）
-- [ ] T029 [US-10] 写 `01-pattern-selection.md`
-- [ ] T030 [P] [US-10] 写 `02-creational-patterns.md`
-- [ ] T031 [P] [US-10] 写 `03-structural-patterns.md`
-- [ ] T032 [P] [US-10] 写 `04-behavioral-patterns.md`
-- [ ] T033 [P] [US-10] 写 `05-layering.md`
-- [ ] T034 [P] [US-10] 写 `06-dependency-injection.md`
-- [ ] T035 [P] [US-10] 写 `07-domain-modeling.md`
-- [ ] T036 [P] [US-10] 写 `08-ddd-repository.md`
-- [ ] T037 [P] [US-10] 写 `09-api-design.md`
-- [ ] T038 [US-10] 写 `10-api-evolution.md`
-- [ ] T039 [US-10] 该域 `_meta.yml` 转 active 并登记
-- [ ] T040 [US-10] 覆盖矩阵登记该域主题
-- [ ] T041 [US-10] 门禁 + 提交推送 + 线上核验
+- [x] T028 [P] [US-10] 产出该域 3 张图解（域地图、分层依赖、接口演进）
+- [x] T029 [US-10] 写 `01-pattern-selection.md`
+- [x] T030 [P] [US-10] 写 `02-creational-patterns.md`
+- [x] T031 [P] [US-10] 写 `03-structural-patterns.md`
+- [x] T032 [P] [US-10] 写 `04-behavioral-patterns.md`
+- [x] T033 [P] [US-10] 写 `05-layering.md`
+- [x] T034 [P] [US-10] 写 `06-dependency-injection.md`
+- [x] T035 [P] [US-10] 写 `07-domain-modeling.md`
+- [x] T036 [P] [US-10] 写 `08-ddd-repository.md`
+- [x] T037 [P] [US-10] 写 `09-api-design.md`
+- [x] T038 [US-10] 写 `10-api-evolution.md`
+- [x] T039 [US-10] 该域 `_meta.yml` 转 active 并登记
+- [x] T040 [US-10] 覆盖矩阵登记该域主题
+- [x] T041 [US-10] 门禁 + 提交推送 + 线上核验
 
 ## Phase 4: 11 工程化与交付（10 讲）
 
