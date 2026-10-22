@@ -13,6 +13,27 @@ teach:
     - "能解释型变与重载的适用边界"
     - "能配置检查器并接入 CI"
     - "能给出存量代码的加类型路径"
-  # 未开写：只登记方向，不排路径与讲次。
-  status: outline
-  lessons: []
+  path:
+    - from: "01-typing-basics"
+      to: "04-callable-typing"
+      label: "类型表达"
+    - from: "05-typed-dict-dataclass"
+      to: "08-type-migration"
+      label: "检查与落地"
+  lessons:
+    - slug: "01-typing-basics"
+      goal: "讲清注解、联合类型与类型收窄"
+    - slug: "02-generics"
+      goal: "讲清泛型参数、约束与型变"
+    - slug: "03-protocol"
+      goal: "讲清结构化子类型与 Protocol"
+    - slug: "04-callable-typing"
+      goal: "讲清 Callable、重载与 ParamSpec"
+    - slug: "05-typed-dict-dataclass"
+      goal: "讲清结构类型与数据类的边界"
+    - slug: "06-type-checkers"
+      goal: "讲清两个检查器的差异与配置"
+    - slug: "07-runtime-typing"
+      goal: "讲清 get_type_hints 与运行时取类型"
+    - slug: "08-type-migration"
+      goal: "讲清存量代码渐进加类型的路径"

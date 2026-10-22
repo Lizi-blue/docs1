@@ -320,6 +320,76 @@
           "hint": "讲清查找路径与循环导入"
         }
       ]
+    },
+    "backend/learn/08-type-system": {
+      "name": "类型系统与类型检查",
+      "topics": [
+        {
+          "id": "annotations",
+          "name": "注解与收窄",
+          "must": [
+            "注解"
+          ],
+          "hint": "讲清注解作用与联合类型"
+        },
+        {
+          "id": "generics",
+          "name": "泛型与型变",
+          "must": [
+            "型变"
+          ],
+          "hint": "讲清 TypeVar 与协变逆变"
+        },
+        {
+          "id": "protocol",
+          "name": "结构化子类型",
+          "must": [
+            "Protocol"
+          ],
+          "hint": "讲清协议与鸭子类型的关系"
+        },
+        {
+          "id": "callable",
+          "name": "可调用与重载",
+          "must": [
+            "Callable"
+          ],
+          "hint": "讲清 ParamSpec 与重载"
+        },
+        {
+          "id": "structured-data",
+          "name": "结构类型与数据类",
+          "must": [
+            "TypedDict",
+            "dataclass"
+          ],
+          "hint": "讲清两者边界"
+        },
+        {
+          "id": "checkers",
+          "name": "检查器配置",
+          "must": [
+            "mypy"
+          ],
+          "hint": "讲清两检查器差异"
+        },
+        {
+          "id": "runtime-types",
+          "name": "运行时类型信息",
+          "must": [
+            "get_type_hints"
+          ],
+          "hint": "讲清运行时取注解"
+        },
+        {
+          "id": "migration",
+          "name": "渐进式迁移",
+          "must": [
+            "迁移"
+          ],
+          "hint": "讲清存量加类型路径"
+        }
+      ]
     }
   }
 }
