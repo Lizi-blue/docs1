@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "两个任务同时等待时，是谁先恢复",
+    "output": "docs/public/diagrams/event-loop-suspend-resume.html",
+    "locale": "zh-CN",
+    "viewBox": [
+      1080,
+      660
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "main",
+      "type": "backend",
+      "label": "主协程",
+      "sublabel": "发起与 await"
+    },
+    {
+      "id": "loop",
+      "type": "backend",
+      "label": "事件循环",
+      "sublabel": "就绪队列与调度"
+    },
+    {
+      "id": "t1",
+      "type": "backend",
+      "label": "任务 1",
+      "sublabel": "等待 read"
+    },
+    {
+      "id": "t2",
+      "type": "backend",
+      "label": "任务 2",
+      "sublabel": "等待 write"
+    },
+    {
+      "id": "io",
+      "type": "messagebus",
+      "label": "IO 多路复用",
+      "sublabel": "谁就绪谁回调"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "main",
+      "to": "loop",
+      "y": 170,
+      "label": "create_task(t1) 与 create_task(t2)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "loop",
+      "to": "t1",
+      "y": 204,
+      "label": "先跑到 t1 的 await"
+    },
+    {
+      "id": "m3",
+      "from": "t1",
+      "to": "io",
+      "y": 238,
+      "label": "注册读事件后挂起"
+    },
+    {
+      "id": "m4",
+      "from": "loop",
+      "to": "t2",
+      "y": 272,
+      "label": "切换去跑 t2"
+    },
+    {
+      "id": "m5",
+      "from": "t2",
+      "to": "io",
+      "y": 306,
+      "label": "注册写事件后挂起"
+    },
+    {
+      "id": "m6",
+      "from": "loop",
+      "to": "main",
+      "y": 340,
+      "label": "就绪队列空，控制权回到 await 处",
+      "variant": "return"
+    },
+    {
+      "id": "m7",
+      "from": "io",
+      "to": "loop",
+      "y": 374,
+      "label": "写事件先就绪"
+    },
+    {
+      "id": "m8",
+      "from": "loop",
+      "to": "t2",
+      "y": 408,
+      "label": "先恢复 t2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m9",
+      "from": "io",
+      "to": "loop",
+      "y": 442,
+      "label": "读事件随后就绪"
+    },
+    {
+      "id": "m10",
+      "from": "loop",
+      "to": "t1",
+      "y": 476,
+      "label": "再恢复 t1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m11",
+      "from": "loop",
+      "to": "main",
+      "y": 510,
+      "label": "两个任务都完成后回到主协程",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "三条要点",
+      "items": [
+        "await 挂起的是整个协程，控制权回到事件循环",
+        "两个任务都在等待时，循环同时持有两个回调",
+        "恢复顺序看谁先就绪，不看 await 的书写顺序"
+      ]
+    }
+  ]
+}

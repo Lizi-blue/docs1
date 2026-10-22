@@ -1,0 +1,192 @@
+{
+  "version": 1,
+  "updated": "2026-10-22",
+  "note": "主题级覆盖清单。每讲依赖模块与 API 清单容易漏掉整类主题，例如线程间通信与 await 语义。新增或调整内容后先更新本表，再跑 check:coverage。",
+  "domains": {
+    "backend/learn/01-concurrency": {
+      "name": "并发编程",
+      "topics": [
+        {
+          "id": "thread-lifecycle",
+          "name": "线程创建与生命周期",
+          "must": [
+            "Thread(",
+            "start()"
+          ],
+          "hint": "讲清创建、启动、join 与守护线程"
+        },
+        {
+          "id": "thread-shared-scope",
+          "name": "线程共享内存范围",
+          "must": [
+            "共享内存范围",
+            "堆"
+          ],
+          "hint": "讲清哪些变量与对象共享，哪些不共享"
+        },
+        {
+          "id": "thread-communication",
+          "name": "线程间通信手段",
+          "must": [
+            "线程间通信"
+          ],
+          "hint": "锁、条件变量、事件、信号量、屏障、队列"
+        },
+        {
+          "id": "sync-locks",
+          "name": "互斥与锁家族",
+          "must": [
+            "Lock",
+            "RLock"
+          ],
+          "hint": "讲清可重入与非重入的差别"
+        },
+        {
+          "id": "condition-variable",
+          "name": "条件变量",
+          "must": [
+            "Condition"
+          ],
+          "hint": "讲清 wait 必须放在 while 里"
+        },
+        {
+          "id": "event-semaphore-barrier",
+          "name": "事件、信号量与屏障",
+          "must": [
+            "Semaphore",
+            "Barrier"
+          ],
+          "hint": "三种通知类原语的分工"
+        },
+        {
+          "id": "queue-sentinel",
+          "name": "队列与哨兵",
+          "must": [
+            "Queue",
+            "哨兵"
+          ],
+          "hint": "讲清阻塞、task_done 与退出"
+        },
+        {
+          "id": "gil-atomicity",
+          "name": "GIL 与原子性",
+          "must": [
+            "GIL"
+          ],
+          "hint": "讲清 GIL 不保证复合操作原子"
+        },
+        {
+          "id": "deadlock",
+          "name": "死锁与排查",
+          "must": [
+            "死锁"
+          ],
+          "hint": "讲清成因与定位手段"
+        },
+        {
+          "id": "process-model",
+          "name": "进程模型与启动方式",
+          "must": [
+            "spawn",
+            "fork"
+          ],
+          "hint": "讲清 fork 与 spawn 的差异"
+        },
+        {
+          "id": "ipc",
+          "name": "进程间通信",
+          "must": [
+            "进程间",
+            "Queue"
+          ],
+          "hint": "队列、管道与共享内存"
+        },
+        {
+          "id": "process-shared-memory",
+          "name": "进程间共享内存",
+          "must": [
+            "shared_memory"
+          ],
+          "hint": "讲清零拷贝与同步代价"
+        },
+        {
+          "id": "executor-future",
+          "name": "执行器与 Future",
+          "must": [
+            "Future",
+            "Executor"
+          ],
+          "hint": "讲清取值边界与取消"
+        },
+        {
+          "id": "event-loop-principle",
+          "name": "事件循环原理",
+          "must": [
+            "事件循环"
+          ],
+          "hint": "就绪队列、定时器与 IO 等待"
+        },
+        {
+          "id": "await-suspend-resume",
+          "name": "await 挂起与恢复",
+          "must": [
+            "挂起",
+            "恢复"
+          ],
+          "hint": "挂起谁、恢复谁、控制权去哪"
+        },
+        {
+          "id": "callback-ordering",
+          "name": "回调与恢复顺序",
+          "must": [
+            "恢复顺序"
+          ],
+          "hint": "两个任务同时等待时谁先恢复"
+        },
+        {
+          "id": "cancel-timeout",
+          "name": "取消与超时",
+          "must": [
+            "超时"
+          ],
+          "hint": "取消传播、超时收尾与屏蔽"
+        },
+        {
+          "id": "asyncio-thread-bridge",
+          "name": "异步与线程桥接",
+          "must": [
+            "run_in_executor",
+            "事件循环"
+          ],
+          "hint": "把阻塞调用挪出循环"
+        },
+        {
+          "id": "blocking-and-backpressure",
+          "name": "阻塞调用与背压",
+          "must": [
+            "背压"
+          ],
+          "hint": "阻塞如何退化并发，背压怎么做"
+        },
+        {
+          "id": "diagnosis",
+          "name": "并发问题定位",
+          "must": [
+            "栈",
+            "指标"
+          ],
+          "hint": "线程栈、指标与复现手段"
+        },
+        {
+          "id": "subprocess-signals",
+          "name": "子进程与信号",
+          "must": [
+            "SIGTERM",
+            "进程组"
+          ],
+          "hint": "进程组与超时清理"
+        }
+      ]
+    }
+  }
+}

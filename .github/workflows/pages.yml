@@ -60,6 +60,9 @@ jobs:
       - name: 门禁一：内容契约（V1–V23）
         run: npm run check:public-safety
 
+      - name: 门禁零之二：主题覆盖
+        run: npm run check:coverage
+
       - name: 门禁一：内容契约
         run: npm run check:content
 

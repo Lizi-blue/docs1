@@ -22,6 +22,7 @@ COPY . .
 
 # 门禁一：内容契约（V1–V18）。
 RUN npm run check:public-safety
+RUN npm run check:coverage
 RUN npm run check:content
 # 门禁二：受控中文（硬违规超过基线即失败）。
 RUN npm run check:zh

@@ -9,6 +9,7 @@
     "build": "vitepress build docs",
     "preview": "vitepress preview docs --port 4173 --host 0.0.0.0",
     "check:content": "node --experimental-strip-types --no-warnings scripts/check-content.mjs",
+    "check:coverage": "node scripts/check-coverage.mjs",
     "check:zh": "node scripts/lint-zh.mjs --baseline $(cat scripts/ste-lint-zh.baseline 2>/dev/null || echo 0)",
     "new": "node scripts/new-content.mjs",
     "check:orchestration": "node scripts/check-orchestration.mjs",

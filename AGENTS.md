@@ -24,6 +24,7 @@
 
 ```bash
 npm run check:content       # 内容契约 V1–V23
+npm run check:coverage      # 主题覆盖（scripts/data/topic-coverage.json）
 npm run check:zh            # 受控中文（封装：scripts/lint-zh.mjs）
 npm run check:orchestration # 编排自检 S1–S7（技能与台账）
 npm run test:component      # 组件自测（tests/，源码从组件页提取）
@@ -39,7 +40,7 @@ npm run check:public-safety # 公开安全：内网域名、内网主机名、�
 npm run build               # 站点构建
 ```
 
-十四条命令退出码都为 0 才算通过。
+十五条命令退出码都为 0 才算通过。
 公开安全门禁的理由：本仓同步公开托管平台，任何内网信息都不得入库。
 CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 
@@ -74,6 +75,7 @@ CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 - API 手册的必会与常用条目必须给全七字段（含 `pitfall`），覆盖清单见 `scripts/data/module-api-index.json`（门禁 V20）。
 - 常用方法不得一句话带过：要写阻塞语义、异常与误区。
 - 未开写知识域只落目录与登记，`teach.status: outline`，不建空页面（门禁 V22）。
+- 增删主题前先更新 `scripts/data/topic-coverage.json`，再跑 `npm run check:coverage`（门禁守住整类主题不被漏掉）。
 - 层级由引擎派生：作者只写元数据与正文，不手写侧边栏与入口清单。
 - 组件先在本仓成型（宪法 XI）：组件页 MUST 带 `direction`、`knowledge_index` 与 `reuse_manifest`，
   复用四件套写进 `reuse/<component>/manifest.json`，页面渲染而不手写。

@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "线程之间到底共享什么",
+    "output": "docs/public/diagrams/thread-shared-memory.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "proc",
+      "type": "backend",
+      "label": "进程",
+      "sublabel": "一块堆内存",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        180,
+        70
+      ]
+    },
+    {
+      "id": "heap",
+      "type": "messagebus",
+      "label": "堆：共享",
+      "sublabel": "模块全局 / 类属性 / 实例 / 闭包",
+      "pos": [
+        300,
+        60
+      ],
+      "size": [
+        300,
+        70
+      ]
+    },
+    {
+      "id": "t1",
+      "type": "backend",
+      "label": "线程 1",
+      "sublabel": "自己的栈",
+      "pos": [
+        40,
+        230
+      ],
+      "size": [
+        160,
+        70
+      ]
+    },
+    {
+      "id": "t2",
+      "type": "backend",
+      "label": "线程 2",
+      "sublabel": "自己的栈",
+      "pos": [
+        40,
+        380
+      ],
+      "size": [
+        160,
+        70
+      ]
+    },
+    {
+      "id": "l1",
+      "type": "backend",
+      "label": "局部变量",
+      "sublabel": "不共享",
+      "pos": [
+        300,
+        230
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "l2",
+      "type": "backend",
+      "label": "局部变量",
+      "sublabel": "不共享",
+      "pos": [
+        300,
+        380
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "tls",
+      "type": "backend",
+      "label": "threading.local",
+      "sublabel": "按线程隔离的副本",
+      "pos": [
+        540,
+        300
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "lock",
+      "type": "backend",
+      "label": "锁与条件变量",
+      "sublabel": "保护共享区的复合操作",
+      "pos": [
+        820,
+        60
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "queue",
+      "type": "backend",
+      "label": "queue.Queue",
+      "sublabel": "自带锁的传递通道",
+      "pos": [
+        820,
+        180
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "event",
+      "type": "backend",
+      "label": "Event / Semaphore / Barrier",
+      "sublabel": "线程间通知与集合点",
+      "pos": [
+        820,
+        300
+      ],
+      "size": [
+        240,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "所有线程共享",
+      "wraps": [
+        "heap"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "每个线程私有",
+      "wraps": [
+        "l1",
+        "l2",
+        "t1"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "通信手段",
+      "wraps": [
+        "lock",
+        "queue",
+        "event"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "c1",
+      "from": "proc",
+      "to": "heap",
+      "label": "所有线程都能读写",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c2",
+      "from": "t1",
+      "to": "heap",
+      "label": "访问",
+      "variant": "dashed"
+    },
+    {
+      "id": "c3",
+      "from": "t2",
+      "to": "heap",
+      "label": "访问",
+      "variant": "dashed"
+    },
+    {
+      "id": "c4",
+      "from": "t1",
+      "to": "lock",
+      "label": "互斥与通知",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c5",
+      "from": "lock",
+      "to": "queue",
+      "label": "或换用队列",
+      "variant": "dashed"
+    },
+    {
+      "id": "c6",
+      "from": "t2",
+      "to": "queue",
+      "label": "投递与收取"
+    },
+    {
+      "id": "c7",
+      "from": "t1",
+      "to": "tls",
+      "label": "需要隔离时",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "一句话结论",
+      "items": [
+        "线程共享同一块堆：全局变量、类属性、实例属性、闭包都能看到",
+        "局部变量在线程栈上，不共享",
+        "共享带来竞争，复合操作要加锁",
+        "只想传递数据时优先用队列，不要手写共享变量"
+      ]
+    }
+  ]
+}
