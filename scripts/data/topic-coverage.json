@@ -187,6 +187,47 @@
           "hint": "进程组与超时清理"
         }
       ]
+    },
+    "frontend/learn/01-engineering": {
+      "name": "前端工程化",
+      "topics": [
+        {
+          "id": "spa-entry",
+          "name": "单页入口",
+          "must": [
+            "单页",
+            "入口"
+          ],
+          "hint": "讲清单页入口文件的作用与最小结构"
+        },
+        {
+          "id": "npm-modules",
+          "name": "npm 与模块解析",
+          "must": [
+            "npm",
+            "模块"
+          ],
+          "hint": "讲清依赖安装、模块解析与锁定"
+        },
+        {
+          "id": "dev-vs-build",
+          "name": "开发与构建差异",
+          "must": [
+            "Vite",
+            "构建"
+          ],
+          "hint": "讲清开发服务器与产物构建的差别"
+        },
+        {
+          "id": "project-structure",
+          "name": "项目目录结构",
+          "must": [
+            "目录",
+            "入口"
+          ],
+          "hint": "讲清目录划分与入口约定"
+        }
+      ]
     }
   }
 }
