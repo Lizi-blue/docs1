@@ -38,18 +38,18 @@ description: "任务清单：07 / 08 / 10 / 11 四域完整教学，一域一次
 
 ## Phase 2: 08 类型系统与类型检查（8 讲）
 
-- [ ] T016 [P] [US-08] 产出该域 3 张图解（域地图、型变、检查器流水线）
-- [ ] T017 [US-08] 写 `01-typing-basics.md`
-- [ ] T018 [P] [US-08] 写 `02-generics.md`
-- [ ] T019 [P] [US-08] 写 `03-protocol.md`
-- [ ] T020 [P] [US-08] 写 `04-callable-typing.md`
-- [ ] T021 [P] [US-08] 写 `05-typed-dict-dataclass.md`
-- [ ] T022 [P] [US-08] 写 `06-type-checkers.md`
-- [ ] T023 [P] [US-08] 写 `07-runtime-typing.md`
-- [ ] T024 [US-08] 写 `08-type-migration.md`
-- [ ] T025 [US-08] 该域 `_meta.yml` 转 active 并登记
-- [ ] T026 [US-08] 覆盖矩阵登记该域主题
-- [ ] T027 [US-08] 门禁 + 提交推送 + 线上核验
+- [x] T016 [P] [US-08] 产出该域 3 张图解（域地图、型变、检查器流水线）
+- [x] T017 [US-08] 写 `01-typing-basics.md`
+- [x] T018 [P] [US-08] 写 `02-generics.md`
+- [x] T019 [P] [US-08] 写 `03-protocol.md`
+- [x] T020 [P] [US-08] 写 `04-callable-typing.md`
+- [x] T021 [P] [US-08] 写 `05-typed-dict-dataclass.md`
+- [x] T022 [P] [US-08] 写 `06-type-checkers.md`
+- [x] T023 [P] [US-08] 写 `07-runtime-typing.md`
+- [x] T024 [US-08] 写 `08-type-migration.md`
+- [x] T025 [US-08] 该域 `_meta.yml` 转 active 并登记
+- [x] T026 [US-08] 覆盖矩阵登记该域主题
+- [x] T027 [US-08] 门禁 + 提交推送 + 线上核验
 
 ## Phase 3: 10 架构与领域设计（10 讲）
 
