@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",
+    "build:lowmem": "NODE_OPTIONS=--max-old-space-size=700 npm run build",
     "preview": "vitepress preview docs --port 4173 --host 0.0.0.0",
     "check:content": "node --experimental-strip-types --no-warnings scripts/check-content.mjs",
     "check:coverage": "node scripts/check-coverage.mjs",

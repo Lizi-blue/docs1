@@ -19,8 +19,6 @@ related_knowledge:
 数据类与字典各自的成本。
 运行时要不要检查。
 
-### 本讲要解决的问题
-
 - `TypedDict` 的表达范围。
 - `dataclass` 的能力与代价。
 - 两者的选择判据。

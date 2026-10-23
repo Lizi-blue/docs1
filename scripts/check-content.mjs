@@ -641,6 +641,24 @@ function checkApiGroups(docs, pages) {
   }
 }
 
+/**
+ * V24 页面内标题不得重复：重复锚点会让导航与页内跳转指向错误位置。
+ */
+function checkDuplicateHeadings(page, file) {
+  const heads = page.content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => /^#{2,3}\s+\S/.test(line))
+  const seen = new Map()
+  for (const head of heads) {
+    seen.set(head, (seen.get(head) ?? 0) + 1)
+  }
+  const duplicated = [...seen.entries()].filter(([, count]) => count > 1).map(([head]) => head)
+  if (duplicated.length > 0) {
+    fail('V24', file, 1, `页面内标题重复：${duplicated.slice(0, 3).join('、')}`, '删除重复标题，保留一个；重复锚点会破坏页内跳转')
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const rootIndex = args.indexOf('--root')

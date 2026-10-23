@@ -38,9 +38,11 @@ npm run check:pages         # 产物门禁：子路径前缀、内网地址零�
 npm run check:nav           # 导航层级 N1–N6（需先构建）
 npm run check:public-safety # 公开安全：内网域名、内网主机名、私网地址、凭据（零命中才可提交）
 npm run build               # 站点构建
+npm run build:lowmem        # 低内存构建（容器限额 2 GiB 时用，堆 700MB）
 ```
 
 十五条命令退出码都为 0 才算通过。
+内存受限的环境构建时用 `build:lowmem`，否则 VitePress 渲染阶段会被 OOM 杀掉。
 公开安全门禁的理由：本仓同步公开托管平台，任何内网信息都不得入库。
 CI 在镜像构建阶段跑全部门禁，失败即构建失败。
 
