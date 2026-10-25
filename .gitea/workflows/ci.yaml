@@ -14,6 +14,10 @@ on:
   push:
     branches: [main, dev, master]
     tags: ['v*']
+  # spec 002 · PR 预合并校验：只允许指向目标分支的 PR 触发；其他分支 PR 不触发。
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [main, master, dev, test]
   workflow_dispatch:
     inputs:
       deploy:
@@ -34,6 +38,10 @@ jobs:
       ref: ${{ github.ref_name }}
       deploy: ${{ github.event.inputs.deploy }}
       release: ${{ github.ref_type == 'tag' }}
+      pr_event: ${{ github.event_name }}
+      pr_number: ${{ github.event.pull_request.number }}
+      pr_base_ref: ${{ github.event.pull_request.base.ref }}
+      pr_head_sha: ${{ github.event.pull_request.head.sha }}
       # 对外域名不在仓库里明文保存：值放在仓库变量 INGRESS_HOST
       ingress_host: ${{ vars.INGRESS_HOST }}
     secrets:
