@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "测试类型地图与派生来源",
+    "output": "docs/public/diagrams/vibecoding-test-map.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "ut",
+      "type": "backend",
+      "label": "单元测试 UT",
+      "sublabel": "一个单元",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "ct",
+      "type": "backend",
+      "label": "组件测试",
+      "sublabel": "组件内协作",
+      "pos": [
+        260,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "it",
+      "type": "backend",
+      "label": "集成测试 IT",
+      "sublabel": "多组件",
+      "pos": [
+        480,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "con",
+      "type": "backend",
+      "label": "契约测试",
+      "sublabel": "接口约定",
+      "pos": [
+        700,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "st",
+      "type": "backend",
+      "label": "系统测试 ST",
+      "sublabel": "整条链路",
+      "pos": [
+        920,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "at",
+      "type": "backend",
+      "label": "验收测试 AT",
+      "sublabel": "业务验收",
+      "pos": [
+        480,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "e2e",
+      "type": "backend",
+      "label": "端到端 E2E",
+      "sublabel": "真实环境",
+      "pos": [
+        700,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "uit",
+      "type": "backend",
+      "label": "UIT 用例交互",
+      "sublabel": "场景路径",
+      "pos": [
+        260,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "能从图派生",
+      "wraps": [
+        "uit",
+        "at",
+        "it"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "必须另设计",
+      "wraps": [
+        "ut",
+        "ct",
+        "st",
+        "e2e"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "d1",
+      "from": "uit",
+      "to": "it",
+      "label": "派生场景",
+      "variant": "emphasis"
+    },
+    {
+      "id": "d2",
+      "from": "uit",
+      "to": "at",
+      "label": "派生用例",
+      "variant": "emphasis"
+    },
+    {
+      "id": "d3",
+      "from": "ut",
+      "to": "ct",
+      "label": "依赖"
+    },
+    {
+      "id": "d4",
+      "from": "ct",
+      "to": "it",
+      "label": "依赖"
+    },
+    {
+      "id": "d5",
+      "from": "it",
+      "to": "st",
+      "label": "依赖"
+    },
+    {
+      "id": "d6",
+      "from": "con",
+      "to": "it",
+      "label": "约束",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "边界",
+      "items": [
+        "图能派生路径，不派生参数取值",
+        "非功能需求要另写测试",
+        "契约测试靠接口声明，不靠图"
+      ]
+    }
+  ]
+}

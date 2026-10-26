@@ -1,0 +1,25 @@
+name: "AI 辅助开发治理"
+icon: "🧭"
+order: 1
+description: "分层命名、测试派生与逆向图门禁"
+teach:
+  audience: "用 SpecKit 与 Agent 写代码、需要结构化审查的开发者"
+  prerequisites:
+    - "用过 GitHub SpecKit 或类似的规格驱动流程"
+    - "写过一个带分层的 Python 服务"
+    - "在 CI 里跑过静态检查"
+  outcomes:
+    - "能把自定义分层标注对齐到业界术语"
+    - "能画出测试类型地图并判断哪些测试能从图派生"
+    - "能区分可硬门禁的逆向产物与只能做辅助信号的产物"
+  path:
+    - from: "01-layered-naming"
+      to: "03-reverse-graph-gates"
+      label: "命名到门禁"
+  lessons:
+    - slug: "01-layered-naming"
+      goal: "讲清 L1–L4 与业界分层体系的映射"
+    - slug: "02-test-types-and-uit"
+      goal: "讲清 UIT 定位与完整测试地图"
+    - slug: "03-reverse-graph-gates"
+      goal: "讲清逆向图可信度与门禁边界"

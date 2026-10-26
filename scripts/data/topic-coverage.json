@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-23",
+  "updated": "2026-10-26",
   "note": "主题级覆盖清单。每讲依赖模块与 API 清单容易漏掉整类主题，例如线程间通信与 await 语义。新增或调整内容后先更新本表，再跑 check:coverage。",
   "domains": {
     "backend/learn/01-concurrency": {
@@ -558,6 +558,79 @@
             "回滚"
           ],
           "hint": "讲清探针与回滚"
+        }
+      ]
+    },
+    "vibecoding/learn/01-ai-assisted-dev": {
+      "name": "AI 辅助开发治理",
+      "topics": [
+        {
+          "id": "layered-naming",
+          "name": "分层命名体系",
+          "must": [
+            "DDD",
+            "整洁架构"
+          ],
+          "hint": "讲清四套体系与 L1–L4 映射"
+        },
+        {
+          "id": "layer-mapping",
+          "name": "L1–L4 映射",
+          "must": [
+            "L1",
+            "L2"
+          ],
+          "hint": "逐条给出能对上与对不上"
+        },
+        {
+          "id": "uit",
+          "name": "UIT 定位",
+          "must": [
+            "UIT"
+          ],
+          "hint": "讲清输入输出与阶段"
+        },
+        {
+          "id": "test-map",
+          "name": "测试类型地图",
+          "must": [
+            "单元测试",
+            "契约测试"
+          ],
+          "hint": "覆盖 UT 到 UAT"
+        },
+        {
+          "id": "derived-tests",
+          "name": "从图派生测试",
+          "must": [
+            "场景路径"
+          ],
+          "hint": "讲清能派生与不能派生"
+        },
+        {
+          "id": "graph-credibility",
+          "name": "逆向图可信度",
+          "must": [
+            "调用图",
+            "对象协作图"
+          ],
+          "hint": "区分三类图"
+        },
+        {
+          "id": "dynamic-features",
+          "name": "动态特性影响",
+          "must": [
+            "getattr"
+          ],
+          "hint": "讲清漏边与歧义标记"
+        },
+        {
+          "id": "ci-gate",
+          "name": "CI 门禁边界",
+          "must": [
+            "硬门禁"
+          ],
+          "hint": "规则判定优先于图对比"
         }
       ]
     }

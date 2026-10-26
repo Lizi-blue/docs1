@@ -1,0 +1,5 @@
+name: "AI 辅助开发（Vibe Coding）"
+icon: "🧠"
+order: 5
+description: "SpecKit + TDD + Agent 的工程治理：分层命名、测试派生与逆向图门禁"
+entry_type: domain
