@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "逆向产物与门禁层级",
+    "output": "docs/public/diagrams/vibecoding-reverse-gates.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "src",
+      "type": "backend",
+      "label": "源码",
+      "sublabel": "Python 模块",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "imp",
+      "type": "backend",
+      "label": "import 依赖图",
+      "sublabel": "模块级",
+      "pos": [
+        300,
+        100
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "call",
+      "type": "backend",
+      "label": "函数调用图",
+      "sublabel": "符号级",
+      "pos": [
+        560,
+        100
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "obj",
+      "type": "backend",
+      "label": "对象协作图",
+      "sublabel": "运行期语义",
+      "pos": [
+        820,
+        100
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "decl",
+      "type": "backend",
+      "label": "声明规则",
+      "sublabel": "分层契约",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "ci",
+      "type": "backend",
+      "label": "CI 硬门禁",
+      "sublabel": "阻断合并",
+      "pos": [
+        300,
+        300
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "adv",
+      "type": "backend",
+      "label": "辅助信号",
+      "sublabel": "只提示",
+      "pos": [
+        560,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "amb",
+      "type": "backend",
+      "label": "标记歧义",
+      "sublabel": "动态特性",
+      "pos": [
+        820,
+        300
+      ],
+      "size": [
+        190,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "硬门禁可用",
+      "wraps": [
+        "imp",
+        "decl",
+        "ci"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "只能辅助",
+      "wraps": [
+        "call",
+        "obj",
+        "amb",
+        "adv"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "g1",
+      "from": "src",
+      "to": "imp",
+      "label": "可解析",
+      "variant": "emphasis"
+    },
+    {
+      "id": "g2",
+      "from": "src",
+      "to": "call",
+      "label": "需类型推断"
+    },
+    {
+      "id": "g3",
+      "from": "src",
+      "to": "obj",
+      "label": "需运行期信息",
+      "variant": "dashed"
+    },
+    {
+      "id": "g4",
+      "from": "decl",
+      "to": "ci",
+      "label": "规则可判定",
+      "variant": "emphasis"
+    },
+    {
+      "id": "g5",
+      "from": "imp",
+      "to": "ci",
+      "label": "图对比",
+      "variant": "emphasis"
+    },
+    {
+      "id": "g6",
+      "from": "call",
+      "to": "adv",
+      "label": "只能提示",
+      "variant": "dashed"
+    },
+    {
+      "id": "g7",
+      "from": "obj",
+      "to": "amb",
+      "label": "标歧义",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "判据",
+      "items": [
+        "能被静态确定才可硬门禁",
+        "动态特性多的地方标歧义",
+        "图与图对比不如规则判定稳"
+      ]
+    }
+  ]
+}

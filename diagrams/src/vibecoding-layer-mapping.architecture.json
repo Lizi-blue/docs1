@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "把自定义 L1–L4 对齐到业界分层",
+    "output": "docs/public/diagrams/vibecoding-layer-mapping.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "l1",
+      "type": "backend",
+      "label": "L1 业务组合服务",
+      "sublabel": "编排用例",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "l2",
+      "type": "backend",
+      "label": "L2 平台工具服务",
+      "sublabel": "可复用能力",
+      "pos": [
+        330,
+        100
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "l3",
+      "type": "backend",
+      "label": "L3 领域类对象",
+      "sublabel": "规则与状态",
+      "pos": [
+        620,
+        100
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "l4",
+      "type": "backend",
+      "label": "L4 函数与方法",
+      "sublabel": "最底层实现",
+      "pos": [
+        910,
+        100
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "ddd",
+      "type": "backend",
+      "label": "DDD 四层",
+      "sublabel": "应用层与领域层",
+      "pos": [
+        40,
+        290
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "clean",
+      "type": "backend",
+      "label": "整洁架构",
+      "sublabel": "用例层",
+      "pos": [
+        330,
+        290
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "hex",
+      "type": "backend",
+      "label": "六边形",
+      "sublabel": "端口与适配器",
+      "pos": [
+        620,
+        290
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "c4",
+      "type": "backend",
+      "label": "C4 模型",
+      "sublabel": "抽象层次",
+      "pos": [
+        910,
+        290
+      ],
+      "size": [
+        200,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "你的四层标签",
+      "wraps": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "业界体系",
+      "wraps": [
+        "ddd",
+        "clean",
+        "hex",
+        "c4"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "m1",
+      "from": "l1",
+      "to": "ddd",
+      "label": "应用层",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "l2",
+      "to": "hex",
+      "label": "适配器与端口",
+      "variant": "dashed"
+    },
+    {
+      "id": "m3",
+      "from": "l3",
+      "to": "ddd",
+      "label": "领域层",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m4",
+      "from": "l4",
+      "to": "c4",
+      "label": "代码层",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "对齐要点",
+      "items": [
+        "L1 对应用例编排",
+        "L3 对应领域对象",
+        "L2 与 L4 跨了多套体系",
+        "C4 是抽象层次，不是职责分层"
+      ]
+    }
+  ]
+}
